@@ -1,0 +1,36 @@
+require 'getoptlong'
+
+opts = GetoptLong.new(
+  [ '--virtual-box-memory', GetoptLong::OPTIONAL_ARGUMENT ]
+)
+virtual_box_memory=1024  # pass this arg if necessary, e.g. 1024 when installing lxml
+
+opts.each do |opt, arg|
+  case opt
+    when '--virtual-box-memory'
+      virtual_box_memory=arg
+  end
+end
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.hostname = "asistia-saas.dev"
+  config.vm.network "private_network", ip: "192.168.50.6"
+  config.vm.synced_folder "../src/", "/home/vagrant/mexicanos_unidos/src", nfs: true, mount_options: ['rw', 'vers=3', 'tcp', 'fsc' ,'actimeo=1']
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = virtual_box_memory
+  end
+
+  # do not include the CREATE_USER tag, it can break ssh login
+  config.vm.provision :ansible do |ansible|
+    ansible.playbook = "playbooks/deploy.yml"
+    ansible.inventory_path = "inventories/development"
+    ansible.limit = "all"
+    ansible.tags = "database,backend,message"
+    ansible.ask_vault_pass = true
+  end
+
+end

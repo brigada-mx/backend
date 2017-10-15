@@ -1,0 +1,39 @@
+---
+- include: backend_common.yml
+  vars:
+    dynamic_hosts: api
+
+- hosts: api
+  user: "{{ login_user }}"
+  become: yes
+
+  environment: "{{ _env_combined }}"
+
+  roles:
+    - role: upstart
+      tags: [upstart]
+      scripts: "{{ upstart_scripts_backend }}"
+      service_namespace: "-{{ env }}"
+      replace_logrotate: true
+
+    - role: logrotate
+      tags: [logrotate]
+      scripts: []
+      crontab_frequency: "*/30 * * * *"
+
+    - role: iptables
+      tags: [iptables]
+      firewall_allowed_tcp_ports:
+        - "22"
+        - "25"
+      firewall_allowed_private_tcp_ports:
+        - "8000"
+      when: env != "development"
+
+    # sync care task schemas
+    - role: django_scripts
+      tags: [clone_repo] # make sure this is run whenever `clone_repo` role is run
+      scripts:
+        - sync_care_task_schemas.py
+      venv_path_: "{{ venv_path }}"
+      django_path_: "{{ django_path }}"

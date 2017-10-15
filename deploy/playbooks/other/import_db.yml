@@ -1,0 +1,57 @@
+---
+- hosts: database
+  user: "{{ login_user }}"
+  become: yes
+
+  tasks:
+    - name: "MAKE SURE WE'RE NOT IN PRODUCTION"
+      fail: msg="You're trying to drop and rebuild the production database, this is probably a bad idea"
+      when: env == "production"
+
+    - name: "Drop database"
+      postgresql_db:
+        name: "{{ _env_combined.ASISTIA_DATABASE_NAME }}"
+        state: absent
+
+
+- include: ../deploy/database.yml # rebuild database
+
+
+- hosts: database
+  user: "{{ login_user }}"
+  become: yes
+
+  environment: "{{ _env_combined }}"
+
+  vars:
+    dump_path: "/tmp"
+    dump_file: "safe_dump.sql"
+
+  tasks:
+    - name: "Copy over dump file to remote server"
+      copy: src="{{ dump_path }}/{{ dump_file }}" dest="/tmp/{{ dump_file }}" mode=0644
+
+    # don't use register with this task, too much is printed to std_out
+    - name: "Import database from dump file"
+      raw: psql -U {{ _env_combined.ASISTIA_DATABASE_USER }} {{ _env_combined.ASISTIA_DATABASE_NAME }} < /tmp/{{ dump_file }}
+
+
+- hosts: webapp
+  user: "{{ login_user }}"
+  become: yes
+
+  environment: "{{ _env_combined }}"
+
+  pre_tasks:
+    - name: "Perform migrations in case dump environment is behind import environment"
+      django_manage: command=migrate app_path={{ django_path }} virtualenv={{ venv_path }}
+      tags: [migrate]
+
+  roles:
+    - role: django_scripts
+      scripts:
+        - testing_fixtures.py
+        - clients_openpay.py
+      venv_path_: "{{ venv_path }}"
+      django_path_: "{{ django_path }}"
+      tags: [django_scripts]

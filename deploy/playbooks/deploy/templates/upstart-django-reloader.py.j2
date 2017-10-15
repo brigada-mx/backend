@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+
+import os
+import logging
+import SocketServer
+from BaseHTTPServer import BaseHTTPRequestHandler
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(message)s',
+                    datefmt='%m/%d/%Y %I:%M:%S %p')
+
+FILE_TO_TOUCH = '{{ django_path }}/manage.py'
+PORT = {{ django_reloader_port | default(9001) }}
+
+
+def touch(fname, times=None):
+    with open(fname, 'a'):
+        os.utime(fname, times)
+
+
+class HandleTouch(BaseHTTPRequestHandler):
+    def do_GET(self):
+        logging.info("Touching %s", FILE_TO_TOUCH)
+        touch(FILE_TO_TOUCH)
+        self.send_response(200)
+        self.send_header("Content-Length", '0')
+        self.end_headers()
+
+
+httpd = SocketServer.TCPServer(("", PORT), HandleTouch)
+
+logging.info("Server listening on port %s", PORT)
+
+httpd.serve_forever()

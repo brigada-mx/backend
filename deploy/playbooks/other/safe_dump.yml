@@ -1,0 +1,23 @@
+---
+- hosts: database
+  user: "{{ login_user }}"
+  become: yes
+
+  vars:
+    dump_file: "safe_dump.sql"
+
+  tasks:
+    - name: "Dump database to /tmp, spoofing emails, CLABEs, credit card and phone numbers, messenger_id values, etc. OpenPay CC tokens are not spoofed, because they are deleted and regenerated in the `import_db.yml` playbook."
+      raw: salt_string=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 10 | head -n 1)
+          && salt_number=$(cat /dev/urandom | tr -dc '0-9' | fold -w 10 | head -n 1)
+          && salt_number_short=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+          && /usr/bin/pg_dump -U {{ _env_combined.ASISTIA_DATABASE_USER }} {{ _env_combined.ASISTIA_DATABASE_NAME }} --inserts
+          | sed -r "s/(['\"])([[:alnum:]_-\.]+)(@[[:alnum:]_-\.]+)(['\"])/\1\2$salt_string\3\4/g"
+          | sed -r "s/(['\"])[0-9 ]{10,10}([0-9 ]{5,10})(['\"])/\1$salt_number\2\3/g"
+          | sed -r "s/(['\"])[0-9 ]{5,5}([0-9 ]{3,9})(['\"])/\1$salt_number_short\2\3/g"
+          > /tmp/{{ dump_file }}
+      tags: [dump]
+
+    - name: "Fetch dump file from remote server and copy it to local /tmp"
+      fetch: src="/tmp/{{ dump_file }}" dest="/tmp/{{ dump_file }}" flat=yes
+      tags: [fetch]

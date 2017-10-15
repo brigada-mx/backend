@@ -1,0 +1,36 @@
+#!/bin/bash
+
+declare -a arr=("deploy/group_vars/all-secret.yml" "deploy/group_vars/development-secret.yml" "deploy/group_vars/production-secret.yml")
+
+all_encrypted=0
+# iterate over files and check if any are not encrypted
+for i in "${arr[@]}"
+do
+  if [ ! -f "$i" ]; then
+    echo "$i does not exist, commit aborted"
+    exit 1
+  fi
+
+  head -1 "$i" | grep -qe "ANSIBLE_VAULT"
+  status=$?
+
+  if [ $status -ne 0 ]; then
+    echo "$i is not encrypted"
+    all_encrypted=$status
+  fi
+done
+
+# hook prevents commit if any files are not encrypted
+if [ $all_encrypted -ne 0 ]; then
+  printf "\nunencrypted files, commit aborted\n"
+  exit 1
+fi
+
+# stage encrypted files so that they are included in commit. this prevents staging
+# an unencrypted file, encrypting it, then committing the unencrypted version!
+for i in "${arr[@]}"
+do
+  git add "$i"
+done
+
+printf "\nall sensitive files encrypted correctly\n"

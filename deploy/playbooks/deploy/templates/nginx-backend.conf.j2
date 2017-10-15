@@ -1,0 +1,134 @@
+#!/bin/sh
+upstream webapp_{{ env }} {
+  server {{ _env_combined.ASISTIA_WEBAPP_HOST }}:8000 weight=5 max_fails=3 fail_timeout=30s;
+}
+
+upstream api_{{ env }} {
+  server {{ _env_combined.ASISTIA_API_HOST }}:8000 weight=5 max_fails=3 fail_timeout=30s;
+}
+
+
+# redirect requests to `http://www.<website_url>` to `https://<website_url>`
+server {
+  listen 80;
+  server_name www.{{ website_url }};
+
+  # let's encrypt bot validates file that we generate at this path with http request
+  location /.well-known/ {
+    root /usr/share/nginx/html;
+  }
+
+  location / {
+    return 301 https://{{ website_url }}$request_uri;
+  }
+}
+
+# redirect requests to `https://www.<website_url>` to `https://<website_url>`
+server {
+  listen 443;
+  server_name www.{{ website_url }};
+  ssl on;
+  ssl_certificate {{ ssl_certificate_file }};
+  ssl_certificate_key {{ ssl_certificate_key_file }};
+
+  return 301 https://{{ website_url }}$request_uri;
+}
+
+# redirect requests to `http://<website_url>` to `https://<website_url>`
+server {
+  listen 80;
+  server_name {{ website_url }};
+
+  # let's encrypt bot validates file that we generate at this path with http request
+  location /.well-known/ {
+    root /usr/share/nginx/html;
+  }
+
+  location / {
+    return 301 https://{{ website_url }}$request_uri;
+  }
+}
+
+
+# the main server block that catches requests to `https://<website_url>`
+server {
+  # general config
+  client_max_body_size 50M;
+  listen 443;
+  server_name {{ website_url }};
+  access_log {{ nginx_log_path }}/{{ env }}-access.log;
+  error_log {{ nginx_log_path }}/{{ env }}-error.log;
+
+  ssl on;
+  ssl_certificate {{ ssl_certificate_file }};
+  ssl_certificate_key {{ ssl_certificate_key_file }};
+
+  proxy_intercept_errors on; # enables nginx to serve custom error pages
+
+  # certbot folder -.well-known- will be created here
+  location /.well-known/ {
+    root /usr/share/nginx/html;
+  }
+
+  # home page proxy
+  # location = / {
+  #   proxy_pass http://{{ home_website_url }};
+  # }
+
+  # other static pages that are served by proxy
+  # location ~* /(adultos|app_asociados|apps|aviso-connect|bebes|bonos|calcula-precio|confianza|garantia|mensualidad|servicios|terminos-connect|app|terminos-asociados|aviso-asociados)/? {
+  #   proxy_pass http://{{ home_website_url }};
+  # }
+
+  # all other petitions proxied to webapp servers
+  location / {
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Host $http_host;
+    proxy_redirect off;
+    proxy_read_timeout 300s;
+    proxy_pass http://webapp_{{ env }};
+  }
+
+  # except for petitions to API, which are proxied to API servers
+  location /api/ {
+    # make sure nginx doesn't intercept JSON error responses from API and replace them with HTML
+    proxy_intercept_errors off;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Host $http_host;
+    proxy_redirect off;
+    proxy_read_timeout 300s;
+    proxy_pass http://api_{{ env }};
+  }
+
+
+  # error pages
+  error_page 404 /404.html;
+  location = /404.html {
+    root {{ nginx_error_page_path }};
+    internal;
+  }
+
+  error_page 403 /403.html;
+  location = /403.html {
+    root {{ nginx_error_page_path }};
+    internal;
+  }
+
+  error_page 500 502 503 504 /50x.html;
+  location = /50x.html {
+    root {{ nginx_error_page_path }};
+    internal;
+  }
+
+  location /error_resources/ {
+    root {{ nginx_error_page_path }};
+  }
+
+
+  # SEO redirects
+  {% for path in seo_redirects %}
+    rewrite ^/{{ path }}/?$ https://{{ website_url }} permanent;
+  {% endfor %}
+}

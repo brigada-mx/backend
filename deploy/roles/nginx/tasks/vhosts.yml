@@ -1,0 +1,50 @@
+---
+- name: Remove default nginx vhost config file (if configured).
+  file:
+    path: "{{ nginx_default_vhost_path }}"
+    state: absent
+  when: nginx_remove_default_vhost
+  notify:
+    - reload nginx
+
+- name: Add namespaced vhost config files (if any are configured).
+  template:
+    src: "nginx-{{ item }}.conf.j2"
+    dest: "{{ nginx_vhost_path }}/{{ item }}{{ vhost_namespace }}.conf"
+    mode: 0644
+  with_items: "{{ nginx_namespaced_vhosts }}"
+  when: nginx_namespaced_vhosts|length > 0
+  notify:
+    - reload nginx
+
+- name: Add vhost config files (if any are configured).
+  template:
+    src: "nginx-{{ item }}.conf.j2"
+    dest: "{{ nginx_vhost_path }}/{{ item }}.conf"
+    mode: 0644
+  with_items: "{{ nginx_vhosts }}"
+  when: nginx_vhosts|length > 0
+  notify:
+    - reload nginx
+
+- name: Add custom error pages (if any are configured).
+  template:
+    src: "nginx-{{ item }}.j2"
+    dest: "{{ nginx_error_page_path }}/{{ item }}"
+    mode: 0644
+  with_items: "{{ nginx_error_pages }}"
+  when: nginx_error_pages|length > 0
+  notify:
+    - reload nginx
+
+- name: Copy over and untar error page resources
+  unarchive: src=error_resources.tar.gz dest="{{ nginx_error_page_path }}"
+
+- name: Remove managed vhost config file (if no vhosts are configured).
+  file:
+    path: "{{ nginx_vhost_path }}/vhosts.conf"
+    state: absent
+  when: nginx_vhosts|length == 0
+  notify:
+    - reload nginx
+

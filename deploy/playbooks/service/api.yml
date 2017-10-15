@@ -1,0 +1,17 @@
+---
+- hosts: api
+  user: "{{ login_user }}"
+  become: yes
+  vars:
+    services:
+      - "{{ (env == 'development') | ternary('django', 'gunicorn') }}-{{ env }}"
+    action: restarted
+
+  environment: "{{ _env_combined }}"
+
+  tasks:
+    - name: "Perform action `{{ action }}` for the following services"
+      service:
+        name: "{{ item }}"
+        state: "{{ action }}"
+      with_items: "{{ services }}"

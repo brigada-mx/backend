@@ -1,0 +1,21 @@
+DB_USERNAME="{{ _env_combined.ASISTIA_DATABASE_USER }}"
+DB_NAME="{{ _env_combined.ASISTIA_DATABASE_NAME }}"
+DB_PASSWORD="{{ _env_combined.ASISTIA_DATABASE_PASSWORD }}"
+DB_HOST='localhost'
+BUCKET_NAME="{{ _env_combined.AWS_STORAGE_BUCKET_NAME }}"
+
+DATE=`date +%Y%m%d`
+TIME=`date +%H%M`
+
+BACKUP_DIR='/home/{{ login_user }}/backup/db/'
+mkdir -p $BACKUP_DIR
+cd $BACKUP_DIR
+rm -f *.sql.gz
+
+FILENAME="p$DATE-$TIME.sql.gz"
+PGDUMP=/usr/bin/pg_dump
+
+PGPASSWORD=$DB_PASSWORD $PGDUMP -U $DB_USERNAME $DB_NAME --inserts | gzip > $BACKUP_DIR$FILENAME
+
+exec aws s3 cp $FILENAME s3://$BUCKET_NAME/backup/db/$FILENAME
+

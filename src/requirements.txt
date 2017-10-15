@@ -1,0 +1,13 @@
+boto3
+celery
+django-cors-middleware
+django-filter
+django-storages
+Django
+djangorestframework
+flower
+gunicorn
+psycopg2
+pytz
+redis
+rollbar

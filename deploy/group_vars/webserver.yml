@@ -1,0 +1,13 @@
+---
+docs_htpasswd: |
+  devs:$apr1$GhqjuuGG$oHdVSg9.HnO3rm8plttp..
+
+certbot_download_url: "https://dl.eff.org/certbot-auto"
+certbot_dir: "/opt"
+certbot_path: "/opt/certbot-auto"
+
+nginx_error_page_path: "/usr/share/nginx/html"
+nginx_error_pages:
+  - "403.html"
+  - "404.html"
+  - "50x.html"

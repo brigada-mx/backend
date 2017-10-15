@@ -1,0 +1,22 @@
+---
+- include: install.yml
+
+- include: server.yml
+  when: not redis_sentinel
+  tags:
+    - config
+
+- include: sentinel.yml
+  when: redis_sentinel
+  tags:
+    - config
+
+- include: local_facts.yml
+  when: redis_local_facts|bool
+
+- name: Copy over new redis logrotate script to /etc/logrotate.d
+  template:
+    src: "redis-logrotate.j2"
+    dest: "/etc/logrotate.d/redis"
+    mode: 0644
+  when: redis_log_path is defined

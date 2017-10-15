@@ -1,0 +1,27 @@
+- name: Install apt packages
+  apt: pkg={{ item }} state=present update_cache=true
+  with_items: [python-pip]
+  become: yes
+
+- name: Install awscli
+  command: pip install awscli
+  become: yes
+
+- set_fact:
+    config_path: "/home/{{ user }}/.aws"
+
+- name: Create folder for aws config and credentials files
+  file: state=directory owner={{ user }} group={{ group }} path={{ config_path }}
+  become: yes
+
+- name: Add config and credentials files
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ config_path }}/{{ item }}"
+    owner: "{{ user }}"
+    group: "{{ group }}"
+    mode: 0644
+  with_items:
+    - config
+    - credentials
+  when: aws_access_key_id is defined and aws_secret_access_key is defined

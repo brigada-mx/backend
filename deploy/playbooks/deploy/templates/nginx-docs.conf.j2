@@ -1,0 +1,13 @@
+server {
+  listen 80;
+  server_name docs.{{ base_website_url }};
+
+  access_log {{ nginx_log_path }}/docs-access.log;
+  error_log {{ nginx_log_path }}/docs-error.log;
+
+  location / {
+    root {{ docs_path }};
+    auth_basic "Restricted";
+    auth_basic_user_file {{ nginx_conf_path }}/.htpasswd;
+  }
+}

@@ -1,0 +1,23 @@
+---
+- name: Add upstart shell scripts to backend
+  template:
+    src: "upstart-{{ item }}.j2"
+    dest: "{{ shell_scripts_path }}/{{ item }}"
+    mode: 0755
+  with_items: "{{ shell_scripts }}"
+  when: shell_scripts|length > 0
+
+- name: Add upstart scripts to /etc/init/
+  template:
+    src: "upstart-{{ item }}.conf.j2"
+    dest: "/etc/init/{{ item }}{{ service_namespace }}.conf"
+    mode: 0644
+  with_items: "{{ scripts }}"
+  when: scripts|length > 0
+
+- name: Copy over new upstart logrotate script to /etc/logrotate.d
+  template:
+    src: "upstart-logrotate.j2"
+    dest: "/etc/logrotate.d/upstart"
+    mode: 0644
+  when: "{{ replace_logrotate }}"

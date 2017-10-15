@@ -1,0 +1,29 @@
+- name: Create a new user
+  user: name="{{ user }}" state=present shell=/bin/bash
+  tags: [user]
+
+- name: Set password for user
+  shell: echo {{ user }}:{{ pass }} | chpasswd
+  tags: [password]
+
+- name: Alter /etc/sudoers file
+  lineinfile: dest=/etc/sudoers line="{{ user }} {{ permissions }}"
+  tags: [permissions]
+
+- name: Create .ssh directory for user
+  file: path="/home/{{ user }}/.ssh" state=directory owner={{ user }} group={{ user }} mode=0700
+  tags: [ssh]
+
+- name: Copy authorized_keys from root directory to user directory
+  command: cp "/root/.ssh/authorized_keys" "/home/{{ user }}/.ssh/authorized_keys"
+  tags: [ssh]
+
+- name: Change ownership of authorized_keys
+  file: path="/home/{{ user }}/.ssh/authorized_keys" state=touch owner={{ user }} group={{ user }} mode=0600
+  tags: [ssh]
+
+- name: Update sshd configuration file
+  tags: [ssh]
+  lineinfile: dest=/etc/ssh/sshd_config line="PasswordAuthentication no"
+  notify:
+  - restart sshd

@@ -1,0 +1,63 @@
+#!/usr/bin/env python
+"""Delete all `Card` instances from our DB.
+
+Then, for subset of customers, create `customer` instances in OpenPay
+backend if they don't exist, delete their non-fake OP `card` instances,
+create a new fake OP `card` instance for each `customer` if they don't
+already have one, and and add new `Card` instances to our DB, so that
+ClientUser can perform OpenPay sandbox transactions.
+"""
+
+from django.db.models import ProtectedError
+
+from database.clients.models import ClientUser
+from database.clients.models import Card
+import openpay
+
+
+FAKE_CARD_NUMBER = "4242424242424242"
+
+try: # delete Card instances
+    Card.objects.all().delete()
+except ProtectedError:
+    pass
+
+for client in ClientUser.objects.all()[:10]:
+    # get OP customer instance, and delete non-fake OP card instances
+    customer = client.get_openpay_customer()
+    fake_cards = []
+    for card_id in client.get_openpay_customer_cards():
+        try:
+            card = customer.cards.retrieve(card_id)
+        except openpay.InvalidRequestError:
+            pass
+        else:
+            if card['card_number'][0:4] != FAKE_CARD_NUMBER[0:4]:
+                try:
+                    card.delete()
+                except:
+                    pass
+            else:
+                fake_cards.append(card)
+
+    # create OP card instance if necessary
+    if not fake_cards:
+        fake_card = customer.cards.create(
+            card_number=FAKE_CARD_NUMBER,
+            holder_name=client.full_name,
+            expiration_year="20",
+            expiration_month="12",
+            cvv2="110"
+        )
+    else:
+        fake_card = fake_cards[0]
+
+    # create Card instance
+    Card.objects.create(
+        client=client,
+        token=fake_card.id,
+        card_id=fake_card.id,
+        card_number=fake_card.card_number,
+        brand=fake_card.brand,
+        provider=0,
+    )

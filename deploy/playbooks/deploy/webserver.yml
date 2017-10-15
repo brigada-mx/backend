@@ -1,0 +1,49 @@
+---
+- hosts: webserver
+  user: "{{ login_user }}"
+  become: yes
+
+  roles:
+    - role: nginx
+      tags: [nginx]
+
+      nginx_worker_processes: 4
+      nginx_remove_default_vhost: true
+
+      # make sure you installed certbot and created these paths
+      ssl_certificate_file: "/etc/letsencrypt/live/asistia.co/fullchain.pem"
+      ssl_certificate_key_file: "/etc/letsencrypt/live/asistia.co/privkey.pem"
+
+      seo_redirects:
+        - enfermeras
+        - enfermeras-a-domicilio
+        - enfermera
+        - enfermeras-df
+        - enfermeras-cdmx
+        - adulto-mayor
+        - cuidadoras-a-domicilio
+
+      nginx_namespaced_vhosts:
+        - backend
+        - flower
+      vhost_namespace: "-{{ env }}"
+
+      nginx_vhosts:
+        - docs
+
+    - role: logrotate
+      tags: [logrotate]
+      scripts: []
+      crontab_frequency: "*/30 * * * *"
+
+    - role: iptables
+      tags: [iptables]
+      firewall_allowed_tcp_ports:
+        - "22"
+        - "25"
+        - "80"
+        - "443"
+      when: env != "development"
+
+    - role: certbot
+      tags: [certbot]

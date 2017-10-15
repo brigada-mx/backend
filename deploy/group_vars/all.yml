@@ -1,0 +1,30 @@
+---
+app_name: "asistia"
+git_branch: "master"
+bin_path: "/usr/local/bin"
+vagrant_login_user: "vagrant"
+base_website_url: "asistia.co"
+
+_env_all:
+  ASISTIA_LANDING_HOST: ""
+  ASISTIA_CLIENT_CONTACT_EMAIL: "hola@asistia.mx"
+  ASISTIA_NURSE_CONTACT_EMAIL: "atencion@asistia.mx"
+  ASISTIA_CONTACT_PHONE: "(55) 6718 4020"
+  ASISTIA_CONTACT_ADDRESS: "Bahia de Todos los Santos No. 98, esq. Bahia de Chachalacas, Colonia Veronica Anzures, Delegacion Miguel Hidalgo C.P. 11300, Ciudad de Mexico, MEXICO"
+  ASISTIA_DATABASE_PORT: "5432"
+  ASISTIA_REDIS_PORT: "6379"
+  ASISTIA_CELERY_PORT: "5555"
+  GOOGLE_MAPS_API_KEY: "AIzaSyD35gvKpf74P3gIw3gVlHf2Wtn3TQMnn14" # not secret because it's in the source of all our pages
+  NURSE_APP_ANDROID_URL: "https://play.google.com/store/apps/details?id=com.asistianurse"
+  CLIENT_APP_ANDROID_URL: "https://play.google.com/store/apps/details?id=com.asistiaclient"
+  NURSE_APP_IOS_URL: "https://itunes.apple.com/mx/app/asistia/id1197018265"
+  CLIENT_APP_IOS_URL: "https://itunes.apple.com/mx/app/asistia/id1197018265"
+
+# this groups_vars file is loaded last, because all groups are descendants of "all"
+# this means this file has access to all group_vars included in a given playbook
+_env_combined: "{{ _env|combine(_env_secret)|combine(_env_all)|combine(_env_all_secret) }}"
+
+repo_path: "/home/{{ login_user }}/apps/{{ app_name }}"
+django_path: "{{ repo_path }}/{{ app_name }}"
+venv_path: "/opt/envs/{{ app_name }}"
+docs_path: "/home/{{ login_user }}/docs/"

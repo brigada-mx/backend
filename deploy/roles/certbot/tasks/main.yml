@@ -1,0 +1,32 @@
+- name: Download certbot
+  get_url:
+    url: "{{ certbot_download_url }}"
+    dest: "/opt/"
+
+- name: Ensure certbot is executable
+  file:
+    path: "{{certbot_dir}}/certbot-auto"
+    mode: 0755
+
+# sudo {{certbot_dir}}/certbot-auto certonly --webroot --webroot-path /usr/share/nginx/html --renew-by-default --email devs@asistia.mx --text --agree-tos -d {{ base_website_url }} -d www.{{ base_website_url }} -d staging.{{ base_website_url }} -d staging-flower.{{ base_website_url }} -d flower.{{ base_website_url }}
+
+- name: Enable auto renew
+  command: "{{certbot_path}} renew --dry-run"
+
+- name: Install cronjob for auto renew
+  become: yes
+  cron:
+    name: "certbot auto renew"
+    user: "root"
+    job: "{{certbot_path}} renew --quiet --no-self-upgrade --post-hook 'service nginx restart'"
+    minute: 40
+    hour: 6
+
+- name: Install cronjob for auto renew-by-default
+  become: yes
+  cron:
+    name: "certbot auto renew"
+    user: "root"
+    job: "{{certbot_path}} renew --quiet --no-self-upgrade --post-hook 'service nginx restart'"
+    minute: 40
+    hour: 18

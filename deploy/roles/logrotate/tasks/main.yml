@@ -1,0 +1,17 @@
+# this use of lineinfile will replace the line if the regexp matches
+# and will add the line if the regexp doesn't match
+- name: Define custom schedule for logrotate in /etc/crontab
+  lineinfile: dest=/etc/crontab regexp="^.*/etc/cron\.daily/logrotate" line="{{ crontab_frequency }} {{ crontab_user }} /etc/cron.daily/logrotate"
+  when: crontab_frequency is defined
+
+
+# there are none currently configured
+- name: Add logrotate config files
+  template:
+    src: "logrotate-{{ item }}.j2"
+    dest: "/etc/logrotate.d/{{ item }}{{ service_namespace }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items: "{{ scripts }}"
+  when: scripts|length > 0

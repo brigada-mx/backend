@@ -1,0 +1,4 @@
+---
+scripts_dir: "/tmp"
+clean_up_scripts: false
+scripts: []

@@ -1,0 +1,25 @@
+---
+env: "production"
+website_url: "asistia.co"
+flower_website_url: "flower.asistia.co"
+home_website_url: "home.asistia.co"
+
+upstart_start_on: "net-device-up"
+
+upstart_scripts_backend:
+  - gunicorn
+
+requirements_files_: ["requirements.txt"]
+
+_env:
+  ASISTIA_WEBAPP_HOST: "10.134.24.168"
+  ASISTIA_DATABASE_HOST: "10.134.22.100"
+  ASISTIA_REDIS_HOST: "10.134.24.187"
+  ASISTIA_API_HOST: "10.134.25.199"
+  ASISTIA_ENV: "production"
+  DJANGO_SETTINGS_MODULE: "config.settings.production"
+  ASISTIA_SITE_URL: "asistia.co"
+  ASISTIA_REDIS_DATABASE: "0"
+  AWS_STORAGE_BUCKET_NAME: "asistia-saas-production"
+  AWS_CACHE_CONTROL_MAX_AGE: "7200"
+  OPENPAY_API_URL: "https://api.openpay.mx/v1"

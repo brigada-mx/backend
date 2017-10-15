@@ -1,0 +1,12 @@
+description "Celery worker, process jobs"
+
+start on {{ upstart_start_on }}
+stop on shutdown
+
+setuid {{ login_user }}
+
+script
+  chdir {{ django_path }}
+  . {{ django_path }}/.env
+  exec {{ venv_path }}/bin/celery worker -A config
+end script

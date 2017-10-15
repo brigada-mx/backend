@@ -1,0 +1,14 @@
+# IMPORTANT: this role will deploy env vars from the local branch that
+# is currently checked out. It will not deploy env vars from the remote
+# branch that is deployed with other roles, for example clone_repo
+- name: Create and copy over environment vars file
+  template: src=environment.j2 dest="{{ environment_variables_file }}"
+
+- name: Create startup file
+  file: path={{ startup_file }} state=touch
+
+- name: Ensure startup file sources environment variables file
+  lineinfile: dest={{ startup_file }} line="source {{ environment_variables_file }}"
+  when: environment_variables_file is defined
+- name: Ensure startup file sources .bashrc
+  lineinfile: dest={{ startup_file }} line="source $HOME/.bashrc"

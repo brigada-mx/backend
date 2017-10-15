@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+
+import os
+import logging
+import SocketServer
+from BaseHTTPServer import BaseHTTPRequestHandler
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(message)s',
+                    datefmt='%m/%d/%Y %I:%M:%S %p')
+
+PORT = {{ celery_reloader_port | default(9002) }}
+SERVICES = ['celery-worker-{{ env }}', 'celery-beat-{{ env }}']
+
+
+def restart(service):
+    os.system("sudo restart {}".format(service))
+
+
+class HandleTouch(BaseHTTPRequestHandler):
+    def do_GET(self):
+        for service in SERVICES:
+            logging.info("Restarting Celery process: {}".format(service))
+            restart(service)
+        self.send_response(200)
+        self.send_header("Content-Length", '0')
+        self.end_headers()
+
+
+httpd = SocketServer.TCPServer(("", PORT), HandleTouch)
+
+logging.info("Server listening on port {}".format(PORT))
+
+httpd.serve_forever()

@@ -1,0 +1,34 @@
+- name: Create static files directory
+  file: path="{{ static_files_path_ }}" state=directory owner="{{ vagrant_login_user }}" group="{{ vagrant_login_user }}"
+  become: true
+  tags: [bower]
+
+- name: Create components directory, bower_components lives in here
+  file: path="{{ bower_components_path_ }}" state=directory owner="{{ vagrant_login_user }}" group="{{ vagrant_login_user }}"
+  become: true
+  tags: [bower]
+
+- name: Clean bower_components directory
+  file: path="{{ bower_components_path_ }}" state=absent
+  become: yes
+  tags: [bower]
+
+# The `command` module automatically pulls in the the `environment` dict, raw doesn't.
+# Also, `bower install` must not be run as sudo
+- name: Run bower install
+  command: "{{ venv_path_ }}/bin/python {{ django_path_ }}/manage.py bower install"
+  register: bower_install_out
+  tags: [bower]
+
+- debug: msg="{{ bower_install_out }}"
+  tags: [bower]
+
+- name: Run collectstatic
+  django_manage: >
+    command=collectstatic
+    app_path={{ django_path_ }}
+    settings=config.settings.{{ env }}
+    virtualenv={{ venv_path_ }}
+  register: collectstatic_out
+
+- debug: msg="{{ collectstatic_out }}"

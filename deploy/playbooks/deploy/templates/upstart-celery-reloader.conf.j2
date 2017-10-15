@@ -1,0 +1,10 @@
+description "Celery process reloader, for when .py files are edited"
+
+start on {{ upstart_start_on }}
+stop on shutdown
+
+setuid {{ login_user }}
+
+script
+  exec python2 {{ shell_scripts_path }}/celery-reloader.py
+end script

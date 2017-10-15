@@ -1,0 +1,20 @@
+---
+# this playbook should not be run for the dev environment
+- hosts: vm
+  user: "{{ vagrant_login_user }}"
+  become: no
+  vars:
+    django_path: "/home/{{ vagrant_login_user }}/apps/{{ app_name }}/{{ app_name }}"
+    bower_components_path: "{{ django_path }}/../components/bower_components"
+    static_files_path: "{{ django_path }}/../statics"
+
+  environment: "{{ _env_combined }}"
+
+  roles:
+    - role: staticfiles
+      tags: [staticfiles]
+      venv_path_: "{{ venv_path }}"
+      django_path_: "{{ django_path }}"
+      bower_components_path_: "{{ bower_components_path }}"
+      static_files_path_: "{{ static_files_path }}"
+      environment_variables_file_: "{{ django_path }}/.env"

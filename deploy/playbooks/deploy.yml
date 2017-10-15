@@ -1,0 +1,12 @@
+---
+- include: deploy/create_user.yml
+  tags: [create_user]
+
+- include: deploy/webserver.yml
+  tags: [webserver]
+
+- include: deploy/database.yml
+  tags: [database]
+
+- include: deploy/backend.yml
+  tags: [backend]

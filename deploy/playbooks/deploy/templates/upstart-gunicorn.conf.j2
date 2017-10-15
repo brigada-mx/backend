@@ -1,0 +1,12 @@
+description "Gunicorn server for {{ website_url }}"
+
+start on {{ upstart_start_on }}
+stop on shutdown
+
+setuid {{ login_user }}
+
+script
+  chdir {{ django_path }}
+  . {{ django_path }}/.env
+  exec {{ venv_path }}/bin/gunicorn config.wsgi:application --name asistia --workers 4 --user={{ login_user }} --group={{ login_user }} --log-level=debug --bind=0.0.0.0:8000 --timeout=300
+end script

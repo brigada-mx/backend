@@ -1,0 +1,84 @@
+#!/usr/bin/env python
+from collections import namedtuple
+
+from django.contrib.gis.geos import Point
+
+from database.staff.models import StaffUser
+from database.nurses.models import NurseUser
+from database.clients.models import ClientUser
+
+
+# spoof all fcm tokens
+for nurse in NurseUser.objects.all():
+    nurse.fcm_tokens = []
+    nurse.save()
+
+
+User = namedtuple('User', 'email defaults')
+
+staff_users = [
+    User("kylebebak@gmail.com",
+         {"first_name": "Kyle", "surname": "Bebak", "messenger_id": "199751633", "is_active": True, "password": "pbkdf2_sha256$20000$5z4eEPd0eBSD$cj+LJDRv9JRK3FO+icwM+LSYg8q0xm8q9Su/oYR8ZKs=",}
+    ),
+    User("svmalvaez@gmail.com",
+         {"first_name": "Sergio", "surname": "Malvaez", "messenger_id": "131982882", "is_active": True, "password": "pbkdf2_sha256$20000$5z4eEPd0eBSD$cj+LJDRv9JRK3FO+icwM+LSYg8q0xm8q9Su/oYR8ZKs=",}
+    ),
+    User("henocdz@gmail.com",
+         {"first_name": "Henoc", "surname": "Díaz", "messenger_id": "14935702", "is_active": True, "password": "pbkdf2_sha256$20000$5z4eEPd0eBSD$cj+LJDRv9JRK3FO+icwM+LSYg8q0xm8q9Su/oYR8ZKs=",}
+    ),
+
+    User("hugo@asistia.mx",
+         {"first_name": "Hugo", "surname": "Cedillo", "messenger_id": "", "is_active": True, "password": "pbkdf2_sha256$20000$cOhi9tJ7bXkS$S8JMiCRQ4O4l+/dB7SuFYt8ofadA3QRXRAaGWxMEh44=",}
+    ),
+    User("maria@asistia.mx",
+         {"first_name": "Maria", "surname": "Padilla", "messenger_id": "", "is_active": True, "password": "pbkdf2_sha256$20000$udQWfM0In1aL$2ZDz1MMT5jv05CtkNKPgAG8CVLHD0neJjgB122A52mE=",}
+    ),
+]
+
+for user_ in staff_users:
+    user = StaffUser.objects.update_or_create(email=user_.email, defaults=user_.defaults)[0]
+    user.save()
+
+
+nurse_users = [
+    User("kylebebak@gmail.com",
+         {"first_name": "Kyle", "surname": "Bebak", "gender": "H", "phone": "5534370002", "is_active": True, "location": Point(-99.188852, 19.435846), "slug": "kyle-nurse", "short_bio": "...", "nurse_type": 0}
+    ),
+    User("svmalvaez@gmail.com",
+         {"first_name": "Sergio", "surname": "Malvaez", "gender": "H", "phone": "5564160434", "is_active": True, "location": Point(-99.186852, 19.437846), "slug": "sergio-nurse", "short_bio": "...", "nurse_type": 0}
+    ),
+    User("henocdz@gmail.com",
+         {"first_name": "Henoc", "surname": "Díaz", "gender": "H", "phone": "5564136398", "is_active": True, "location": Point(-99.192852, 19.443846), "slug": "henoc-nurse", "short_bio": "...", "nurse_type": 0}
+    ),
+
+    User("santiago@asistia.mx",
+         {"first_name": "Santiago", "surname": "Saviñón", "gender": "H", "phone": "5591980890", "is_active": True, "location": Point(-99.192852, 19.443846), "slug": "santiago-nurse", "short_bio": "...", "nurse_type": 0}
+    ),
+    User("hugo@asistia.mx",
+         {"first_name": "Hugo", "surname": "Cedillo", "gender": "H", "phone": "5591643644", "is_active": True, "location": Point(-99.192852, 19.443846), "slug": "hugo-nurse", "short_bio": "...", "nurse_type": 0}
+    ),
+    User("vian@asistia.mx",
+         {"first_name": "Vianey", "surname": "Moreno", "gender": "M", "phone": "5565593698", "is_active": True, "location": Point(-99.192852, 19.443846), "slug": "vianey-nurse", "short_bio": "...", "nurse_type": 0}
+    ),
+    User("maria@asistia.mx",
+         {"first_name": "Maria", "surname": "Padilla", "gender": "M", "phone": "5514528673", "is_active": True, "location": Point(-99.192852, 19.443846), "slug": "maria-nurse", "short_bio": "...", "nurse_type": 0}
+    ),
+    User("viriim@hotmail.com",
+          {"first_name": "Viridiana", "surname": "Islas Maldonado", "gender": "M", "phone": "5545802295", "is_active": True, "location": Point(-99.192852, 19.443846), "slug": "viri-nurse", "short_bio": "...", "nurse_type": 0}
+    ),
+]
+
+for user_ in nurse_users:
+    user = NurseUser.objects.update_or_create(email=user_.email, defaults=user_.defaults)[0]
+
+
+StaffUser.objects.update_or_create(email="devs@asistia.mx", defaults={"first_name": "Wenceslao", "surname": "Developer", "is_superuser": True, "is_active": True, "password": "pbkdf2_sha256$20000$5z4eEPd0eBSD$cj+LJDRv9JRK3FO+icwM+LSYg8q0xm8q9Su/oYR8ZKs="})
+
+NurseUser.objects.all().update(bank_clabe='012298026516924616')
+
+
+# unspoof email for santi's `ClientUser` for testing client application, because his account has lots of data
+client = ClientUser.objects.filter(email__contains='santiago.sbg').first()
+if client:
+    client.email = 'santiago.sbg@gmail.com'
+    client.save()
