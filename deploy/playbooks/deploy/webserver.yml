@@ -28,9 +28,6 @@
         - flower
       vhost_namespace: "-{{ env }}"
 
-      nginx_vhosts:
-        - docs
-
     - role: logrotate
       tags: [logrotate]
       scripts: []

@@ -1,6 +1,6 @@
 ---
 env: "development"
-website_url: "asistia-saas.dev:8000"
+website_url: "mexicanos-unidos.dev:8000"
 
 upstart_start_on: "vagrant-mounted"
 
@@ -11,14 +11,13 @@ upstart_scripts_backend:
 requirements_files_: ["requirements.txt", "requirements-dev.txt"]
 
 _env:
-  ASISTIA_WEBAPP_HOST: "127.0.0.1"
-  ASISTIA_DATABASE_HOST: "127.0.0.1"
-  ASISTIA_REDIS_HOST: "127.0.0.1"
-  ASISTIA_API_HOST: "127.0.0.1"
-  ASISTIA_ENV: "development"
+  CUSTOM_WEBAPP_HOST: "127.0.0.1"
+  CUSTOM_DATABASE_HOST: "127.0.0.1"
+  CUSTOM_REDIS_HOST: "127.0.0.1"
+  CUSTOM_API_HOST: "127.0.0.1"
+  CUSTOM_ENV: "development"
   DJANGO_SETTINGS_MODULE: "config.settings.development"
-  ASISTIA_SITE_URL: "asistia-saas.dev:8000"
-  ASISTIA_REDIS_DATABASE: "0"
-  AWS_STORAGE_BUCKET_NAME: "asistia-saas-development"
+  CUSTOM_SITE_URL: "mexicanos-unidos.dev:8000"
+  CUSTOM_REDIS_DATABASE: "0"
+  AWS_STORAGE_BUCKET_NAME: "mexicanos-unidos-development"
   AWS_CACHE_CONTROL_MAX_AGE: "120"
-  OPENPAY_API_URL: "https://sandbox-api.openpay.mx/v1"

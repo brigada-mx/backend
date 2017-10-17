@@ -10,7 +10,7 @@
 
     - name: "Drop database"
       postgresql_db:
-        name: "{{ _env_combined.ASISTIA_DATABASE_NAME }}"
+        name: "{{ _env_combined.CUSTOM_DATABASE_NAME }}"
         state: absent
 
 
@@ -33,7 +33,7 @@
 
     # don't use register with this task, too much is printed to std_out
     - name: "Import database from dump file"
-      raw: psql -U {{ _env_combined.ASISTIA_DATABASE_USER }} {{ _env_combined.ASISTIA_DATABASE_NAME }} < /tmp/{{ dump_file }}
+      raw: psql -U {{ _env_combined.CUSTOM_DATABASE_USER }} {{ _env_combined.CUSTOM_DATABASE_NAME }} < /tmp/{{ dump_file }}
 
 
 - hosts: webapp
@@ -51,7 +51,6 @@
     - role: django_scripts
       scripts:
         - testing_fixtures.py
-        - clients_openpay.py
       venv_path_: "{{ venv_path }}"
       django_path_: "{{ django_path }}"
       tags: [django_scripts]

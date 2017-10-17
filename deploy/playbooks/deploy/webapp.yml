@@ -10,10 +10,6 @@
   environment: "{{ _env_combined }}"
 
   roles:
-    - role: node
-      tags: [node]
-      npm_packages: "{{ application_node_packages }}"
-
     - role: django
       tags: [django]
       venv_path_: "{{ venv_path }}"

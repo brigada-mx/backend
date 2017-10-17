@@ -8,13 +8,9 @@ MIDDLEWARE_CLASSES += (
 DEBUG = False
 SANDBOX = False
 
-MEDIA_ROOT = '/var/media'
-
 DATABASES['default']['OPTIONS'] = {
-    'sslmode': 'require' # `disable`
+    'sslmode': 'require'  # `disable`
 }
-
-CACHES['collectfast']['OPTIONS']['DB'] = 0
 
 # ensures gunicorn prints full stack traces to logs
 DEBUG_PROPAGATE_EXCEPTIONS = True

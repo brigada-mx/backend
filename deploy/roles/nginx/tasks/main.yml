@@ -18,9 +18,6 @@
 - include: setup-Debian.yml
   when: ansible_os_family == 'Debian'
 
-- name: "Copy over .htpasswd file to {{ nginx_conf_path }} for simple authentication on docs server"
-  copy: content="{{ docs_htpasswd }}" dest="{{ nginx_conf_path }}/.htpasswd" owner=root group=root mode=644
-
 
 # Vhost configuration.
 - include: vhosts.yml

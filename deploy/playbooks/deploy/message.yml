@@ -14,7 +14,7 @@
   roles:
     - role: redis
       tags: [redis]
-      redis_password: "{{ _env_combined.ASISTIA_REDIS_PASSWORD }}"
+      redis_password: "{{ _env_combined.CUSTOM_REDIS_PASSWORD }}"
       redis_logfile: "{{ log_path }}/redis.log"
       redis_sentinel_logfile: "{{ log_path }}/redis-sentinel.log"
       redis_log_path: "{{ log_path }}"

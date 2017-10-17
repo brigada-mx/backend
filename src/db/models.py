@@ -2,8 +2,8 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.postgres.fields import JSONField
 
-from . import BaseModel
-from .choices import ACTION_CHOICES, ACTION_SOURCE_CHOICES
+from db import BaseModel
+from db.choices import ACTION_CHOICES, ACTION_SOURCE_CHOICES
 
 
 class Locality(BaseModel):

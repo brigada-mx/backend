@@ -25,7 +25,7 @@ class SetPasswordForm(FormView):
         if user_type == 'nurses':
             self.user = NurseUser.objects.filter(set_password_code=code).first()
 
-        if not code or not self.user: # blank codes aren't valid
+        if not code or not self.user:  # blank codes aren't valid
             raise Http404()
         return super().dispatch(request, *args, **kwargs)
 

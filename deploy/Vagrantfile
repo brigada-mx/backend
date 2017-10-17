@@ -16,8 +16,8 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "ubuntu/trusty64"
-  config.vm.hostname = "asistia-saas.dev"
-  config.vm.network "private_network", ip: "192.168.50.6"
+  config.vm.hostname = "mexicanos-unidos.dev"
+  config.vm.network "private_network", ip: "192.168.50.7"
   config.vm.synced_folder "../src/", "/home/vagrant/mexicanos_unidos/src", nfs: true, mount_options: ['rw', 'vers=3', 'tcp', 'fsc' ,'actimeo=1']
 
   config.vm.provider "virtualbox" do |vb|

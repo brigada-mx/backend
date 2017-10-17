@@ -3,31 +3,26 @@
 
 
 [vm]
-192.168.50.6 ansible_ssh_private_key_file=.vagrant/machines/default/virtualbox/private_key
+192.168.50.7 ansible_ssh_private_key_file=.vagrant/machines/default/virtualbox/private_key
 
 
 [webserver]
-107.170.193.117 ansible_ssh_private_key_file=~/.ssh/asistia_nginx
-
-
-[webapp]
-107.170.223.64 ansible_ssh_private_key_file=~/.ssh/asistia_production
+107.170.193.117 ansible_ssh_private_key_file=~/.ssh/mu_nginx
 
 
 [database]
-107.170.210.24 ansible_ssh_private_key_file=~/.ssh/asistia_production
+107.170.210.24 ansible_ssh_private_key_file=~/.ssh/mu_production
 
 
 [message]
-104.131.145.60 ansible_ssh_private_key_file=~/.ssh/asistia_production
+104.131.145.60 ansible_ssh_private_key_file=~/.ssh/mu_production
 
 
 [api]
-104.131.146.162 ansible_ssh_private_key_file=~/.ssh/asistia_production
+104.131.146.162 ansible_ssh_private_key_file=~/.ssh/mu_production
 
 
 [backend:children]
-webapp
 message
 api
 vm
@@ -35,7 +30,6 @@ vm
 [production-secret:children]
 webserver
 database
-webapp
 message
 api
 vm
