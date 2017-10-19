@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 declare -a arr=("deploy/group_vars/all-secret.yml" "deploy/group_vars/development-secret.yml" "deploy/group_vars/production-secret.yml")
 
@@ -34,3 +34,6 @@ do
 done
 
 printf "\nall sensitive files encrypted correctly\n"
+
+printf "\nrunning flake8 validation\n"
+flake8

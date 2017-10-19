@@ -50,3 +50,14 @@
     - role: vagrant
       tags: [vagrant]
       when: env == "development"
+
+# ansible working its magic on the host machine, the working directory is the directory from which
+# the `ansible-playbook` is invoked, i.e. `/deploy`
+- hosts: 127.0.0.1
+  connection: local
+
+  tasks:
+    - name: Symlink hooks into .git/hooks directory on host machine
+      shell: cd ../.git/hooks && ln -s -f ../../deploy/hooks/* ./
+      tags: [git_hooks]
+      when: env == "development"

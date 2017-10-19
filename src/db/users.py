@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 
-from db import BaseModel
+from db.config import BaseModel
 
 
 class CustomAbstractBaseUser(AbstractBaseUser, BaseModel):

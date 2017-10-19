@@ -7,19 +7,19 @@
 
 
 [webserver]
-111.111.111.111 ansible_ssh_private_key_file=~/.ssh/919mx
+52.37.92.55 ansible_ssh_private_key_file=~/.ssh/919mx
 
 
 [db]
-111.111.111.111 ansible_ssh_private_key_file=~/.ssh/919mx
+52.37.92.55 ansible_ssh_private_key_file=~/.ssh/919mx
 
 
 [jobs]
-111.111.111.111 ansible_ssh_private_key_file=~/.ssh/919mx
+52.37.92.55 ansible_ssh_private_key_file=~/.ssh/919mx
 
 
 [api]
-111.111.111.111 ansible_ssh_private_key_file=~/.ssh/919mx
+52.37.92.55 ansible_ssh_private_key_file=~/.ssh/919mx
 
 
 [backend:children]

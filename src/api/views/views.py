@@ -8,8 +8,6 @@ from api import backends
 
 
 @api_view(['GET'])
-@authentication_classes((SessionAuthentication, backends.NurseTokenAuthentication,))
-@permission_classes((permissions.IsAuthenticated,))
 def api_root(request, format=None):
     """API root, this view mainly points to list views so that the API
     is discoverable in HATEOAS style.

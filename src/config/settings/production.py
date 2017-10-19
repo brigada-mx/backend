@@ -1,3 +1,4 @@
+# flake8: noqa
 from config.settings.base import *
 from config.settings.dependencies.aws import *
 

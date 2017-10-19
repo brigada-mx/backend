@@ -1,5 +1,4 @@
-from django.core.urlresolvers import reverse_lazy
-
+# flake8: noqa
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -8,10 +7,8 @@ ADMINS = (
     ('Kyle Bebak', 'kylebebak@gmail.com'),
 )
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('CUSTOM_SECRET_KEY')
 
-AUTH_USER_MODEL = 'db.StaffUser'
 
 DATABASES = {
     'default': {
@@ -24,7 +21,7 @@ DATABASES = {
     }
 }
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     # built-in apps
     'django.contrib.admin',
     'django.contrib.auth',
@@ -44,7 +41,7 @@ INSTALLED_APPS = (
     'storages',
     'rest_framework',
     'corsheaders',
-)
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -55,6 +52,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# AUTH_USER_MODEL = 'db.StaffUser'
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
