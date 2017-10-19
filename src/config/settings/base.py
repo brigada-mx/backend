@@ -32,7 +32,8 @@ INSTALLED_APPS = [
     'django.contrib.gis',
 
     # project apps
-    'db',
+    'db.map',
+    'db.users',
     'helpers',
     'jobs',
     'api',
@@ -53,7 +54,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# AUTH_USER_MODEL = 'db.StaffUser'
+AUTH_USER_MODEL = 'users.StaffUser'
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',

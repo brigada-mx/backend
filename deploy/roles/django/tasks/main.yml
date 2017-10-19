@@ -8,6 +8,6 @@
   tags: [fixtures]
 
 - name: Create super user
-  raw: . {{ environment_variables_file_ }} && echo "from db.users import StaffUser; StaffUser.objects.create_superuser(email='{{ superuser_email_ }}', password='{{ superuser_password_ }}')" | {{ venv_path_ }}/bin/python {{ django_path_ }}/manage.py shell
+  raw: . {{ environment_variables_file_ }} && echo "from db.users.models import StaffUser; StaffUser.objects.create_superuser(email='{{ superuser_email_ }}', password='{{ superuser_password_ }}')" | {{ venv_path_ }}/bin/python {{ django_path_ }}/manage.py shell
   when: superuser_email_ is defined and superuser_password_ is defined and environment_variables_file_ is defined
   tags: [createsuperuser]

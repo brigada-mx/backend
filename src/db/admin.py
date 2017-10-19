@@ -1,8 +1,8 @@
 from django.contrib import admin
 
-from db.users import StaffUser
-from db.models import Locality, LocalityStatisticsLog, Organization, Action
-from db.models import ActionLog, Observer, Observation, OrganizationObservation
+from db.users.models import StaffUser
+from db.map.models import Locality, LocalityStatisticsLog, Organization, Action
+from db.map.models import ActionLog, Observer, Observation, OrganizationObservation
 
 
 class UserAdmin(admin.ModelAdmin):
