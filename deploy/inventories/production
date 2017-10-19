@@ -7,30 +7,30 @@
 
 
 [webserver]
-107.170.193.117 ansible_ssh_private_key_file=~/.ssh/mu_nginx
+111.111.111.111 ansible_ssh_private_key_file=~/.ssh/919mx
 
 
-[database]
-107.170.210.24 ansible_ssh_private_key_file=~/.ssh/mu_production
+[db]
+111.111.111.111 ansible_ssh_private_key_file=~/.ssh/919mx
 
 
-[message]
-104.131.145.60 ansible_ssh_private_key_file=~/.ssh/mu_production
+[jobs]
+111.111.111.111 ansible_ssh_private_key_file=~/.ssh/919mx
 
 
 [api]
-104.131.146.162 ansible_ssh_private_key_file=~/.ssh/mu_production
+111.111.111.111 ansible_ssh_private_key_file=~/.ssh/919mx
 
 
 [backend:children]
-message
+jobs
 api
 vm
 
 [production-secret:children]
 webserver
-database
-message
+db
+jobs
 api
 vm
 localhost

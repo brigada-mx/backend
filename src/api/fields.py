@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from helpers.location import geos_location_from_coordinate_string
 
+
 class LatLngField(serializers.Field):
     """Field is parsed from `{lat},{lng}` string passed in request body,
     and converted to a geos `Point` instance.

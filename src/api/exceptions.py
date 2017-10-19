@@ -14,7 +14,13 @@ def custom_exception_handler(exc, context):
     response = exception_handler(exc, context)
 
     if isinstance(exc, IntegrityError):
-        return Response(error_response_json(str(exc.args), 'Algo salió mal. Es posible que ya tienes un objeto con el mismo nombre o el mismo valor.', error_type='integrity_error', dump_to_string=False), status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            error_response_json(
+                str(exc.args),
+                'Algo salió mal. Es posible que ya tienes un objeto con el mismo nombre o el mismo valor.',
+                error_type='integrity_error',
+                dump_to_string=False),
+            status=status.HTTP_400_BAD_REQUEST)
     return response
 
 

@@ -2,13 +2,11 @@
 - include: service/webserver.yml
   tags: [webserver]
 
-- include: service/database.yml
-  tags: [database]
+- include: service/db.yml
+  tags: [db]
 
-- include: service/webapp.yml
-  tags: [webapp]
+- include: service/api.yml
+  tags: [api]
 
-- include: service/message.yml
-  tags: [message]
-
-
+- include: service/jobs.yml
+  tags: [jobs]

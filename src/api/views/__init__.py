@@ -1,13 +1,2 @@
-from .reservations import *
+# flake8: noqa
 from .views import *
-from .care import *
-from .nurses import *
-from .clients import *
-from .patients import *
-from .shifts import *
-from .schedules import *
-from .notifications import *
-from .rankings import *
-from .metrics import *
-from .invitations import *
-from .users import *

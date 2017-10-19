@@ -1,10 +1,6 @@
 from config.settings.base import *
 from config.settings.dependencies.aws import *
 
-MIDDLEWARE_CLASSES += (
-    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
-)
-
 DEBUG = False
 SANDBOX = False
 

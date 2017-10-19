@@ -11,17 +11,11 @@
       nginx_remove_default_vhost: true
 
       # make sure you installed certbot and created these paths
-      ssl_certificate_file: "/etc/letsencrypt/live/asistia.co/fullchain.pem"
-      ssl_certificate_key_file: "/etc/letsencrypt/live/asistia.co/privkey.pem"
+      ssl_certificate_file: "/etc/letsencrypt/live/919.mx/fullchain.pem"
+      ssl_certificate_key_file: "/etc/letsencrypt/live/919.mx/privkey.pem"
 
       seo_redirects:
-        - enfermeras
-        - enfermeras-a-domicilio
-        - enfermera
-        - enfermeras-df
-        - enfermeras-cdmx
-        - adulto-mayor
-        - cuidadoras-a-domicilio
+        - 19sabierto
 
       nginx_namespaced_vhosts:
         - backend

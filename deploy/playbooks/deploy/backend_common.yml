@@ -14,7 +14,7 @@
     # repo is not cloned in development because NFS takes care of sharing the repo with VM
     - role: clone_repo
       tags: [clone_repo]
-      source: "https://{{ github_user }}:{{ github_password }}@github.com/asistia/backend-saas.git"
+      source: "https://{{ github_user }}:{{ github_password }}@github.com/919MX/backend.git"
       target: "{{ repo_path }}"
       git_branch_: "{{ git_branch }}"
       git_force_: yes

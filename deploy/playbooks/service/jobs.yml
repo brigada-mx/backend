@@ -1,10 +1,13 @@
 ---
-- hosts: webapp
+- hosts: jobs
   user: "{{ login_user }}"
   become: yes
   vars:
     services:
-      - "{{ (env == 'development') | ternary('django', 'gunicorn') }}-{{ env }}"
+      - redis_6379
+      - "celery-worker-{{ env }}"
+      - "celery-beat-{{ env }}"
+      - "celery-flower-{{ env }}"
     action: restarted
 
   environment: "{{ _env_combined }}"

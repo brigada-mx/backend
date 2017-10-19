@@ -1,5 +1,5 @@
 ---
-- hosts: webserver:database:webapp:message:api
+- hosts: webserver:db:jobs:api
   become: yes
 
   # don't run this role in development! only in staging and production!

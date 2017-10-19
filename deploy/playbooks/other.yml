@@ -1,5 +1,0 @@
----
-- hosts: localhost
-
-  tasks:
-    - debug: msg="There is no natural grouping of playbooks in the `other` category. Execute these playbooks individually."

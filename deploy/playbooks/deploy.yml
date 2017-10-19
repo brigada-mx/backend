@@ -5,8 +5,11 @@
 - include: deploy/webserver.yml
   tags: [webserver]
 
-- include: deploy/database.yml
-  tags: [database]
+- include: deploy/db.yml
+  tags: [db]
 
-- include: deploy/backend.yml
-  tags: [backend]
+- include: deploy/api.yml
+  tags: [api]
+
+- include: deploy/jobs.yml
+  tags: [jobs]

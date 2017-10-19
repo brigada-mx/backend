@@ -4,8 +4,6 @@ from django.db.models.aggregates import Count
 
 from rest_framework.response import Response
 
-from api.serializers import TokenSerializer
-
 
 class BooleanParamMixin:
     """Sort of explains itself, doesn't it.
@@ -63,29 +61,6 @@ class DynamicFieldsMixin:
                 self.fields.pop(field_name)
 
 
-class AddRemoveFCMTokenMixin:
-    """Mixin for parsing `token` from request object, and adding or removing the
-    token from the user specified by `_USER_ATTRIBUTE`.
-
-    `_USER_ATTRIBUTE` should be defined on any class that extends this class.
-    """
-    def add_token(self, request, *args, **kwargs):
-        serializer = TokenSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        token = serializer.validated_data['token']
-        user = request.user
-        user.add_fcm_token(token)
-        return Response({'id': user.pk, 'fcm_tokens': user.fcm_tokens})
-
-    def remove_token(self, request, *args, **kwargs):
-        serializer = TokenSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        token = serializer.validated_data['token']
-        user = request.user
-        user.remove_fcm_token(token)
-        return Response({'id': user.pk, 'fcm_tokens': user.fcm_tokens})
-
-
 class MetricsMixin(BooleanParamMixin):
     """Mixin for API views that returns filtered counts, unfiltered base counts,
     and rates obtained from these counts. Handles grouping and "zipping" of
@@ -109,19 +84,19 @@ class MetricsMixin(BooleanParamMixin):
         GET = request.GET
         GET_BASE = request.GET.copy()
         for param in self.FILTER_PARAMS:
-            GET_BASE.pop(param, None) # remove filter params from `request.GET`
-        self.request._request.GET = GET_BASE # modify `request.GET`
+            GET_BASE.pop(param, None)  # remove filter params from `request.GET`
+        self.request._request.GET = GET_BASE  # modify `request.GET`
         qs_base = self._get_queryset(*args, **kwargs)
 
         rates = self._compute_rates(qs, qs_base)
         response = {'params': dict(GET),
                     'params_base': dict(GET_BASE),
                     'count': rates.count,
-                    'results': rates.results,}
+                    'results': rates.results}
         return Response(response)
 
     def _get_queryset(self, *args, **kwargs):
-        self._group_by_fields = [] # set this on instance for use in `_compute_rates`
+        self._group_by_fields = []  # set this on instance for use in `_compute_rates`
         for group_by_param in self.GROUP_BY_PARAMS:
             if self.parse_boolean(self.request.GET.get(group_by_param[0])):
                 self._group_by_fields.append(group_by_param[1])
@@ -142,7 +117,7 @@ class MetricsMixin(BooleanParamMixin):
         idx = 0
         for bc in list(base_counts):
             group_by_fields_dict = {field: bc[field] for field in self._group_by_fields}
-            base_rate = { 'count': 0, 'base_count': bc['total'], 'rate': 0, }
+            base_rate = {'count': 0, 'base_count': bc['total'], 'rate': 0}
 
             try:
                 c = counts[idx]
@@ -160,13 +135,13 @@ class MetricsMixin(BooleanParamMixin):
                 assert c['total'] <= bc['total']
                 # this sanity check is almost guaranteed to fail if
                 # iteration between the querysets gets out of phase
-                rate = { 'count': c['total'], 'base_count': bc['total'],
-                         'rate': c['total'] / bc['total'] if bc['total'] != 0 else None, }
+                rate = {'count': c['total'], 'base_count': bc['total'],
+                        'rate': c['total'] / bc['total'] if bc['total'] != 0 else None}
                 rate.update(group_by_fields_dict)
                 rates.append(rate)
                 idx += 1
 
-        Rates = namedtuple('Rates', 'count, results') # conforms with typical response from a `ListAPIView`
+        Rates = namedtuple('Rates', 'count, results')  # conforms with typical response from a `ListAPIView`
         if self.MIN_COUNT > 0:
             rates = [r for r in rates if r['count'] >= self.MIN_COUNT]
         return Rates(len(rates), rates)

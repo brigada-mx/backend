@@ -1,9 +1,9 @@
 ---
 - include: backend_common.yml
   vars:
-    dynamic_hosts: message
+    dynamic_hosts: jobs
 
-- hosts: message
+- hosts: jobs
   user: "{{ login_user }}"
   become: yes
   vars:

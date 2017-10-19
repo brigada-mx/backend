@@ -3,34 +3,34 @@
 
 
 [vm]
-192.168.50.6 ansible_ssh_private_key_file=.vagrant/machines/default/virtualbox/private_key
+192.168.50.7 ansible_ssh_private_key_file=.vagrant/machines/default/virtualbox/private_key
 
 
 [webserver]
-192.168.50.6 ansible_ssh_private_key_file=.vagrant/machines/default/virtualbox/private_key
+192.168.50.7 ansible_ssh_private_key_file=.vagrant/machines/default/virtualbox/private_key
 
 
-[webapp]
-192.168.50.6 ansible_ssh_private_key_file=.vagrant/machines/default/virtualbox/private_key
+[db]
+192.168.50.7 ansible_ssh_private_key_file=.vagrant/machines/default/virtualbox/private_key
 
 
-[database]
-192.168.50.6 ansible_ssh_private_key_file=.vagrant/machines/default/virtualbox/private_key
+[jobs]
+192.168.50.7 ansible_ssh_private_key_file=.vagrant/machines/default/virtualbox/private_key
 
 
-[message]
-192.168.50.6 ansible_ssh_private_key_file=.vagrant/machines/default/virtualbox/private_key
+[api]
+192.168.50.7 ansible_ssh_private_key_file=.vagrant/machines/default/virtualbox/private_key
 
 
 [backend:children]
-webapp
-message
+jobs
+api
 
 [development-secret:children]
 webserver
-database
-webapp
-message
+db
+jobs
+api
 localhost
 
 [development:children]

@@ -1,5 +1,5 @@
 ---
-- hosts: database
+- hosts: db
   user: "{{ login_user }}"
   become: yes
 
@@ -14,10 +14,10 @@
         state: absent
 
 
-- include: ../deploy/database.yml # rebuild database
+- include: ../deploy/db.yml # rebuild database
 
 
-- hosts: database
+- hosts: db
   user: "{{ login_user }}"
   become: yes
 
@@ -36,7 +36,7 @@
       raw: psql -U {{ _env_combined.CUSTOM_DATABASE_USER }} {{ _env_combined.CUSTOM_DATABASE_NAME }} < /tmp/{{ dump_file }}
 
 
-- hosts: webapp
+- hosts: api
   user: "{{ login_user }}"
   become: yes
 

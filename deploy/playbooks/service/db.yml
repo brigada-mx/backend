@@ -1,5 +1,5 @@
 ---
-- hosts: database
+- hosts: db
   user: "{{ login_user }}"
   become: yes
   vars:

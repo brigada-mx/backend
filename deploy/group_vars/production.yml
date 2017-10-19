@@ -1,8 +1,8 @@
 ---
 env: "production"
-website_url: "mexicanos-unidos.mx"
-flower_website_url: "flower.mexicanos-unidos.mx"
-home_website_url: "mexicanos-unidos.mx"
+website_url: "919.mx"
+flower_website_url: "flower.919.mx"
+home_website_url: "919.mx"
 
 upstart_start_on: "net-device-up"
 
@@ -12,13 +12,12 @@ upstart_scripts_backend:
 requirements_files_: ["requirements.txt"]
 
 _env:
-  CUSTOM_WEBAPP_HOST: "10.134.24.168"
   CUSTOM_DATABASE_HOST: "10.134.22.100"
-  CUSTOM_REDIS_HOST: "10.134.24.187"
-  CUSTOM_API_HOST: "10.134.25.199"
+  CUSTOM_REDIS_HOST: "10.134.22.100"
+  CUSTOM_API_HOST: "10.134.22.100"
   CUSTOM_ENV: "production"
   DJANGO_SETTINGS_MODULE: "config.settings.production"
-  CUSTOM_SITE_URL: "mexicanos-unidos.mx"
+  CUSTOM_SITE_URL: "919.mx"
   CUSTOM_REDIS_DATABASE: "0"
-  AWS_STORAGE_BUCKET_NAME: "mexicanos-unidos-production"
+  AWS_STORAGE_BUCKET_NAME: "919-production"
   AWS_CACHE_CONTROL_MAX_AGE: "7200"

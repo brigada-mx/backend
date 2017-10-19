@@ -1,6 +1,6 @@
 ---
 env: "development"
-website_url: "mexicanos-unidos.dev:8000"
+website_url: "919.dev:8000"
 
 upstart_start_on: "vagrant-mounted"
 
@@ -11,13 +11,12 @@ upstart_scripts_backend:
 requirements_files_: ["requirements.txt", "requirements-dev.txt"]
 
 _env:
-  CUSTOM_WEBAPP_HOST: "127.0.0.1"
   CUSTOM_DATABASE_HOST: "127.0.0.1"
   CUSTOM_REDIS_HOST: "127.0.0.1"
   CUSTOM_API_HOST: "127.0.0.1"
   CUSTOM_ENV: "development"
   DJANGO_SETTINGS_MODULE: "config.settings.development"
-  CUSTOM_SITE_URL: "mexicanos-unidos.dev:8000"
+  CUSTOM_SITE_URL: "919.dev:8000"
   CUSTOM_REDIS_DATABASE: "0"
-  AWS_STORAGE_BUCKET_NAME: "mexicanos-unidos-development"
+  AWS_STORAGE_BUCKET_NAME: "919-development"
   AWS_CACHE_CONTROL_MAX_AGE: "120"

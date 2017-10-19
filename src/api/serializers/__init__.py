@@ -1,9 +1,2 @@
+# flake8: noqa
 from .serializers import *
-from .reservations import *
-from .care import *
-from .nurses import *
-from .clients import *
-from .shifts import *
-from .schedules import *
-from .patients import *
-from .invitations import *
