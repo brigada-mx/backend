@@ -33,15 +33,6 @@
       service_namespace: "-{{ env }}"
       replace_logrotate: true
 
-    # only for development, this restarts celery processes on file changes
-    - role: upstart
-      tags: [upstart]
-      shell_scripts: "celery-reloader.py"
-      shell_scripts_path: "{{ bin_path }}"
-      scripts: "celery-reloader"
-      replace_logrotate: true
-      when: env == "development"
-
     - role: logrotate
       tags: [logrotate]
       scripts: []

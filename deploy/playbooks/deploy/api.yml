@@ -15,7 +15,6 @@
       venv_path_: "{{ venv_path }}"
       django_path_: "{{ django_path }}"
       environment_variables_file_: "{{ django_path }}/.env"
-      django_fixtures_: "care_tasks"
       # define superuser_email_ and superuser_password_ if you want to createsuperuser
 
     - role: upstart
@@ -23,15 +22,6 @@
       scripts: "{{ upstart_scripts_backend }}"
       service_namespace: "-{{ env }}"
       replace_logrotate: true
-
-    # only for development, this avoids NFS lag when reloading django dev server
-    - role: upstart
-      tags: [upstart]
-      shell_scripts: "django-reloader.py"
-      shell_scripts_path: "{{ bin_path }}"
-      scripts: "django-reloader"
-      replace_logrotate: true
-      when: env == "development"
 
     - role: logrotate
       tags: [logrotate]

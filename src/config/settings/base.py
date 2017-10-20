@@ -32,8 +32,8 @@ INSTALLED_APPS = [
     'django.contrib.gis',
 
     # project apps
-    'db.map',
     'db.users',
+    'db.map',
     'helpers',
     'jobs',
     'api',
