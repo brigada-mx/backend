@@ -14,6 +14,7 @@ _env:
   CUSTOM_DATABASE_HOST: "127.0.0.1"
   CUSTOM_REDIS_HOST: "127.0.0.1"
   CUSTOM_API_HOST: "127.0.0.1"
+  CUSTOM_WEBAPP_HOST: "127.0.0.1"
   CUSTOM_ENV: "development"
   DJANGO_SETTINGS_MODULE: "config.settings.development"
   CUSTOM_SITE_URL: "919.dev"

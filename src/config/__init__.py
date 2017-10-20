@@ -1,3 +1,4 @@
+# flake8: noqa
 """Don't mess with the imports in this file, it exports things that are imported
 from config in other modules.
 """
