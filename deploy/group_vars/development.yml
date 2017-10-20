@@ -16,7 +16,7 @@ _env:
   CUSTOM_API_HOST: "127.0.0.1"
   CUSTOM_ENV: "development"
   DJANGO_SETTINGS_MODULE: "config.settings.development"
-  CUSTOM_SITE_URL: "919.dev:8000"
+  CUSTOM_SITE_URL: "919.dev"
   CUSTOM_REDIS_DATABASE: "0"
   AWS_STORAGE_BUCKET_NAME: "919-development"
   AWS_CACHE_CONTROL_MAX_AGE: "120"

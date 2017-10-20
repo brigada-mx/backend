@@ -36,4 +36,4 @@ done
 printf "\nall sensitive files encrypted correctly\n"
 
 printf "\nrunning flake8 validation\n"
-flake8
+# flake8

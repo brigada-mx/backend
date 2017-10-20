@@ -16,12 +16,6 @@ DEBUG = True
 # Used for payments and other transactions that should not be real except in production
 SANDBOX = True
 
-def show_toolbar(request):
-    return True
-DEBUG_TOOLBAR_CONFIG = {
-    "SHOW_TOOLBAR_CALLBACK": show_toolbar,
-}
-
 DEBUG_PROPAGATE_EXCEPTIONS = True
 
 # shell_plus from django-extensions
