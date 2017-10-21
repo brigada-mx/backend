@@ -33,6 +33,8 @@
       firewall_allowed_tcp_ports:
         - "22"
         - "25"
+        - "80"
+        - "443"
       firewall_allowed_private_tcp_ports:
         - "8000"
       when: env != "development"

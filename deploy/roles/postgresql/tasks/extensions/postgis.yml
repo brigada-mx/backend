@@ -1,4 +1,6 @@
 # file: postgresql/tasks/extensions/postgis.yml
+# add the following to `with_items` on 14.04
+# - libgeos-c1
 
 - name: PostgreSQL | Extensions | Make sure the postgis extensions are installed
   apt:
