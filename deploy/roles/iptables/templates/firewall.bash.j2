@@ -49,14 +49,16 @@ iptables -t nat -I OUTPUT -p udp -o lo --dport {{ forwarded_port.src }} -j REDIR
 
 # Open ports.
 # tcp ports
-{# Add a rule for each open port #}
-{% for port in firewall_allowed_tcp_ports %}
-iptables -A INPUT -p tcp -m tcp --dport {{ port }} -j ACCEPT
-{% endfor %}
+iptables -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
+iptables -A INPUT -p tcp -m tcp --dport 25 -j ACCEPT
+iptables -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+iptables -A INPUT -p tcp -m tcp --dport 443 -j ACCEPT
 # private tcp ports
-{% for port in firewall_allowed_private_tcp_ports %}
-iptables -A INPUT -i eth1 -p tcp -m tcp --dport {{ port }} -j ACCEPT
-{% endfor %}
+iptables -A INPUT -i eth1 -p tcp -m tcp --dport 5555 -j ACCEPT
+iptables -A INPUT -i eth1 -p tcp -m tcp --dport 6379 -j ACCEPT
+iptables -A INPUT -i eth1 -p tcp -m tcp --dport 5432 -j ACCEPT
+iptables -A INPUT -i eth1 -p tcp -m tcp --dport 6379 -j ACCEPT
+iptables -A INPUT -i eth1 -p tcp -m tcp --dport 8000 -j ACCEPT
 # udp ports
 {% for port in firewall_allowed_udp_ports %}
 iptables -A INPUT -p udp -m udp --dport {{ port }} -j ACCEPT

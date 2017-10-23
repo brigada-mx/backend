@@ -4,13 +4,16 @@
   become: yes
 
   roles:
+    - role: certbot
+      tags: [certbot]
+
     - role: nginx
       tags: [nginx]
 
       nginx_worker_processes: 4
       nginx_remove_default_vhost: true
 
-      # make sure you installed certbot and created these paths
+      # make sure you installed certbot and created these files
       ssl_certificate_file: "/etc/letsencrypt/live/919.mx/fullchain.pem"
       ssl_certificate_key_file: "/etc/letsencrypt/live/919.mx/privkey.pem"
 
@@ -35,6 +38,3 @@
         - "80"
         - "443"
       when: env != "development"
-
-    - role: certbot
-      tags: [certbot]

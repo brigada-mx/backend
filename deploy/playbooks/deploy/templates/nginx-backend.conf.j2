@@ -1,9 +1,4 @@
 #!/bin/sh
-upstream webapp_{{ env }} {
-  server {{ _env_combined.CUSTOM_WEBAPP_HOST }}:8000 weight=5 max_fails=3 fail_timeout=30s;
-  # use 127.0.0.1 if webapp lives on same server as webserver
-}
-
 upstream api_{{ env }} {
   server {{ _env_combined.CUSTOM_API_HOST }}:8000 weight=5 max_fails=3 fail_timeout=30s;
   # use 127.0.0.1 if api lives on same server as webserver
@@ -54,7 +49,8 @@ server {
 
 # the main server block that catches requests to `https://<website_url>`
 server {
-  # general config
+  set $root /var/www/919/web;
+
   client_max_body_size 50M;
   listen 443;
   server_name {{ website_url }};
@@ -72,24 +68,20 @@ server {
     root /usr/share/nginx/html;
   }
 
-  # home page proxy
-  # location = / {
-  #   proxy_pass http://{{ home_website_url }};
-  # }
-
-  # other static pages that are served by proxy
-  # location ~* /(adultos|app_asociados|apps|aviso-connect|bebes|bonos|calcula-precio|confianza|garantia|mensualidad|servicios|terminos-connect|app|terminos-asociados|aviso-asociados)/? {
-  #   proxy_pass http://{{ home_website_url }};
-  # }
-
-  # all other petitions proxied to webapp servers
+  # all petitions are served static content
   location / {
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_set_header Host $http_host;
-    proxy_redirect off;
-    proxy_read_timeout 300s;
-    proxy_pass http://webapp_{{ env }};
+    root $root/html;
+    index index.html index.htm;
+    rewrite ^/mapa$ /map.html;
+    rewrite ^/mapa/$ /map.html;
+  }
+
+  location /styles/ {
+    root $root;
+  }
+
+  location /assets/ {
+    root $root;
   }
 
   # except for petitions to API, which are proxied to API servers

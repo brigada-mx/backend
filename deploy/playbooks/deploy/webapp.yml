@@ -1,0 +1,13 @@
+---
+- hosts: webserver
+  user: "{{ login_user }}"
+  become: yes
+
+  roles:
+    - role: clone_repo
+      tags: [clone_repo]
+      source: "https://{{ github_user }}:{{ github_password }}@github.com/919MX/web.git"
+      target: "/var/www/919/web"
+      git_branch_: "{{ git_branch }}"
+      git_force_: yes
+      when: env != "development"

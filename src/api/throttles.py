@@ -9,7 +9,7 @@ class NonAdminUserRateThrottle(UserRateThrottle):
     authenticated users.
     """
     def allow_request(self, request, view):
-        # `allow_request` be called first, to ensure `self.history` is defined
+        # `allow_request` must be called first, to ensure `self.history` is defined
         allow = super(NonAdminUserRateThrottle, self).allow_request(request, view)
         try:
             if request.user.is_staff:

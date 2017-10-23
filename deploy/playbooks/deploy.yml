@@ -13,3 +13,6 @@
 
 - include: deploy/jobs.yml
   tags: [jobs]
+
+- include: deploy/webapp.yml
+  tags: [webapp]
