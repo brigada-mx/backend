@@ -4,6 +4,8 @@
   become: yes
 
   roles:
+    # first create /var/www/919 with 777 permissions
+
     - role: clone_repo
       tags: [clone_repo]
       source: "https://{{ github_user }}:{{ github_password }}@github.com/919MX/web.git"

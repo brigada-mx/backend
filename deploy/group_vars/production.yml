@@ -1,8 +1,8 @@
 ---
 env: "production"
-website_url: "919.mx"
-flower_website_url: "flower.919.mx"
-home_website_url: "919.mx"
+website_url: "719s.mx"
+flower_website_url: "flower.719s.mx"
+home_website_url: "719s.mx"
 
 upstart_start_on: "net-device-up"
 
@@ -19,7 +19,7 @@ _env:
   CUSTOM_WEBAPP_HOST: "127.0.0.1"
   CUSTOM_ENV: "production"
   DJANGO_SETTINGS_MODULE: "config.settings.production"
-  CUSTOM_SITE_URL: "919.mx"
+  CUSTOM_SITE_URL: "719s.mx"
   CUSTOM_REDIS_DATABASE: "0"
-  AWS_STORAGE_BUCKET_NAME: "919-production"
+  AWS_STORAGE_BUCKET_NAME: "719s-production"
   AWS_CACHE_CONTROL_MAX_AGE: "7200"

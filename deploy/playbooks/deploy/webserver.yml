@@ -14,8 +14,8 @@
       nginx_remove_default_vhost: true
 
       # make sure you installed certbot and created these files
-      ssl_certificate_file: "/etc/letsencrypt/live/919.mx/fullchain.pem"
-      ssl_certificate_key_file: "/etc/letsencrypt/live/919.mx/privkey.pem"
+      ssl_certificate_file: "/etc/letsencrypt/live/719s.mx/fullchain.pem"
+      ssl_certificate_key_file: "/etc/letsencrypt/live/719s.mx/privkey.pem"
 
       seo_redirects:
         - 19sabierto
