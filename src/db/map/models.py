@@ -7,35 +7,44 @@ from db.choices import ACTION_SOURCE_CHOICES, ACTION_STATUS_CHOICES
 
 
 class Locality(BaseModel):
-    """INEGI's "localidad".
+    """INEGI's "localidad". Loaded from external source.
     """
-    name = models.TextField(blank=False)
+    name = models.TextField()
+    municipality_name = models.TextField(blank=True)
+    state_name = models.TextField(blank=True)
     cvegeo = models.TextField(unique=True)
-    meta = JSONField(help_text="File URLs, etc")
+    meta = JSONField(null=True, help_text='File URLs, etc')
+
+    REPR_FIELDS = ['cvegeo', 'name', 'municipality_name', 'state_name']
 
 
 class Organization(BaseModel):
     """A reconstruction actor or data-gathering organization.
     """
-    name = models.TextField()
-    description = models.TextField()
-    contact = JSONField(help_text='Contact data')
+    key = models.TextField(unique=True, help_text='Essentially google sheet tab name')
+    name = models.TextField(blank=True)
+    description = models.TextField(blank=True)
+    contact = JSONField(default={}, help_text='Contact data')
+
+    REPR_FIELDS = ['key', 'name', 'description']
 
 
 class AbstractAction(models.Model):
     """For fields common to `Action` and `ActionLog` tables.
     """
     locality = models.ForeignKey('Locality')
-    status = models.TextField(choices=ACTION_STATUS_CHOICES)
-    action_type = models.TextField(blank=True)
-    description = models.TextField()
+    status = models.TextField(blank=True, choices=ACTION_STATUS_CHOICES)
     sub_organization = models.TextField(blank=True)
-    budget = models.FloatField(null=True)
-    spent = models.FloatField(null=True)
-    percent_complete = models.FloatField(null=True)
-    start_date = models.DateField(null=True)
-    end_date = models.DateField(null=True)
-    contact = JSONField(help_text='Contact data')
+    action_type = models.TextField(blank=True)
+    action = models.TextField(blank=True)
+    description = models.TextField(blank=True)
+    unit_of_measurement = models.TextField(blank=True)
+    target = models.FloatField(null=True, help_text='How many units does action intend to deliver')
+    budget = models.FloatField(null=True, help_text='$MXN')
+    spent = models.FloatField(null=True, help_text='$MXN')
+    start_date = models.DateField(null=True, db_index=True)
+    end_date = models.DateField(null=True, db_index=True)
+    contact = JSONField(default={}, help_text='Contact data')
 
     class Meta:
         abstract = True
