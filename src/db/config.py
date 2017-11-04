@@ -9,7 +9,7 @@ class BaseModel(models.Model):
     modified = models.DateTimeField(auto_now=True, db_index=True)
 
     def __repr__(self):
-        """Reads fields list from model's REPR_FIELDS class attribute.
+        """Reads fields list from model's `REPR_FIELDS` class attribute.
         """
         if not hasattr(self, 'REPR_FIELDS'):
             return super().__repr__()

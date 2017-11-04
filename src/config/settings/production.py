@@ -20,3 +20,5 @@ AWS_HEADERS = {  # see http://developer.yahoo.com/performance/rules.html#expires
 
 STATIC_URL = "https://{}/static/".format(AWS_S3_CUSTOM_DOMAIN)
 MEDIA_URL = "https://{}/media/".format(AWS_S3_CUSTOM_DOMAIN)
+
+HOME = '/home/custom'

@@ -23,10 +23,10 @@ class Organization(BaseModel):
     """
     key = models.TextField(unique=True, help_text='Essentially google sheet tab name')
     name = models.TextField(blank=True)
-    description = models.TextField(blank=True)
+    desc = models.TextField(blank=True)
     contact = JSONField(default={}, help_text='Contact data')
 
-    REPR_FIELDS = ['key', 'name', 'description']
+    REPR_FIELDS = ['key', 'name', 'desc']
 
 
 class AbstractAction(models.Model):
@@ -36,8 +36,8 @@ class AbstractAction(models.Model):
     status = models.TextField(blank=True, choices=ACTION_STATUS_CHOICES)
     sub_organization = models.TextField(blank=True)
     action_type = models.TextField(blank=True)
-    action = models.TextField(blank=True)
-    description = models.TextField(blank=True)
+    desc = models.TextField(blank=True)
+    long_desc = models.TextField(blank=True)
     unit_of_measurement = models.TextField(blank=True)
     target = models.FloatField(null=True, help_text='How many units does action intend to deliver')
     budget = models.FloatField(null=True, help_text='$MXN')

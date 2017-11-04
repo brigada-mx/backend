@@ -6,5 +6,6 @@ ACTION_SOURCE_CHOICES = (
 ACTION_STATUS_CHOICES = (
     ('before', 'Por iniciar'),
     ('ongoing', 'En proceso'),
-    ('done', 'Concluido'),
+    ('cancelled', 'Cancelada'),
+    ('done', 'Concluida'),
 )

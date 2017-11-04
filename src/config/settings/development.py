@@ -31,3 +31,5 @@ AWS_S3_CUSTOM_DOMAIN = '{}.s3.amazonaws.com'.format(AWS_STORAGE_BUCKET_NAME)
 
 AWS_ACCESS_KEY_ID = os.getenv('CUSTOM_AWS_ACCESS_KEY')
 AWS_SECRET_ACCESS_KEY = os.getenv('CUSTOM_AWS_SECRET_KEY')
+
+HOME = '/home/vagrant'
