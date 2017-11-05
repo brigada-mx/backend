@@ -64,8 +64,9 @@ media/
 celerybeat-schedule
 celerybeat.pid
 
-# ansible retry files
+# ansible
 *.retry
+.ansible-vault-pass
 
 # vagrant
 .vagrant/
