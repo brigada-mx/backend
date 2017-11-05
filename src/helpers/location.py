@@ -9,7 +9,7 @@ def calculate_distance_between_coords(lat0, lng0, lat1, lng1, meters=False):
                 cos(radians(lat0)) *
                 cos(radians(lat1)) *
                 cos(radians(lng0 - lng1)))
-    distance = constrain(distance, -1, 1) # avoid math domain error in case floating point arithmetic fails
+    distance = constrain(distance, -1, 1)  # avoid math domain error in case floating point arithmetic fails
     miles = (degrees(acos(distance))) * 69.09
     return miles / 0.00062137119223733 if meters else miles
 

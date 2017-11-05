@@ -20,7 +20,7 @@ CELERYBEAT_SCHEDULE = {
     ##########
     'etl_localities': {
         'task': 'etl_localities',
-        'schedule': crontab(minute=0, hour=[2])
+        'schedule': crontab(minute=0, hour=[2, 4])
     },
     'etl_actions': {
         'task': 'etl_actions',
