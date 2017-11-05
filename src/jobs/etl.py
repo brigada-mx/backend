@@ -20,11 +20,12 @@ def parse_or_none(parser, s):
 
 
 def sync_action(row, sheet_title):
-    """Sync action row from sheet with DB.
+    """Sync action row from sheet with DB. New `ActionLog`s are only created if
+    action changed since last read.
     """
     row_key, state, locality_s, sub_organization, action_type, desc, \
         long_desc, unit_of_measurement, target, budget, spent, start_date, \
-        end_date, status, person_responsible, email, phone = [v.strip() for v in row]
+        end_date, status, person_responsible, email, phone, *rest = [v.strip() for v in row]
 
     cvegeo = locality_s.strip().split('(')[-1][:-1].strip()
     if not cvegeo or not row_key:
@@ -106,16 +107,18 @@ def get_google_client():
 
 @shared_task(name='etl_localities')
 def etl_localities():
+    """Get localities from Google sheet and insert them into DB.
+    """
     from django.conf import settings
     client = get_google_client()
     sheets = client.open('Acciones 719S')
 
     sheet = sheets.worksheet_by_title('Geografias')
-    csv_file = os.path.join(settings.HOME, 'localities.csv.json')
+    csv_file = os.path.join(settings.HOME, 'localities.csv')
     sheet.export(pygsheets.ExportType.CSV, filename=csv_file)
 
-    with open(csv_file, newline='') as file:
-        reader = csv.reader(file)
+    with open(csv_file, newline='', encoding='utf-8') as file:
+        reader = csv.reader(file, lineterminator='\n')
         next(reader, None)
         for row in reader:
             sync_locality(row)
@@ -123,6 +126,8 @@ def etl_localities():
 
 @shared_task(name='etl_actions')
 def etl_actions():
+    """Get actions from Google sheet and insert them into DB.
+    """
     client = get_google_client()
     sheets = client.open('Acciones 719S')
 
