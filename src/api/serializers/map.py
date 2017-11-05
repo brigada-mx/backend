@@ -27,9 +27,28 @@ class ActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     organization = OrganizationSerializer(read_only=True)
 
     status_name = serializers.SerializerMethodField()
+    url_log = serializers.SerializerMethodField()
 
     class Meta:
         model = Action
+        fields = '__all__'
+
+    def get_url_log(self, obj):
+        return reverse('api:action-log', args=[obj.pk], request=self.context.get('request'))
+
+    def get_status_name(self, obj):
+        return obj.get_status_display()
+
+
+class ActionLogSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _SELECT_RELATED_FIELDS = ['locality']
+
+    locality = LocalitySerializer(read_only=True)
+
+    status_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ActionLog
         fields = '__all__'
 
     def get_status_name(self, obj):
