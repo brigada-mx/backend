@@ -1,0 +1,7 @@
+# http://docs.python-requests.org/en/master/user/quickstart/
+
+###env
+base_url = 'http://919.dev:8000/api'
+###env
+
+get(base_url + '/actions/')

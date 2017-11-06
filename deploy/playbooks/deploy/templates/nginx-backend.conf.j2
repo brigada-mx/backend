@@ -84,6 +84,10 @@ server {
     root $root;
   }
 
+  location /js/ {
+    root $root;
+  }
+
   # except for petitions to API, which are proxied to API servers
   location /api/ {
     # make sure nginx doesn't intercept JSON error responses from API and replace them with HTML

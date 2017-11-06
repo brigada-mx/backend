@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from db.map.models import Locality, Organization, Action, ActionLog
-from api.mixins import EagerLoadingMixin, DynamicFieldsMixin
+from api.mixins import EagerLoadingMixin
 
 
 class LocalitySerializer(serializers.ModelSerializer):

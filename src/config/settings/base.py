@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -132,6 +133,7 @@ CACHES = {
 # list of origin hostnames that are authorized to make cross-site HTTP requests
 # https://github.com/ottoyiu/django-cors-headers#cors_origin_whitelist
 CORS_ORIGIN_WHITELIST = (
+    '919.local.mx:8080',
 )
 
 CORS_ALLOW_METHODS = (
@@ -140,7 +142,7 @@ CORS_ALLOW_METHODS = (
     'PUT',
     'PATCH',
     'DELETE',
-    'OPTIONS'
+    'OPTIONS',
 )
 
 SITE_URL_WITHOUT_SCHEME = os.getenv('CUSTOM_SITE_URL')
