@@ -7,8 +7,6 @@ class LatLngField(serializers.Field):
     """Field is parsed from `{lat},{lng}` string passed in request body,
     and converted to a geos `Point` instance.
 
-    This makes it easy, for example, for a nurse to update their location.
-
     5 decimal places gives a precision of 1.1m, it's actually overkill:
     http://gis.stackexchange.com/questions/8650/measuring-accuracy-of-latitude-and-longitude
     """

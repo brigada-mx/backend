@@ -99,9 +99,4 @@ server {
     proxy_read_timeout 300s;
     proxy_pass http://api_{{ env }};
   }
-
-  # SEO redirects
-  {% for path in seo_redirects %}
-    rewrite ^/{{ path }}/?$ https://{{ website_url }} permanent;
-  {% endfor %}
 }
