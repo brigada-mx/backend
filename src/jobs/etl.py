@@ -1,4 +1,5 @@
 import os
+import re
 import csv
 from dateutil.parser import parse
 
@@ -41,11 +42,19 @@ def sync_action(row, sheet_title):
 
     def date_parse(s):
         return parse(s).date()
+
+    def money_parse(s):
+        """Deals with strings of this form: `$195.000,00`.
+        """
+        if len(s) >= 3 and (s[-3] == ',' or s[-3] == '.'):
+            s = s[:-3]
+        return float(re.sub('[^\d]', '', s))
+
     start_date = parse_or_none(date_parse, start_date)
     end_date = parse_or_none(date_parse, end_date)
     target = parse_or_none(float, target)
-    budget = parse_or_none(float, budget)
-    spent = parse_or_none(float, spent)
+    budget = parse_or_none(money_parse, budget)
+    spent = parse_or_none(money_parse, spent)
     contact = {
         'person_responsible': person_responsible,
         'email': email,
