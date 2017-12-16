@@ -134,6 +134,7 @@ CACHES = {
 # https://github.com/ottoyiu/django-cors-headers#cors_origin_whitelist
 CORS_ORIGIN_WHITELIST = (
     '919.local.mx:8080',
+    '919.local.mx:8081',
 )
 
 CORS_ALLOW_METHODS = (

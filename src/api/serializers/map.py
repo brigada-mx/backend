@@ -22,11 +22,9 @@ class OrganizationSerializer(serializers.ModelSerializer):
 class ActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['locality', 'organization']
 
-    contact = serializers.JSONField()
     locality = LocalitySerializer(read_only=True)
     organization = OrganizationSerializer(read_only=True)
 
-    status_name = serializers.SerializerMethodField()
     url_log = serializers.SerializerMethodField()
 
     class Meta:
@@ -36,20 +34,12 @@ class ActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     def get_url_log(self, obj):
         return reverse('api:action-log', args=[obj.pk], request=self.context.get('request'))
 
-    def get_status_name(self, obj):
-        return obj.get_status_display()
-
 
 class ActionLogSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['locality']
 
     locality = LocalitySerializer(read_only=True)
 
-    status_name = serializers.SerializerMethodField()
-
     class Meta:
         model = ActionLog
         fields = '__all__'
-
-    def get_status_name(self, obj):
-        return obj.get_status_display()

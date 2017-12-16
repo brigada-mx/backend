@@ -24,16 +24,15 @@ def sync_action(row, sheet_title):
     """Sync action row from sheet with DB. New `ActionLog`s are only created if
     action changed since last read.
     """
-    row_key, state, locality_s, sub_organization, action_type, desc, \
-        long_desc, unit_of_measurement, target, budget, spent, start_date, \
-        end_date, status, person_responsible, email, phone, *rest = [v.strip() for v in row]
+    row_key, locality_s, action_type, desc, target, unit_of_measurement, progress, budget, \
+        start_date, end_date, *rest = [v.strip() for v in row]
 
     cvegeo = locality_s.strip().split('(')[-1][:-1].strip()
     if not cvegeo or not row_key:
         return
 
     locality = Locality.objects.filter(cvegeo=cvegeo).first()
-    if locality is None or (not desc and not long_desc):
+    if locality is None or not desc:
         return
 
     organization = Organization.objects.filter(key=sheet_title).first()
@@ -54,27 +53,17 @@ def sync_action(row, sheet_title):
     end_date = parse_or_none(date_parse, end_date)
     target = parse_or_none(float, target)
     budget = parse_or_none(money_parse, budget)
-    spent = parse_or_none(money_parse, spent)
-    contact = {
-        'person_responsible': person_responsible,
-        'email': email,
-        'phone': phone,
-    }
 
     fields = {
         'locality': locality,
-        'sub_organization': sub_organization,
         'action_type': action_type,
         'desc': desc,
-        'long_desc': long_desc,
-        'unit_of_measurement': unit_of_measurement,
         'target': target,
+        'unit_of_measurement': unit_of_measurement,
+        'progress': progress,
         'budget': budget,
-        'spent': spent,
         'start_date': start_date,
         'end_date': end_date,
-        'status': status,
-        'contact': contact
     }
 
     key = '{}|{}'.format(sheet_title, row_key)
@@ -120,9 +109,11 @@ def etl_localities():
     """
     from django.conf import settings
     client = get_google_client()
-    sheets = client.open('Acciones 719S')
+    sheets = client.open_by_url(
+        'https://docs.google.com/spreadsheets/d/1vantwWHd55hNYC5nnNRo8uf9wp8yXRNOMFUY2a5ZPtA'
+    )
 
-    sheet = sheets.worksheet_by_title('Geografias')
+    sheet = sheets.worksheet_by_title('Lugares')
     csv_file = os.path.join(settings.HOME, 'localities.csv')
     sheet.export(pygsheets.ExportType.CSV, filename=csv_file)
 
@@ -138,7 +129,9 @@ def etl_actions():
     """Get actions from Google sheet and insert them into DB.
     """
     client = get_google_client()
-    sheets = client.open('Acciones 719S')
+    sheets = client.open_by_url(
+        'https://docs.google.com/spreadsheets/d/1vantwWHd55hNYC5nnNRo8uf9wp8yXRNOMFUY2a5ZPtA'
+    )
 
     action_sheets = [s for s in sheets if s.title.startswith('_')]
     for sheet in action_sheets:

@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.contrib.postgres.fields import JSONField
 
 from db.config import BaseModel
-from db.choices import ACTION_SOURCE_CHOICES, ACTION_STATUS_CHOICES
+from db.choices import ACTION_SOURCE_CHOICES
 
 
 class Locality(BaseModel):
@@ -33,18 +33,14 @@ class AbstractAction(models.Model):
     """For fields common to `Action` and `ActionLog` tables.
     """
     locality = models.ForeignKey('Locality')
-    status = models.TextField(blank=True, choices=ACTION_STATUS_CHOICES)
-    sub_organization = models.TextField(blank=True)
     action_type = models.TextField(blank=True)
     desc = models.TextField(blank=True)
-    long_desc = models.TextField(blank=True)
-    unit_of_measurement = models.TextField(blank=True)
     target = models.FloatField(null=True, help_text='How many units does action intend to deliver')
+    unit_of_measurement = models.TextField(blank=True)
+    progress = models.FloatField(null=True, help_text='How many units have been delivered?')
     budget = models.FloatField(null=True, help_text='$MXN')
-    spent = models.FloatField(null=True, help_text='$MXN')
     start_date = models.DateField(null=True, db_index=True)
     end_date = models.DateField(null=True, db_index=True)
-    contact = JSONField(default={}, help_text='Contact data')
 
     class Meta:
         abstract = True
