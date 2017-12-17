@@ -10,4 +10,6 @@ def api_root(request, format=None):
     """
     return Response({
         'actions': reverse('api:action-list', request=request, format=format),
+        'organizations': reverse('api:organization-list', request=request, format=format),
+        'localities': reverse('api:locality-list', request=request, format=format),
     })

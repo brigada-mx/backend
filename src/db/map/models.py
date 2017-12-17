@@ -9,10 +9,10 @@ from db.choices import ACTION_SOURCE_CHOICES
 class Locality(BaseModel):
     """INEGI's "localidad". Loaded from external source.
     """
+    cvegeo = models.TextField(unique=True)
     name = models.TextField()
     municipality_name = models.TextField(blank=True)
     state_name = models.TextField(blank=True)
-    cvegeo = models.TextField(unique=True)
     meta = JSONField(null=True, help_text='File URLs, etc')
 
     REPR_FIELDS = ['cvegeo', 'name', 'municipality_name', 'state_name']
