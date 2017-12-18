@@ -52,6 +52,7 @@ def sync_action(row, sheet_title):
     end_date = parse_or_none(date_parse, end_date)
     target = parse_or_none(float, target)
     budget = parse_or_none(money_parse, budget)
+    progress = parse_or_none(float, progress)
 
     fields = {
         'locality': locality,
@@ -75,11 +76,10 @@ def sync_action(row, sheet_title):
         return
 
     for k, v in fields.items():  # only create new `ActionLog` object if fields have changed
-        if getattr(action, k) == v:
-            continue
-        action.update_fields(**fields)
-        ActionLog.objects.create(action=action, **fields)
-        return
+        if getattr(action, k) != v:
+            action.update_fields(**fields)
+            ActionLog.objects.create(action=action, **fields)
+            break
 
 
 def get_google_client():

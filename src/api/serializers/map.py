@@ -3,9 +3,10 @@ from rest_framework.reverse import reverse
 
 from db.map.models import State, Municipality, Locality, Organization, Action, ActionLog
 from api.mixins import EagerLoadingMixin
+from api.fields import LatLngField
 
 
-class StateSerializer(serializers.ModelSerializer):
+class StateSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     meta = serializers.JSONField()
 
     class Meta:
@@ -13,7 +14,7 @@ class StateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class MunicipalitySerializer(serializers.ModelSerializer):
+class MunicipalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
     meta = serializers.JSONField()
 
     class Meta:
@@ -21,15 +22,16 @@ class MunicipalitySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class LocalitySerializer(serializers.ModelSerializer):
+class LocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
     meta = serializers.JSONField()
+    location = LatLngField()
 
     class Meta:
         model = Locality
         fields = '__all__'
 
 
-class OrganizationSerializer(serializers.ModelSerializer):
+class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     class Meta:
         model = Organization
         fields = '__all__'

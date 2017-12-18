@@ -73,8 +73,45 @@ def load_from_csv(csv_file, entity):
             entity_loader[entity](row)
 
 
+def upsert_locality(row, metrics_labels):
+    cvegeo, longitude, latitude, state_name, municipality_name, name = row[:6]
+    cvegeo = cvegeo.strip()
+    metrics = row[6:]
+
+    metrics_dict = {}
+    for k, v in zip(metrics_labels, metrics):
+        try:
+            v = float(v)
+        except ValueError:
+            pass
+        finally:
+            metrics_dict[k] = v
+
+    try:
+        locality = Locality.objects.get(cvegeo=cvegeo)
+    except:
+        locality = Locality.objects.create(
+            cvegeo=cvegeo,
+            location=geos_location_from_coordinates(float(latitude), float(longitude)),
+            state_name=state_name,
+            municipality_name=municipality_name,
+            name=name,
+        )
+    locality.meta.update(metrics_dict)
+    locality.save()
+
+
 def sync_locality_features(csv_file):
-    return
+    with open(csv_file, newline='', encoding='utf-8') as file:
+        reader = csv.reader(file, lineterminator='\n')
+        first = True
+        metrics_labels = []
+        for row in reader:
+            if first:
+                metrics_labels = row[6:]
+                first = False
+            else:
+                upsert_locality(row, metrics_labels)
 
 
 class Command(BaseCommand):
@@ -95,5 +132,4 @@ class Command(BaseCommand):
 
         if locality_csv is not None:
             print('syncing locality features')
-            csv_file = args[1]
             sync_locality_features(locality_csv)

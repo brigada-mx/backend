@@ -16,7 +16,7 @@ class Locality(BaseModel):
     municipality_name = models.TextField()
     state_name = models.TextField()
     location = models.PointField(null=False)
-    elevation = models.FloatField()
+    elevation = models.FloatField(null=True)
     meta = JSONField(default={}, help_text='Metrics, file URLs, etc')
 
     REPR_FIELDS = ['cvegeo', 'name', 'municipality_name', 'state_name']

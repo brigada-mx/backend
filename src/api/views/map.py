@@ -5,7 +5,6 @@ from rest_framework import generics
 from db.map.models import State, Municipality, Locality, Action, Organization
 from api.serializers import StateSerializer, MunicipalitySerializer, LocalitySerializer
 from api.serializers import ActionSerializer, ActionLogSerializer, OrganizationSerializer
-from api.fields import LatLngField
 
 
 class StateList(generics.ListAPIView):
@@ -33,15 +32,14 @@ class LocalityList(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(
-            Locality.objects.all().order_by('-modified')
+            Locality.objects.all()
         )
         return queryset
 
 
 class LocalityDetail(generics.RetrieveAPIView):
     serializer_class = LocalitySerializer
-
-    location = LatLngField()
+    lookup_field = 'cvegeo'
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(
