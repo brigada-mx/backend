@@ -1,6 +1,7 @@
 """
 USAGE:
 python manage.py load --load_dir db/load
+python manage.py load --denue_dir db/load/denue
 python manage.py load --locality_csv db/load/<locality_csv>
 """
 import os
@@ -10,10 +11,11 @@ from django.core.management.base import BaseCommand
 
 from helpers.location import geos_location_from_coordinates
 from db.map.models import Locality, Municipality, State
+from .helpers import load_denue
 
 
 def load_locality(row):
-    """Load locality row from sheet to DB.
+    """Load locality row to DB.
     """
     cvegeo_state, state_name, cvegeo_municipality, municipality_name, cvegeo_locality, name, \
         latitude, longitude, elevation, *rest = row
@@ -33,7 +35,7 @@ def load_locality(row):
 
 
 def load_municipality(row):
-    """Load municipality row from sheet to DB.
+    """Load municipality row to DB.
     """
     cvegeo_state, state_name, cvegeo_municipality, municipality_name, *rest = row
     cvegeo_state = cvegeo_state.strip()
@@ -48,7 +50,7 @@ def load_municipality(row):
 
 
 def load_state(row):
-    """Load state row from sheet to DB.
+    """Load state row to DB.
     """
     cvegeo_state, state_name, *rest = row
     cvegeo_state = cvegeo_state.strip()
@@ -56,21 +58,6 @@ def load_state(row):
     state = State.objects.filter(cvegeo_state=cvegeo_state).first()
     if state is None:
         State.objects.create(cvegeo_state=cvegeo_state, state_name=state_name)
-
-
-def load_from_csv(csv_file, entity):
-    """Get geographical entities from flat file and insert them into DB.
-    """
-    entity_loader = {
-        'locality': load_locality,
-        'municipality': load_municipality,
-        'state': load_state,
-    }
-    with open(csv_file, newline='', encoding='utf-8') as file:
-        reader = csv.reader(file, lineterminator='\n')
-        next(reader, None)
-        for row in reader:
-            entity_loader[entity](row)
 
 
 def upsert_locality(row, metrics_labels):
@@ -114,22 +101,48 @@ def sync_locality_features(csv_file):
                 upsert_locality(row, metrics_labels)
 
 
+def load_from_csv(csv_file, source):
+    """Read from source file and insert them into DB.
+    """
+    source_loader = {
+        'locality': load_locality,
+        'municipality': load_municipality,
+        'state': load_state,
+        'denue': load_denue,
+    }
+    with open(csv_file, newline='', encoding='utf-8') as file:
+        reader = csv.reader(file, lineterminator='\n')
+        next(reader, None)
+        for row in reader:
+            source_loader[source](row)
+
+
 class Command(BaseCommand):
     help = 'Loads or syncs certain DB tables from CSV files'
 
     def add_arguments(self, parser):
         parser.add_argument('--locality_csv', help='File to update existing locality records')
         parser.add_argument('--load_dir', help='Directory to load loc, state and muni records')
+        parser.add_argument('--denue_dir', help='Directory to load loc, state and muni records')
 
     def handle(self, *args, **options):
         locality_csv = options.get('locality_csv')
         load_dir = options.get('load_dir')
+        denue_dir = options.get('denue_dir')
+
         if load_dir is not None:
             print('loading localities, municipalities and states')
-            for entity in ['locality', 'municipality', 'state']:
-                csv_file = os.path.join(load_dir, '{}.csv'.format(entity))
-                load_from_csv(csv_file, entity)
+            for source in ['locality', 'municipality', 'state']:
+                load_from_csv(os.path.join(load_dir, '{}.csv'.format(source)), source)
 
         if locality_csv is not None:
             print('syncing locality features')
             sync_locality_features(locality_csv)
+
+        if denue_dir is not None:
+            print('syncing denue establishment data')
+            for f in os.listdir(denue_dir):
+                if not f.endswith('.csv'):
+                    continue
+                print(f)
+                load_from_csv(os.path.join(denue_dir, f), 'denue')

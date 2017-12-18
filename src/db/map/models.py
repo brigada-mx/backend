@@ -4,6 +4,7 @@ from django.contrib.postgres.fields import JSONField
 
 from db.config import BaseModel
 from db.choices import ACTION_SOURCE_CHOICES
+from helpers.location import geos_location_from_coordinates
 
 
 class Locality(BaseModel):
@@ -29,6 +30,75 @@ class Locality(BaseModel):
     def save(self, *args, **kwargs):
         self.cvegeo_municipality = self.cvegeo[:5]
         self.cvegeo_state = self.cvegeo[:2]
+        return super().save(*args, **kwargs)
+
+
+class Establishment(BaseModel):
+    """Establishments loaded from DENUE.
+    """
+    cvegeo = models.TextField(blank=True)
+    locality = models.ForeignKey('Locality', null=True)
+    location = models.PointField(blank=True, null=True)
+
+    # verbatim DENUE fields
+    denue_id = models.TextField(blank=True)
+    nom_estab = models.TextField(blank=True)
+    raz_social = models.TextField(blank=True)
+
+    codigo_act = models.TextField(blank=True)
+    nombre_act = models.TextField(blank=True)
+
+    per_ocu = models.TextField(blank=True)
+    tipo_vial = models.TextField(blank=True)
+    nom_vial = models.TextField(blank=True)
+    tipo_v_e_1 = models.TextField(blank=True)
+    nom_v_e_1 = models.TextField(blank=True)
+    tipo_v_e_2 = models.TextField(blank=True)
+    nom_v_e_2 = models.TextField(blank=True)
+    tipo_v_e_3 = models.TextField(blank=True)
+    nom_v_e_3 = models.TextField(blank=True)
+    numero_ext = models.TextField(blank=True)
+    letra_ext = models.TextField(blank=True)
+    edificio = models.TextField(blank=True)
+    edificio_e = models.TextField(blank=True)
+    numero_int = models.TextField(blank=True)
+    letra_int = models.TextField(blank=True)
+    tipo_asent = models.TextField(blank=True)
+    nomb_asent = models.TextField(blank=True)
+    tipoCenCom = models.TextField(blank=True)
+    nom_CenCom = models.TextField(blank=True)
+    num_local = models.TextField(blank=True)
+    cod_postal = models.TextField(blank=True)
+    cve_ent = models.TextField(blank=True)
+    entidad = models.TextField(blank=True)
+    cve_mun = models.TextField(blank=True)
+    municipio = models.TextField(blank=True)
+    cve_loc = models.TextField(blank=True)
+    localidad = models.TextField(blank=True)
+    ageb = models.TextField(blank=True)
+    manzana = models.TextField(blank=True)
+    telefono = models.TextField(blank=True)
+    correoelec = models.TextField(blank=True)
+    www = models.TextField(blank=True)
+    tipoUniEco = models.TextField(blank=True)
+    latitud = models.TextField(blank=True)
+    longitud = models.TextField(blank=True)
+    fecha_alta = models.TextField(blank=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['cvegeo']),
+            models.Index(fields=['location']),
+            models.Index(fields=['codigo_act']),
+        ]
+
+    def save(self, *args, **kwargs):
+        self.cvegeo = ''.join(c.strip() for c in [self.cve_ent, self.cve_mun, self.cve_loc])
+        self.locality = Locality.objects.filter(cvegeo=self.cvegeo).first()
+        try:
+            self.location = geos_location_from_coordinates(float(self.latitud), float(self.longitud))
+        except:
+            self.location = None
         return super().save(*args, **kwargs)
 
 
