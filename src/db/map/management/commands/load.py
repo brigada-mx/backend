@@ -11,7 +11,7 @@ from django.core.management.base import BaseCommand
 
 from helpers.location import geos_location_from_coordinates
 from db.map.models import Locality, Municipality, State
-from .helpers import load_denue
+from .loaders import load_denue
 
 
 def load_locality(row):

@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.contrib.postgres.fields import JSONField
 
 from db.config import BaseModel
-from db.choices import ACTION_SOURCE_CHOICES
+from db.choices import ACTION_SOURCE_CHOICES, CODE_SCIAN_GROUP
 from helpers.location import geos_location_from_coordinates
 
 
@@ -33,20 +33,31 @@ class Locality(BaseModel):
         return super().save(*args, **kwargs)
 
 
+class ScianGroup(BaseModel):
+    code = models.IntegerField(unique=True)
+    name = models.TextField()
+    description = models.TextField()
+
+
+def default_scian_group():
+    return ScianGroup.objects.get(code=0)
+
+
 class Establishment(BaseModel):
     """Establishments loaded from DENUE.
     """
     cvegeo = models.TextField(blank=True)
+    scian_group = models.ForeignKey('ScianGroup', default=default_scian_group)
     locality = models.ForeignKey('Locality', null=True)
     location = models.PointField(blank=True, null=True)
 
     # verbatim DENUE fields
-    denue_id = models.TextField(blank=True)
+    denue_id = models.TextField(unique=True)
     nom_estab = models.TextField(blank=True)
     raz_social = models.TextField(blank=True)
 
-    codigo_act = models.TextField(blank=True)
-    nombre_act = models.TextField(blank=True)
+    codigo_act = models.TextField(blank=True, help_text='CVE_SCIAN')
+    nombre_act = models.TextField(blank=True, help_text='DESC_SCIAN')
 
     per_ocu = models.TextField(blank=True)
     tipo_vial = models.TextField(blank=True)
@@ -95,6 +106,7 @@ class Establishment(BaseModel):
     def save(self, *args, **kwargs):
         self.cvegeo = ''.join(c.strip() for c in [self.cve_ent, self.cve_mun, self.cve_loc])
         self.locality = Locality.objects.filter(cvegeo=self.cvegeo).first()
+        self.scian_group = ScianGroup.objects.get(code=CODE_SCIAN_GROUP.get(self.codigo_act, 0))
         try:
             self.location = geos_location_from_coordinates(float(self.latitud), float(self.longitud))
         except:

@@ -2,6 +2,8 @@ from db.map.models import Establishment
 
 
 count = 0
+
+
 def load_denue(row):
     """Load denue row to DB.
     """
@@ -49,7 +51,9 @@ def load_denue(row):
         'fecha_alta',
     )
     values_dict = {k: v for k, v in zip(fields, row)}
-    Establishment.objects.create(**values_dict)
+    establishment = Establishment.objects.filter(denue_id=values_dict['denue_id']).first()
+    if establishment is None:
+        Establishment.objects.create(**values_dict)
 
     global count
     count += 1
