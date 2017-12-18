@@ -10,12 +10,52 @@ class Locality(BaseModel):
     """INEGI's "localidad". Loaded from external source.
     """
     cvegeo = models.TextField(unique=True)
+    cvegeo_municipality = models.TextField(db_index=True)
+    cvegeo_state = models.TextField(db_index=True)
     name = models.TextField()
-    municipality_name = models.TextField(blank=True)
-    state_name = models.TextField(blank=True)
-    meta = JSONField(null=True, help_text='File URLs, etc')
+    municipality_name = models.TextField()
+    state_name = models.TextField()
+    location = models.PointField(null=False)
+    elevation = models.FloatField()
+    meta = JSONField(default={}, help_text='Metrics, file URLs, etc')
 
     REPR_FIELDS = ['cvegeo', 'name', 'municipality_name', 'state_name']
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['location']),
+        ]
+
+    def save(self, *args, **kwargs):
+        self.cvegeo_municipality = self.cvegeo[:5]
+        self.cvegeo_state = self.cvegeo[:2]
+        return super().save(*args, **kwargs)
+
+
+class Municipality(BaseModel):
+    """INEGI's "municipality". Loaded from external source.
+    """
+    cvegeo_municipality = models.TextField(unique=True)
+    cvegeo_state = models.TextField(db_index=True)
+    municipality_name = models.TextField()
+    state_name = models.TextField()
+    meta = JSONField(default={}, help_text='Metrics, file URLs, etc')
+
+    REPR_FIELDS = ['cvegeo_municipality', 'municipality_name', 'state_name']
+
+    def save(self, *args, **kwargs):
+        self.cvegeo_state = self.cvegeo_municipality[:2]
+        return super().save(*args, **kwargs)
+
+
+class State(BaseModel):
+    """INEGI's "municipality". Loaded from external source.
+    """
+    cvegeo_state = models.TextField(unique=True)
+    state_name = models.TextField()
+    meta = JSONField(default={}, help_text='Metrics, file URLs, etc')
+
+    REPR_FIELDS = ['cvegeo_state', 'state_name']
 
 
 class Organization(BaseModel):

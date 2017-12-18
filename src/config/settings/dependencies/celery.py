@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 from datetime import timedelta
-from celery.schedules import crontab
 
 CELERY_IMPORTS = (
     'jobs.etl',
@@ -18,10 +17,6 @@ CELERYBEAT_SCHEDULE = {
     ##########
     # ETL
     ##########
-    'etl_localities': {
-        'task': 'etl_localities',
-        'schedule': crontab(minute=0, hour=[2, 4])
-    },
     'etl_actions': {
         'task': 'etl_actions',
         'schedule': timedelta(seconds=60 * 15),

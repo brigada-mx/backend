@@ -1,6 +1,5 @@
 import os
 import re
-import csv
 from dateutil.parser import parse
 
 from django.db import transaction
@@ -83,45 +82,10 @@ def sync_action(row, sheet_title):
         return
 
 
-def sync_locality(row):
-    """Sync locality row from sheet with DB.
-    """
-    state_name, municipality_name, name, cvegeo = row[:4]
-    cvegeo = cvegeo.strip()
-    if not cvegeo:
-        return
-
-    locality = Locality.objects.filter(cvegeo=cvegeo).first()
-    if locality is None:
-        Locality.objects.create(name=name, municipality_name=municipality_name,
-                                state_name=state_name, cvegeo=cvegeo)
-
-
 def get_google_client():
     from django.conf import settings
     file = os.path.join(settings.HOME, 'client_secret.json')
     return pygsheets.authorize(service_file=file)
-
-
-@shared_task(name='etl_localities')
-def etl_localities():
-    """Get localities from Google sheet and insert them into DB.
-    """
-    from django.conf import settings
-    client = get_google_client()
-    sheets = client.open_by_url(
-        'https://docs.google.com/spreadsheets/d/1vantwWHd55hNYC5nnNRo8uf9wp8yXRNOMFUY2a5ZPtA'
-    )
-
-    sheet = sheets.worksheet_by_title('Lugares')
-    csv_file = os.path.join(settings.HOME, 'localities.csv')
-    sheet.export(pygsheets.ExportType.CSV, filename=csv_file)
-
-    with open(csv_file, newline='', encoding='utf-8') as file:
-        reader = csv.reader(file, lineterminator='\n')
-        next(reader, None)
-        for row in reader:
-            sync_locality(row)
 
 
 @shared_task(name='etl_actions')
