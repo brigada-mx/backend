@@ -1,7 +1,7 @@
 from db.map.models import Establishment
 
 
-count = 0
+_denue_load_count = 0
 
 
 def load_denue(row):
@@ -55,7 +55,7 @@ def load_denue(row):
     if establishment is None:
         Establishment.objects.create(**values_dict)
 
-    global count
-    count += 1
-    if count % 1000 == 0:
-        print(count)
+    global _denue_load_count
+    _denue_load_count += 1
+    if _denue_load_count % 1000 == 0:
+        print(_denue_load_count)
