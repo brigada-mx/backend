@@ -4,20 +4,7 @@ from django.db.models.aggregates import Count
 
 from rest_framework.response import Response
 
-
-class BooleanParamMixin:
-    """Sort of explains itself, doesn't it.
-    """
-    TRUE_STRINGS = ('True', 'true', 'Yes', 'yes',)
-    FALSE_STRINGS = ('False', 'false', 'No', 'no',)
-
-    @classmethod
-    def parse_boolean(cls, param):
-        if param in cls.TRUE_STRINGS:
-            return True
-        if param in cls.FALSE_STRINGS:
-            return False
-        return None
+from api.filters import parse_boolean
 
 
 class EagerLoadingMixin:
@@ -61,7 +48,7 @@ class DynamicFieldsMixin:
                 self.fields.pop(field_name)
 
 
-class MetricsMixin(BooleanParamMixin):
+class MetricsMixin:
     """Mixin for API views that returns filtered counts, unfiltered base counts,
     and rates obtained from these counts. Handles grouping and "zipping" of
     filtered/unfiltered result sets.
@@ -98,7 +85,7 @@ class MetricsMixin(BooleanParamMixin):
     def _get_queryset(self, *args, **kwargs):
         self._group_by_fields = []  # set this on instance for use in `_compute_rates`
         for group_by_param in self.GROUP_BY_PARAMS:
-            if self.parse_boolean(self.request.GET.get(group_by_param[0])):
+            if parse_boolean(self.request.GET.get(group_by_param[0])):
                 self._group_by_fields.append(group_by_param[1])
 
         qs = self.filter_queryset(self.get_queryset())

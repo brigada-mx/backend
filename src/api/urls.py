@@ -18,6 +18,8 @@ urlpatterns = [
 
     url(r'^organizations/$', views.OrganizationList.as_view(), name='organization-list'),
     url(r'^organizations/(?P<pk>[0-9]+)/$', views.OrganizationDetail.as_view(), name='organization-detail'),
+
+    url(r'^establishments/$', views.EstablishmentList.as_view(), name='establishment-list'),
 ]
 
 # allow API to parse and return many different formats, not just default JSON

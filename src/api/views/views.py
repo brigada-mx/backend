@@ -15,4 +15,5 @@ def api_root(request, format=None):
 
         'actions': reverse('api:action-list', request=request, format=format),
         'organizations': reverse('api:organization-list', request=request, format=format),
+        'establishments': reverse('api:establishment-list', request=request, format=format),
     })

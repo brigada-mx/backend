@@ -2,12 +2,12 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import generics
 
-from db.map.models import State, Municipality, Locality, Action, Organization
+from db.map.models import State, Municipality, Locality, Action, Organization, Establishment
 from api.serializers import StateSerializer, MunicipalitySerializer
-from api.serializers import LocalitySerializer, LocalityDetailSerializer
+from api.serializers import LocalitySerializer, LocalityDetailSerializer, EstablishmentSerializer
 from api.serializers import ActionSerializer, ActionDetailSerializer, ActionLogSerializer
 from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
-from api.filters import ActionFilter
+from api.filters import ActionFilter, EstablishmentFilter
 
 
 class StateList(generics.ListAPIView):
@@ -47,6 +47,17 @@ class LocalityDetail(generics.RetrieveAPIView):
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(
             Locality.objects.all().order_by('-modified')
+        )
+        return queryset
+
+
+class EstablishmentList(generics.ListAPIView):
+    serializer_class = EstablishmentSerializer
+    filter_class = EstablishmentFilter
+
+    def get_queryset(self):
+        queryset = self.get_serializer_class().setup_eager_loading(
+            Establishment.objects.all().order_by('-modified')
         )
         return queryset
 
