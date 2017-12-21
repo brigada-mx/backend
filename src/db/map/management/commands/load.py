@@ -1,7 +1,11 @@
 """
+DEPS:
+python manage.py loaddata scian_group.json
+
 USAGE:
 python manage.py load --load_dir db/load
 python manage.py load --denue_dir db/load/denue
+python manage.py load --denue_file db/load/denue/<denue_file>
 python manage.py load --locality_csv db/load/<locality_csv>
 """
 import os
@@ -17,8 +21,8 @@ from .loaders import load_denue
 def load_locality(row):
     """Load locality row to DB.
     """
-    cvegeo_state, state_name, cvegeo_municipality, municipality_name, cvegeo_locality, name, \
-        latitude, longitude, elevation, *rest = row
+    (cvegeo_state, state_name, cvegeo_municipality, municipality_name, cvegeo_locality, name,
+        latitude, longitude, elevation, *rest) = row
     cvegeo_state = cvegeo_state.strip()
     cvegeo_municipality = cvegeo_state + cvegeo_municipality.strip()
     cvegeo = cvegeo_municipality + cvegeo_locality.strip()
@@ -123,12 +127,14 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--locality_csv', help='File to update existing locality records')
         parser.add_argument('--load_dir', help='Directory to load loc, state and muni records')
-        parser.add_argument('--denue_dir', help='Directory to load loc, state and muni records')
+        parser.add_argument('--denue_dir', help='Directory to load establishment records')
+        parser.add_argument('--denue_file', help='File to load establishment records')
 
     def handle(self, *args, **options):
         locality_csv = options.get('locality_csv')
         load_dir = options.get('load_dir')
         denue_dir = options.get('denue_dir')
+        denue_file = options.get('denue_file')
 
         if load_dir is not None:
             print('loading localities, municipalities and states')
@@ -146,3 +152,7 @@ class Command(BaseCommand):
                     continue
                 print(f)
                 load_from_csv(os.path.join(denue_dir, f), 'denue')
+
+        if denue_file is not None:
+            print('syncing denue establishment data: {}'.format(denue_file))
+            load_from_csv(denue_file, 'denue')

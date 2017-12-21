@@ -23,8 +23,8 @@ def sync_action(row, sheet_title):
     """Sync action row from sheet with DB. New `ActionLog`s are only created if
     action changed since last read.
     """
-    row_key, locality_s, action_type, desc, target, unit_of_measurement, progress, budget, \
-        start_date, end_date, *rest = [v.strip() for v in row]
+    (row_key, locality_s, action_type, desc, target, unit_of_measurement, progress, budget,
+        start_date, end_date, *rest) = [v.strip() for v in row]
 
     cvegeo = locality_s.strip().split('(')[-1][:-1].strip()
     if not cvegeo or not row_key:

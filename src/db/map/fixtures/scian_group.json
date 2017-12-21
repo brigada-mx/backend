@@ -1,0 +1,92 @@
+[
+  {
+    "model": "map.ScianGroup",
+    "pk": 1,
+    "fields": {
+      "name": "Sin categorizar",
+      "created": "2000-01-01",
+      "modified": "2000-01-01"
+    }
+  },
+  {
+    "model": "map.ScianGroup",
+    "pk": 2,
+    "fields": {
+      "name": "Administración pública",
+      "created": "2000-01-01",
+      "modified": "2000-01-01"
+    }
+  },
+  {
+    "model": "map.ScianGroup",
+    "pk": 3,
+    "fields": {
+      "name": "Almacenamiento",
+      "created": "2000-01-01",
+      "modified": "2000-01-01"
+    }
+  },
+  {
+    "model": "map.ScianGroup",
+    "pk": 4,
+    "fields": {
+      "name": "Asociaciones y organizaciones",
+      "created": "2000-01-01",
+      "modified": "2000-01-01"
+    }
+  },
+  {
+    "model": "map.ScianGroup",
+    "pk": 5,
+    "fields": {
+      "name": "Atención médica y psicológica",
+      "created": "2000-01-01",
+      "modified": "2000-01-01"
+    }
+  },
+  {
+    "model": "map.ScianGroup",
+    "pk": 6,
+    "fields": {
+      "name": "Construcción y material",
+      "created": "2000-01-01",
+      "modified": "2000-01-01"
+    }
+  },
+  {
+    "model": "map.ScianGroup",
+    "pk": 7,
+    "fields": {
+      "name": "Educación",
+      "created": "2000-01-01",
+      "modified": "2000-01-01"
+    }
+  },
+  {
+    "model": "map.ScianGroup",
+    "pk": 8,
+    "fields": {
+      "name": "Espacio público",
+      "created": "2000-01-01",
+      "modified": "2000-01-01"
+    }
+  },
+  {
+    "model": "map.ScianGroup",
+    "pk": 9,
+    "fields": {
+      "name": "Servicios de emergencia",
+      "created": "2000-01-01",
+      "modified": "2000-01-01"
+    }
+  },
+  {
+    "model": "map.ScianGroup",
+    "pk": 10,
+    "fields": {
+      "name": "Transporte",
+      "created": "2000-01-01",
+      "modified": "2000-01-01"
+    }
+  }
+]

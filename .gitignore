@@ -70,3 +70,6 @@ celerybeat.pid
 
 # vagrant
 .vagrant/
+
+# data
+denue/

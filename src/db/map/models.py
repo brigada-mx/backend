@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.contrib.postgres.fields import JSONField
 
 from db.config import BaseModel
-from db.choices import ACTION_SOURCE_CHOICES, CODE_SCIAN_GROUP
+from db.choices import ACTION_SOURCE_CHOICES, CODE_SCIAN_GROUP_ID
 from helpers.location import geos_location_from_coordinates
 
 
@@ -18,6 +18,7 @@ class Locality(BaseModel):
     state_name = models.TextField()
     location = models.PointField(null=False)
     elevation = models.FloatField(null=True)
+    has_data = models.BooleanField(default=False, db_index=True, help_text='Has additional data')
     meta = JSONField(default={}, help_text='Metrics, file URLs, etc')
 
     REPR_FIELDS = ['cvegeo', 'name', 'municipality_name', 'state_name']
@@ -30,24 +31,20 @@ class Locality(BaseModel):
     def save(self, *args, **kwargs):
         self.cvegeo_municipality = self.cvegeo[:5]
         self.cvegeo_state = self.cvegeo[:2]
+        self.has_data = bool(self.meta)
         return super().save(*args, **kwargs)
 
 
 class ScianGroup(BaseModel):
-    code = models.IntegerField(unique=True)
     name = models.TextField()
-    description = models.TextField()
-
-
-def default_scian_group():
-    return ScianGroup.objects.get(code=0)
+    description = models.TextField(blank=True)
 
 
 class Establishment(BaseModel):
     """Establishments loaded from DENUE.
     """
     cvegeo = models.TextField(blank=True)
-    scian_group = models.ForeignKey('ScianGroup', default=default_scian_group)
+    scian_group = models.ForeignKey('ScianGroup', default=1)
     locality = models.ForeignKey('Locality', null=True)
     location = models.PointField(blank=True, null=True)
 
@@ -106,7 +103,7 @@ class Establishment(BaseModel):
     def save(self, *args, **kwargs):
         self.cvegeo = ''.join(c.strip() for c in [self.cve_ent, self.cve_mun, self.cve_loc])
         self.locality = Locality.objects.filter(cvegeo=self.cvegeo).first()
-        self.scian_group = ScianGroup.objects.get(code=CODE_SCIAN_GROUP.get(self.codigo_act, 0))
+        self.scian_group_id = CODE_SCIAN_GROUP_ID.get(self.codigo_act, 1)
         try:
             self.location = geos_location_from_coordinates(float(self.latitud), float(self.longitud))
         except:

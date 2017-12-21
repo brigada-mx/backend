@@ -20,32 +20,11 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created', models.DateTimeField(auto_now_add=True, db_index=True)),
                 ('modified', models.DateTimeField(auto_now=True, db_index=True)),
-                ('code', models.IntegerField(unique=True)),
                 ('name', models.TextField()),
-                ('description', models.TextField()),
+                ('description', models.TextField(blank=True)),
             ],
             options={
                 'abstract': False,
             },
-        ),
-        migrations.AlterField(
-            model_name='establishment',
-            name='codigo_act',
-            field=models.TextField(blank=True, help_text='CVE_SCIAN'),
-        ),
-        migrations.AlterField(
-            model_name='establishment',
-            name='denue_id',
-            field=models.TextField(unique=True),
-        ),
-        migrations.AlterField(
-            model_name='establishment',
-            name='nombre_act',
-            field=models.TextField(blank=True, help_text='DESC_SCIAN'),
-        ),
-        migrations.AddField(
-            model_name='establishment',
-            name='scian_group',
-            field=models.ForeignKey(default=db.map.models.default_scian_group, on_delete=django.db.models.deletion.CASCADE, to='map.ScianGroup'),
         ),
     ]
