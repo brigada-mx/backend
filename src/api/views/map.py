@@ -3,8 +3,10 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics
 
 from db.map.models import State, Municipality, Locality, Action, Organization
-from api.serializers import StateSerializer, MunicipalitySerializer, LocalitySerializer
-from api.serializers import ActionSerializer, ActionLogSerializer, OrganizationSerializer
+from api.serializers import StateSerializer, MunicipalitySerializer
+from api.serializers import LocalitySerializer, LocalityDetailSerializer
+from api.serializers import ActionSerializer, ActionDetailSerializer, ActionLogSerializer
+from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
 
 
 class StateList(generics.ListAPIView):
@@ -39,7 +41,7 @@ class LocalityList(generics.ListAPIView):
 
 
 class LocalityDetail(generics.RetrieveAPIView):
-    serializer_class = LocalitySerializer
+    serializer_class = LocalityDetailSerializer
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(
@@ -50,6 +52,16 @@ class LocalityDetail(generics.RetrieveAPIView):
 
 class ActionList(generics.ListAPIView):
     serializer_class = ActionSerializer
+
+    def get_queryset(self):
+        queryset = self.get_serializer_class().setup_eager_loading(
+            Action.objects.all().order_by('-modified')
+        )
+        return queryset
+
+
+class ActionDetail(generics.RetrieveAPIView):
+    serializer_class = ActionDetailSerializer
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(
@@ -80,7 +92,7 @@ class OrganizationList(generics.ListAPIView):
 
 
 class OrganizationDetail(generics.RetrieveAPIView):
-    serializer_class = OrganizationSerializer
+    serializer_class = OrganizationDetailSerializer
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(

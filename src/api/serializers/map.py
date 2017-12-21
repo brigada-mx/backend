@@ -24,9 +24,10 @@ class MunicipalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
 class LocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_RELATED_FIELDS = ['action_set']
+
+    url = serializers.HyperlinkedIdentityField(view_name='api:locality-detail')
     meta = serializers.JSONField()
     location = LatLngField()
-
     action_count = serializers.SerializerMethodField()
 
     class Meta:
@@ -37,18 +38,8 @@ class LocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
         return obj.action_set.count()
 
 
-class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    class Meta:
-        model = Organization
-        fields = '__all__'
-
-
 class ActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    _SELECT_RELATED_FIELDS = ['locality', 'organization']
-
-    locality = LocalitySerializer(read_only=True)
-    organization = OrganizationSerializer(read_only=True)
-
+    url = serializers.HyperlinkedIdentityField(view_name='api:action-detail')
     url_log = serializers.SerializerMethodField()
 
     class Meta:
@@ -59,10 +50,31 @@ class ActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         return reverse('api:action-log', args=[obj.pk], request=self.context.get('request'))
 
 
-class ActionLogSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    _SELECT_RELATED_FIELDS = ['locality']
+class LocalityDetailSerializer(LocalitySerializer):
+    actions = ActionSerializer(source='action_set', many=True, read_only=True)
+
+
+class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    url = serializers.HyperlinkedIdentityField(view_name='api:organization-detail')
+
+    class Meta:
+        model = Organization
+        fields = '__all__'
+
+
+class OrganizationDetailSerializer(OrganizationSerializer):
+    _PREFETCH_RELATED_FIELDS = ['action_set']
+    actions = ActionSerializer(source='action_set', many=True, read_only=True)
+
+
+class ActionDetailSerializer(ActionSerializer):
+    _SELECT_RELATED_FIELDS = ['locality', 'organization']
 
     locality = LocalitySerializer(read_only=True)
+    organization = OrganizationSerializer(read_only=True)
+
+
+class ActionLogSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
     class Meta:
         model = ActionLog
