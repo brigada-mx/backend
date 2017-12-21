@@ -75,6 +75,7 @@ class OrganizationDetailSerializer(OrganizationSerializer):
 class EstablishmentSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     location = LatLngField()
     locality = serializers.HyperlinkedRelatedField(view_name='api:locality-detail', read_only=True)
+    locality_id = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Establishment
@@ -84,7 +85,9 @@ class EstablishmentSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 class ActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     url = serializers.HyperlinkedIdentityField(view_name='api:action-detail')
     locality = serializers.HyperlinkedRelatedField(view_name='api:locality-detail', read_only=True)
+    locality_id = serializers.IntegerField(read_only=True)
     organization = serializers.HyperlinkedRelatedField(view_name='api:organization-detail', read_only=True)
+    organization_id = serializers.IntegerField(read_only=True)
     url_log = serializers.SerializerMethodField()
 
     class Meta:
