@@ -29,17 +29,17 @@ class MunicipalityList(generics.ListAPIView):
 
 class LocalityList(generics.ListAPIView):
     serializer_class = LocalitySerializer
+    filter_fields = ('has_data', 'cvegeo')
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(
-            Locality.objects.all()
+            Locality.objects.all().order_by('-modified')
         )
         return queryset
 
 
 class LocalityDetail(generics.RetrieveAPIView):
     serializer_class = LocalitySerializer
-    lookup_field = 'cvegeo'
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(

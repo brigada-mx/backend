@@ -23,12 +23,18 @@ class MunicipalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
 
 class LocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _PREFETCH_RELATED_FIELDS = ['action_set']
     meta = serializers.JSONField()
     location = LatLngField()
+
+    action_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Locality
         fields = '__all__'
+
+    def get_action_count(self, obj):
+        return obj.action_set.count()
 
 
 class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):

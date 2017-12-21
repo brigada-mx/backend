@@ -5,3 +5,5 @@ base_url = 'http://919.test:8000/api'
 ###env
 
 get(base_url + '/actions/')
+get(base_url + '/localities/', params={'page_size': 1000, 'has_data': True})
+get(base_url + '/localities/', params={'cvegeo': '200430001'})
