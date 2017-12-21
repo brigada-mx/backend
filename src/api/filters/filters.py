@@ -18,4 +18,3 @@ class RelatedObjectsCountFilter(django_filters.Filter):
             ).values_list('pk', flat=True)
             return self._model.objects.filter(pk__in=pks)
         return qs
-

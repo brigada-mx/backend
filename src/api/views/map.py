@@ -7,6 +7,7 @@ from api.serializers import StateSerializer, MunicipalitySerializer
 from api.serializers import LocalitySerializer, LocalityDetailSerializer
 from api.serializers import ActionSerializer, ActionDetailSerializer, ActionLogSerializer
 from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
+from api.filters import ActionFilter
 
 
 class StateList(generics.ListAPIView):
@@ -52,6 +53,7 @@ class LocalityDetail(generics.RetrieveAPIView):
 
 class ActionList(generics.ListAPIView):
     serializer_class = ActionSerializer
+    filter_class = ActionFilter
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(
