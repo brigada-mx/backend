@@ -22,6 +22,14 @@ class MunicipalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = '__all__'
 
 
+class LocalityMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    location = LatLngField()
+
+    class Meta:
+        model = Locality
+        fields = ('id', 'cvegeo', 'location')
+
+
 class LocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_RELATED_FIELDS = ['action_set']
 
@@ -56,13 +64,36 @@ class LocalityDetailSerializer(LocalitySerializer):
     pass
 
 
+class ActionLocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _SELECT_RELATED_FIELDS = ['locality']
+
+    locality = LocalityMiniSerializer(read_only=True)
+
+    class Meta:
+        model = Action
+        fields = ('id', 'locality', 'action_type', 'budget')
+
+
+class OrganizationMinSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    class Meta:
+        model = Organization
+        fields = '__all__'
+
+
 class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _PREFETCH_RELATED_FIELDS = ['action_set__locality']
+
     url = serializers.HyperlinkedIdentityField(view_name='api:organization-detail')
     url_actions = serializers.SerializerMethodField()
+    actions = ActionLocalitySerializer(source='action_set', many=True, read_only=True)
+    action_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Organization
         fields = '__all__'
+
+    def get_action_count(self, obj):
+        return obj.action_set.count()
 
     def get_url_actions(self, obj):
         return '{}?organization_id={}'.format(reverse('api:action-list', request=self.context.get('request')), obj.pk)
@@ -83,11 +114,12 @@ class EstablishmentSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
 
 class ActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _SELECT_RELATED_FIELDS = ['organization']
+
     url = serializers.HyperlinkedIdentityField(view_name='api:action-detail')
     locality = serializers.HyperlinkedRelatedField(view_name='api:locality-detail', read_only=True)
     locality_id = serializers.IntegerField(read_only=True)
-    organization = serializers.HyperlinkedRelatedField(view_name='api:organization-detail', read_only=True)
-    organization_id = serializers.IntegerField(read_only=True)
+    organization = OrganizationMinSerializer(read_only=True)
     url_log = serializers.SerializerMethodField()
 
     class Meta:
@@ -102,7 +134,6 @@ class ActionDetailSerializer(ActionSerializer):
     _SELECT_RELATED_FIELDS = ['locality', 'organization']
 
     locality = LocalitySerializer(read_only=True)
-    organization = OrganizationSerializer(read_only=True)
 
 
 class ActionLogSerializer(serializers.ModelSerializer, EagerLoadingMixin):
