@@ -1,3 +1,10 @@
+ORGANIZATION_SECTOR_CHOICES = (
+    ('civil', 'Civil'),
+    ('public', 'Público'),
+    ('private', 'Privado'),
+    ('religious', 'Religioso'),
+)
+
 ACTION_SOURCE_CHOICES = (
     ('google_sheets', 'Google Sheets'),
     ('chucky', 'Chucky'),

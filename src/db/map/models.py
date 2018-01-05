@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.contrib.postgres.fields import JSONField
 
 from db.config import BaseModel
-from db.choices import ACTION_SOURCE_CHOICES, CODE_SCIAN_GROUP_ID
+from db.choices import ACTION_SOURCE_CHOICES, CODE_SCIAN_GROUP_ID, ORGANIZATION_SECTOR_CHOICES
 from helpers.location import geos_location_from_coordinates
 
 
@@ -141,6 +141,7 @@ class Organization(BaseModel):
     """A reconstruction actor or data-gathering organization.
     """
     key = models.TextField(unique=True, help_text='Essentially google sheet tab name')
+    sector = models.TextField(choices=ORGANIZATION_SECTOR_CHOICES, db_index=True)
     name = models.TextField(blank=True)
     desc = models.TextField(blank=True)
     contact = JSONField(default={}, help_text='Contact data')

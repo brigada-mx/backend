@@ -30,6 +30,14 @@ class LocalityMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = ('id', 'cvegeo', 'location')
 
 
+class LocalityMiniWithNameSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    location = LatLngField()
+
+    class Meta:
+        model = Locality
+        fields = ('id', 'cvegeo', 'location', 'name', 'municipality_name', 'state_name')
+
+
 class LocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_RELATED_FIELDS = ['action_set']
 
@@ -74,7 +82,7 @@ class ActionLocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = ('id', 'locality', 'action_type', 'budget')
 
 
-class OrganizationMinSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class OrganizationMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     class Meta:
         model = Organization
         fields = '__all__'
@@ -99,10 +107,6 @@ class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         return '{}?organization_id={}'.format(reverse('api:action-list', request=self.context.get('request')), obj.pk)
 
 
-class OrganizationDetailSerializer(OrganizationSerializer):
-    pass
-
-
 class EstablishmentSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     location = LatLngField()
     locality = serializers.HyperlinkedRelatedField(view_name='api:locality-detail', read_only=True)
@@ -119,7 +123,7 @@ class ActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     url = serializers.HyperlinkedIdentityField(view_name='api:action-detail')
     locality = serializers.HyperlinkedRelatedField(view_name='api:locality-detail', read_only=True)
     locality_id = serializers.IntegerField(read_only=True)
-    organization = OrganizationMinSerializer(read_only=True)
+    organization = OrganizationMiniSerializer(read_only=True)
     url_log = serializers.SerializerMethodField()
 
     class Meta:
@@ -133,7 +137,11 @@ class ActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 class ActionDetailSerializer(ActionSerializer):
     _SELECT_RELATED_FIELDS = ['locality', 'organization']
 
-    locality = LocalitySerializer(read_only=True)
+    locality = LocalityMiniWithNameSerializer(read_only=True)
+
+
+class OrganizationDetailSerializer(OrganizationSerializer):
+    actions = ActionDetailSerializer(source='action_set', many=True, read_only=True)
 
 
 class ActionLogSerializer(serializers.ModelSerializer, EagerLoadingMixin):
