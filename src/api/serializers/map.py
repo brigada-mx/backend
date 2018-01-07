@@ -30,12 +30,12 @@ class LocalityMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = ('id', 'cvegeo', 'location')
 
 
-class LocalityMiniWithNameSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class LocalityMediumSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     location = LatLngField()
 
     class Meta:
         model = Locality
-        fields = ('id', 'cvegeo', 'location', 'name', 'municipality_name', 'state_name')
+        fields = ('id', 'cvegeo', 'location', 'name', 'municipality_name', 'state_name', 'meta')
 
 
 class LocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
@@ -137,7 +137,7 @@ class ActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 class ActionDetailSerializer(ActionSerializer):
     _SELECT_RELATED_FIELDS = ['locality', 'organization']
 
-    locality = LocalityMiniWithNameSerializer(read_only=True)
+    locality = LocalityMediumSerializer(read_only=True)
 
 
 class OrganizationDetailSerializer(OrganizationSerializer):
