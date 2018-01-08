@@ -73,3 +73,5 @@ celerybeat.pid
 
 # data
 denue/
+
+requester.pyr
