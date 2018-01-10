@@ -177,6 +177,7 @@ class Action(AbstractAction, BaseModel):
 
     class Meta:
         unique_together = ('key', 'organization')
+        ordering = ('-end_date', '-start_date', '-modified')
 
 
 class ActionLog(AbstractAction, BaseModel):
