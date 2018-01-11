@@ -24,7 +24,7 @@ CELERYBEAT_SCHEDULE = {
     },
     'etl_submissions': {
         'task': 'etl_submissions',
-        'schedule': timedelta(seconds=1 * 15),
+        'schedule': timedelta(seconds=60 * 15),
     },
 
 }

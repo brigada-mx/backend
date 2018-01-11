@@ -204,6 +204,8 @@ class Submission(BaseModel):
     submitted = models.DateTimeField(default=timezone.now, blank=True)
     image_urls = JSONField(default=[], blank=True)
 
+    REPR_FIELDS = ['organization_id', 'action_id', 'submitted']
+
     class Meta:
         unique_together = ('source', 'source_id')
         indexes = [

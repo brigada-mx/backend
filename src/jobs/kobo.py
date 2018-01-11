@@ -42,12 +42,11 @@ def sync_submissions(past_days=1):
 
     def sync_recent_form_submissions(form_id):
         submissions = get_recent_form_submissions(form_id, past_days)
-        for s in submissions:
-            sync_submission(s)
+        return [r for r in [sync_submission(s) for s in submissions] if r]
 
     with futures.ThreadPoolExecutor(MAX_WORKERS) as executor:
         res = executor.map(sync_recent_form_submissions, form_ids)
-    return res
+    return [r for r in res if r]
 
 
 def sync_submission(s):
@@ -73,3 +72,4 @@ def sync_submission(s):
     if '_attachments' in s:
         submission.image_urls = [a['download_url'] for a in (s.get('_attachments') or [])]
     submission.save()
+    return repr(submission)
