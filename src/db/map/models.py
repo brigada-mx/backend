@@ -178,6 +178,7 @@ class Action(AbstractAction, BaseModel):
     key = models.IntegerField(help_text='Essentially google sheet row number')
     organization = models.ForeignKey('Organization', help_text='Frozen after first read')
     source = models.TextField(choices=ACTION_SOURCE_CHOICES)
+    published = models.BooleanField(blank=True, default=True)
 
     class Meta:
         unique_together = ('key', 'organization')

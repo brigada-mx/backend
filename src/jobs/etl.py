@@ -24,7 +24,7 @@ def sync_action(row, sheet_title):
     action changed since last read.
     """
     (row_key, locality_s, action_type, desc, target, unit_of_measurement, progress, budget,
-        start_date, end_date, *rest) = [v.strip() for v in row]
+        start_date, end_date, published, *rest) = [v.strip() for v in row]
 
     cvegeo = locality_s.strip().split('(')[-1][:-1].strip()
     if not cvegeo or not row_key:
@@ -53,6 +53,7 @@ def sync_action(row, sheet_title):
     target = parse_or_none(float, target)
     budget = parse_or_none(money_parse, budget)
     progress = parse_or_none(float, progress)
+    published = published.strip().lower() != 'no'
 
     fields = {
         'locality': locality,
@@ -64,6 +65,7 @@ def sync_action(row, sheet_title):
         'budget': budget,
         'start_date': start_date,
         'end_date': end_date,
+        'published': published,
     }
 
     key = int(row_key)

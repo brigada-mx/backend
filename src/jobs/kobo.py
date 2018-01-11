@@ -62,7 +62,7 @@ def sync_submission(s):
         return
     action = organization.action_set.all().filter(key=int(s['action_id'])).first()
 
-    Submission.objects.create(
+    submission = Submission(
         location=geos_location_from_coordinates(*s['_geolocation']),
         organization=organization,
         action=action,
@@ -71,3 +71,6 @@ def sync_submission(s):
         source_id=source_id,
         submitted=s['_submission_time'],
     )
+    if '_attachments' in s:
+        submission.image_urls = [a['download_url'] for a in (s.get('attachments') or [])]
+    submission.save()
