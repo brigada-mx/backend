@@ -2,7 +2,7 @@ import uuid
 
 from django.contrib.gis.db import models
 from django.utils import timezone
-from django.contrib.postgres.fields import JSONField, ArrayField
+from django.contrib.postgres.fields import JSONField
 
 from db.config import BaseModel
 from db.choices import ACTION_SOURCE_CHOICES, CODE_SCIAN_GROUP_ID, ORGANIZATION_SECTOR_CHOICES
@@ -22,7 +22,7 @@ class Locality(BaseModel):
     location = models.PointField()
     elevation = models.FloatField(null=True, blank=True)
     has_data = models.BooleanField(default=False, db_index=True, help_text='Has additional data')
-    meta = JSONField(default={}, help_text='Metrics, file URLs, etc', blank=True)
+    meta = JSONField(default={}, blank=True, help_text='Metrics, file URLs, etc')
 
     REPR_FIELDS = ['cvegeo', 'name', 'municipality_name', 'state_name']
 
@@ -121,7 +121,7 @@ class Municipality(BaseModel):
     cvegeo_state = models.TextField(db_index=True)
     municipality_name = models.TextField()
     state_name = models.TextField()
-    meta = JSONField(default={}, help_text='Metrics, file URLs, etc', blank=True)
+    meta = JSONField(default={}, blank=True, help_text='Metrics, file URLs, etc')
 
     REPR_FIELDS = ['cvegeo_municipality', 'municipality_name', 'state_name']
 
@@ -135,7 +135,7 @@ class State(BaseModel):
     """
     cvegeo_state = models.TextField(unique=True)
     state_name = models.TextField()
-    meta = JSONField(default={}, help_text='Metrics, file URLs, etc', blank=True)
+    meta = JSONField(default={}, blank=True, help_text='Metrics, file URLs, etc')
 
     REPR_FIELDS = ['cvegeo_state', 'state_name']
 
@@ -146,10 +146,10 @@ class Organization(BaseModel):
     key = models.TextField(unique=True, help_text='Essentially google sheet tab name')
     uuid = models.UUIDField(unique=True, default=uuid.uuid4)
     sector = models.TextField(choices=ORGANIZATION_SECTOR_CHOICES, db_index=True)
-    name = models.TextField(blank=True)
-    desc = models.TextField(blank=True)
+    name = models.TextField()
+    desc = models.TextField()
     year_established = models.IntegerField()
-    contact = JSONField(default={}, help_text='Contact data')
+    contact = JSONField(default={}, blank=True, help_text='Contact data')
 
     REPR_FIELDS = ['key', 'name', 'desc']
 
@@ -166,6 +166,7 @@ class AbstractAction(models.Model):
     budget = models.FloatField(null=True, blank=True, help_text='$MXN')
     start_date = models.DateField(null=True, blank=True, db_index=True)
     end_date = models.DateField(null=True, blank=True, db_index=True)
+    published = models.BooleanField(blank=True, default=True, db_index=True)
 
     class Meta:
         abstract = True
@@ -178,7 +179,6 @@ class Action(AbstractAction, BaseModel):
     key = models.IntegerField(help_text='Essentially google sheet row number')
     organization = models.ForeignKey('Organization', help_text='Frozen after first read')
     source = models.TextField(choices=ACTION_SOURCE_CHOICES)
-    published = models.BooleanField(blank=True, default=True)
 
     class Meta:
         unique_together = ('key', 'organization')
@@ -214,4 +214,4 @@ class Submission(BaseModel):
     def save(self, *args, **kwargs):
         if self.action and self.action.organization != self.organization:
             self.action = None
-        return self.save(*args, **kwargs)
+        return super().save(*args, **kwargs)

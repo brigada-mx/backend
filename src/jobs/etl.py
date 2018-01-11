@@ -8,6 +8,7 @@ import pygsheets
 from celery import shared_task
 
 from db.map.models import Locality, Organization, Action, ActionLog
+from db.choices import ORGANIZATION_SECTOR_CHOICES
 
 
 def parse_or_none(parser, s):
@@ -19,24 +20,59 @@ def parse_or_none(parser, s):
         return None
 
 
-def sync_action(row, sheet_title):
+def sync_organization(row):
+    (key, name, desc, year_established, rfc, sector, person_responsible, phone, email, website,
+        street, city, zip_code, *rest) = [v.strip() for v in row]
+
+    organization = Organization.objects.filter(key=key).first()
+    if organization is None:
+        organization = Organization(key=key)
+
+    if sector not in [c[0] for c in ORGANIZATION_SECTOR_CHOICES]:
+        sector = 'civil'
+
+    year_established = parse_or_none(int, year_established)
+
+    fields = {
+        'name': name,
+        'desc': desc,
+        'year_established': year_established,
+        'sector': sector,
+        'contact': {
+            'person_responsible': person_responsible,
+            'phone': phone,
+            'email': email,
+            'website': website,
+            'address': {
+                'street': street,
+                'city': 'Ciudad de México',
+                'zip': zip_code,
+            },
+        }
+    }
+    organization.update_fields(**fields)
+    try:
+        organization.save()
+    except:
+        return None
+    else:
+        return organization
+
+
+def sync_action(row, organization):
     """Sync action row from sheet with DB. New `ActionLog`s are only created if
     action changed since last read.
     """
-    (row_key, locality_s, action_type, desc, target, unit_of_measurement, progress, budget,
+    (key, locality_s, action_type, desc, target, unit_of_measurement, progress, budget,
         start_date, end_date, published, *rest) = [v.strip() for v in row]
 
     cvegeo = locality_s.strip().split('(')[-1][:-1].strip()
-    if not cvegeo or not row_key:
+    if not cvegeo or not key:
         return
 
     locality = Locality.objects.filter(cvegeo=cvegeo).first()
     if locality is None or not desc:
         return
-
-    organization = Organization.objects.filter(key=sheet_title).first()
-    if organization is None:
-        organization = Organization.objects.create(key=sheet_title)
 
     def date_parse(s):
         return parse(s).date()
@@ -68,20 +104,17 @@ def sync_action(row, sheet_title):
         'published': published,
     }
 
-    key = int(row_key)
-    action = Action.objects.filter(key=key).first()
+    key = int(key)
+    action = organization.action_set.filter(key=key).first()
     if action is None:
-        action = Action.objects.create(key=key, organization=organization,
-                                       source='google_sheets', locality=locality)
-        action.update_fields(**fields)
+        action = Action.objects.create(
+            key=key, organization=organization, source='google_sheets', **fields)
         ActionLog.objects.create(action=action, **fields)
         return
 
-    for k, v in fields.items():  # only create new `ActionLog` object if fields have changed
-        if getattr(action, k) != v:
-            action.update_fields(**fields)
-            ActionLog.objects.create(action=action, **fields)
-            break
+    if any(getattr(action, k) != v for k, v in fields.items()):
+        action.update_fields(**fields) # only create new `ActionLog` object if fields have changed
+        ActionLog.objects.create(action=action, **fields)
 
 
 def get_google_client():
@@ -103,6 +136,10 @@ def etl_actions():
     for sheet in action_sheets:
         rows = sheet.get_all_values()
 
-        for row in rows[1:]:
+        organization = sync_organization(rows[1])
+        if not organization:
+            return
+
+        for row in rows[3:]:
             with transaction.atomic():
-                sync_action(row, sheet.title)
+                sync_action(row, organization)

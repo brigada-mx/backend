@@ -15,10 +15,6 @@ API_HOST = os.getenv('CUSTOM_KOBO_API_HOST')
 TIMEOUT = 30
 
 
-class KoboException(Exception):
-    pass
-
-
 def get_form_ids():
     r = requests.get(API_HOST + '/data', auth=TokenAuth('Token', AUTH_TOKEN), timeout=TIMEOUT)
     r.raise_for_status()
@@ -33,7 +29,7 @@ def get_recent_form_submissions(form_id, past_days=1):
         auth=TokenAuth('Token', AUTH_TOKEN),
         timeout=TIMEOUT,
     )
-    if r.status >= 400:
+    if r.status_code >= 400:
         return []
     return r.json()
 
@@ -61,9 +57,7 @@ def sync_submission(s):
     if organization is None:
         return
     action = organization.action_set.all().filter(key=int(s['action_id'])).first()
-
     submission = Submission(
-        location=geos_location_from_coordinates(*s['_geolocation']),
         organization=organization,
         action=action,
         data=s,
@@ -71,6 +65,9 @@ def sync_submission(s):
         source_id=source_id,
         submitted=s['_submission_time'],
     )
+    lat, lng = s['_geolocation']
+    if lat and lng:
+        submission.location = geos_location_from_coordinates(lat, lng)
     if '_attachments' in s:
-        submission.image_urls = [a['download_url'] for a in (s.get('attachments') or [])]
+        submission.image_urls = [a['download_url'] for a in (s.get('_attachments') or [])]
     submission.save()
