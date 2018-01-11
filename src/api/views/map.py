@@ -68,7 +68,7 @@ class ActionList(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(
-            Action.objects.all()
+            Action.objects.filter(published=True)
         )
         return queryset
 
@@ -78,7 +78,7 @@ class ActionDetail(generics.RetrieveAPIView):
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(
-            Action.objects.all().order_by('-modified')
+            Action.objects.filter(published=True).order_by('-modified')
         )
         return queryset
 

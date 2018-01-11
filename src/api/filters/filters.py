@@ -12,7 +12,6 @@ def parse_boolean(boolean):
 
 
 class BooleanFilter(django_filters.Filter):
-
     def filter(self, qs, value):
         boolean = parse_boolean(value)
         if boolean is None:

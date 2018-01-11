@@ -4,6 +4,7 @@ from datetime import timedelta
 
 CELERY_IMPORTS = (
     'jobs.etl',
+    'jobs.kobo',
 )
 
 CELERY_TIMEZONE = 'America/Mexico_City'
@@ -20,6 +21,10 @@ CELERYBEAT_SCHEDULE = {
     'etl_actions': {
         'task': 'etl_actions',
         'schedule': timedelta(seconds=60 * 15),
+    },
+    'etl_submissions': {
+        'task': 'etl_submissions',
+        'schedule': timedelta(seconds=1 * 15),
     },
 
 }

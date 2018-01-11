@@ -20,6 +20,18 @@ def parse_or_none(parser, s):
         return None
 
 
+def date_parse(s):
+        return parse(s).date()
+
+
+def money_parse(s):
+    """Deals with strings of this form: `$195.000,00`.
+    """
+    if len(s) >= 3 and (s[-3] == ',' or s[-3] == '.'):
+        s = s[:-3]
+    return float(re.sub('[^\d]', '', s))
+
+
 def sync_organization(row):
     (key, name, desc, year_established, rfc, sector, person_responsible, phone, email, website,
         street, city, zip_code, *rest) = [v.strip() for v in row]
@@ -51,12 +63,8 @@ def sync_organization(row):
         }
     }
     organization.update_fields(**fields)
-    try:
-        organization.save()
-    except:
-        return None
-    else:
-        return organization
+    organization.save()
+    return organization
 
 
 def sync_action(row, organization):
@@ -73,16 +81,6 @@ def sync_action(row, organization):
     locality = Locality.objects.filter(cvegeo=cvegeo).first()
     if locality is None or not desc:
         return
-
-    def date_parse(s):
-        return parse(s).date()
-
-    def money_parse(s):
-        """Deals with strings of this form: `$195.000,00`.
-        """
-        if len(s) >= 3 and (s[-3] == ',' or s[-3] == '.'):
-            s = s[:-3]
-        return float(re.sub('[^\d]', '', s))
 
     start_date = parse_or_none(date_parse, start_date)
     end_date = parse_or_none(date_parse, end_date)
@@ -113,7 +111,7 @@ def sync_action(row, organization):
         return
 
     if any(getattr(action, k) != v for k, v in fields.items()):
-        action.update_fields(**fields) # only create new `ActionLog` object if fields have changed
+        action.update_fields(**fields)  # only create new `ActionLog` object if fields have changed
         ActionLog.objects.create(action=action, **fields)
 
 
@@ -133,13 +131,22 @@ def etl_actions():
     )
 
     action_sheets = [s for s in sheets if s.title.startswith('_')]
+    exceptions = []
     for sheet in action_sheets:
-        rows = sheet.get_all_values()
+        try:
+            rows = sheet.get_all_values()
+        except:
+            exceptions.append('could not get sheet values')
 
-        organization = sync_organization(rows[1])
-        if not organization:
-            return
-
-        for row in rows[3:]:
-            with transaction.atomic():
-                sync_action(row, organization)
+        try:
+            organization = sync_organization(rows[1])
+        except Exception as e:
+            exceptions.append('{}: {}'.format(rows[1], e))
+        else:
+            for row in rows[3:]:
+                try:
+                    with transaction.atomic():
+                        sync_action(row, organization)
+                except Exception as e:
+                    exceptions.append('{}: {}'.format(organization.name, e))
+    return exceptions

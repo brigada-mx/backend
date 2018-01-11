@@ -4,6 +4,7 @@ from concurrent import futures
 from datetime import datetime, timedelta
 
 import requests
+from celery import shared_task
 
 from db.map.models import Organization, Submission
 from helpers.http import TokenAuth
@@ -34,12 +35,13 @@ def get_recent_form_submissions(form_id, past_days=1):
     return r.json()
 
 
-def sync_submissions():
+@shared_task(name='etl_submissions')
+def sync_submissions(past_days=1):
     MAX_WORKERS = 10
     form_ids = get_form_ids()
 
     def sync_recent_form_submissions(form_id):
-        submissions = get_recent_form_submissions(form_id)
+        submissions = get_recent_form_submissions(form_id, past_days)
         for s in submissions:
             sync_submission(s)
 
