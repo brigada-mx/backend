@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-declare -a arr=("deploy/group_vars/all-secret.yml" "deploy/group_vars/development-secret.yml" "deploy/group_vars/production-secret.yml")
+declare -a arr=("deploy/group_vars/all-secret.yml" "deploy/group_vars/development-secret.yml" "deploy/group_vars/production-secret.yml" "deploy/group_vars/client_secret.json")
 
 all_encrypted=0
 # iterate over files and check if any are not encrypted

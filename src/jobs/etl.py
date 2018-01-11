@@ -66,7 +66,7 @@ def sync_action(row, sheet_title):
         'end_date': end_date,
     }
 
-    key = '{}|{}'.format(sheet_title, row_key)
+    key = int(row_key)
     action = Action.objects.filter(key=key).first()
     if action is None:
         action = Action.objects.create(key=key, organization=organization,

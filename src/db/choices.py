@@ -10,6 +10,10 @@ ACTION_SOURCE_CHOICES = (
     ('chucky', 'Chucky'),
 )
 
+SUBMISSION_SOURCE_CHOICES = (
+    ('kobo', 'KoBo'),
+)
+
 # 1 is reserved for 'unknown'
 CODE_SCIAN_GROUP_ID = {
     '931110': 2,
