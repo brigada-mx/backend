@@ -4,6 +4,8 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from api import views
 
 urlpatterns = [
+    url(r'^webhooks/kobo_submission/$', views.KoboSubmissionWebhook.as_view(), name='kobo-submission-webhook'),
+
     url(r'^$', views.api_root),
 
     url(r'^states/$', views.StateList.as_view(), name='state-list'),
