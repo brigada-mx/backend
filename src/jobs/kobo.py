@@ -1,13 +1,16 @@
 # https://kc.humanitarianresponse.info/edumancera/api-token
 import os
+import uuid
 from concurrent import futures
 from datetime import datetime, timedelta
 
-import requests
+from django.utils import timezone
+
 from celery import shared_task
+import requests
 
 from db.map.models import Organization, Submission
-from helpers.http import TokenAuth
+from helpers.http import TokenAuth, download_file, get_s3_client
 from helpers.location import geos_location_from_coordinates
 
 
@@ -73,3 +76,41 @@ def sync_submission(s):
         submission.image_urls = [a['download_url'] for a in (s.get('_attachments') or [])]
     submission.save()
     return repr(submission)
+
+
+@shared_task(name='upload_submission_images')
+def upload_submission_images(submission_id):
+    submission = Submission.objects.get(id=submission_id)
+    org_id = submission.organization_id
+    s3 = get_s3_client()
+    bucket = os.getenv('AWS_STORAGE_BUCKET_NAME')
+
+    urls = list(submission.image_urls)
+    for i, url in enumerate(submission.image_urls):
+        if url.startswith('https://{}.s3.amazonaws.com'.format(bucket)):
+            continue
+        filename = '{}-{}'.format(uuid.uuid4(), url.split('/')[-1].split('?')[0])
+        path = download_file(url, os.path.join(os.sep, 'tmp', filename))
+        if path is None:
+            continue
+
+        bucket_key = 'kobo/{}/{}'.format(org_id, filename)
+        try:
+            with open(path, 'rb') as data:
+                s3.upload_fileobj(data, bucket, bucket_key, ExtraArgs={'ACL':'public-read'})
+        except:
+            continue
+        else:
+            urls[i] = 'https://{}.s3.amazonaws.com/{}'.format(bucket, bucket_key)
+    if urls != submission.image_urls:
+        submission.image_urls = urls
+        submission.save()
+
+
+@shared_task(name='upload_recent_submission_images')
+def upload_recent_submission_images(age=3600):
+    for submission in Submission.objects.filter(submitted__gte=timezone.now() - timedelta(hours=1)):
+        try:
+            upload_submission_images(submission.id)
+        except Submission.DoesNotExist:
+            continue

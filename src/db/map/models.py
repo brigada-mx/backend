@@ -3,6 +3,7 @@ import uuid
 from django.contrib.gis.db import models
 from django.utils import timezone
 from django.contrib.postgres.fields import JSONField
+from django.dispatch import receiver
 
 from db.config import BaseModel
 from db.choices import ACTION_SOURCE_CHOICES, CODE_SCIAN_GROUP_ID, ORGANIZATION_SECTOR_CHOICES
@@ -217,3 +218,14 @@ class Submission(BaseModel):
         if self.action and self.action.organization != self.organization:
             self.action = None
         return super().save(*args, **kwargs)
+
+
+@receiver(models.signals.post_save, sender=Submission)
+def auto_assign_care_shift_schedule(sender, instance, created, **kwargs):
+    """Assign first care schedule and shift schedule are to patient on object
+    creation.
+    """
+    from jobs.kobo import upload_submission_images
+    if not created:
+        return
+    upload_submission_images.delay(instance.pk)
