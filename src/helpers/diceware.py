@@ -6,3 +6,7 @@ tokens = ['que', 'por', 'una', 'con', 'para', 'pero', 'bien', 'eso', 'del', 'com
 
 def diceware(n, sep='.'):
     return sep.join(random.sample(tokens, n))
+
+
+def diceware_transform(s):
+    return '.'.join(s.lower().replace(',', ' ').replace('.', ' ').replace('-', ' ').replace('_', ' ').split())

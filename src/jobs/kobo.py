@@ -12,6 +12,7 @@ import requests
 from db.map.models import Organization, Submission
 from helpers.http import TokenAuth, download_file, get_s3_client
 from helpers.location import geos_location_from_coordinates
+from helpers.diceware import diceware_transform
 
 
 AUTH_TOKEN = os.getenv('CUSTOM_KOBO_AUTH_TOKEN')
@@ -57,10 +58,10 @@ def sync_submission(s):
     if Submission.objects.filter(source='kobo', source_id=source_id).first():
         return
 
-    organization = Organization.objects.filter(uuid=s['org_id']).first()
+    organization = Organization.objects.filter(secret_key=diceware_transform(s.get('org_key'))).first()
     if organization is None:
         return
-    action = organization.action_set.all().filter(key=int(s['action_id'])).first()
+    action = organization.action_set.all().filter(key=int(s.get('action_id'))).first()
     submission = Submission(
         organization=organization,
         action=action,
@@ -97,7 +98,7 @@ def upload_submission_images(submission_id):
         bucket_key = 'kobo/{}/{}'.format(org_id, filename)
         try:
             with open(path, 'rb') as data:
-                s3.upload_fileobj(data, bucket, bucket_key, ExtraArgs={'ACL':'public-read'})
+                s3.upload_fileobj(data, bucket, bucket_key, ExtraArgs={'ACL': 'public-read'})
         except:
             continue
         else:
@@ -108,8 +109,8 @@ def upload_submission_images(submission_id):
 
 
 @shared_task(name='upload_recent_submission_images')
-def upload_recent_submission_images(age=3600):
-    for submission in Submission.objects.filter(submitted__gte=timezone.now() - timedelta(hours=1)):
+def upload_recent_submission_images(age_hours=1):
+    for submission in Submission.objects.filter(submitted__gte=timezone.now() - timedelta(hours=age_hours)):
         try:
             upload_submission_images(submission.id)
         except Submission.DoesNotExist:

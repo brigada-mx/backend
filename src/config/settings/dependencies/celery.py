@@ -28,7 +28,7 @@ CELERYBEAT_SCHEDULE = {
     },
     'upload_recent_submission_images': {
         'task': 'upload_recent_submission_images',
-        'schedule': timedelta(seconds=60 * 15),
+        'schedule': timedelta(seconds=60 * 10),
     },
 
 }

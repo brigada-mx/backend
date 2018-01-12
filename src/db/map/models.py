@@ -9,6 +9,7 @@ from db.config import BaseModel
 from db.choices import ACTION_SOURCE_CHOICES, CODE_SCIAN_GROUP_ID, ORGANIZATION_SECTOR_CHOICES
 from db.choices import SUBMISSION_SOURCE_CHOICES
 from helpers.location import geos_location_from_coordinates
+from helpers.diceware import diceware
 
 
 class Locality(BaseModel):
@@ -141,11 +142,18 @@ class State(BaseModel):
     REPR_FIELDS = ['cvegeo_state', 'state_name']
 
 
+def generate_secret_key():
+    while True:
+        secret_key = diceware(3, '.')
+        if not Organization.objects.filter(secret_key=secret_key).exists():
+            return secret_key
+
+
 class Organization(BaseModel):
     """A reconstruction actor or data-gathering organization.
     """
     key = models.TextField(unique=True, help_text='Essentially google sheet tab name')
-    uuid = models.UUIDField(unique=True, default=uuid.uuid4)
+    secret_key = models.TextField(unique=True, blank=True)
     sector = models.TextField(choices=ORGANIZATION_SECTOR_CHOICES, db_index=True)
     name = models.TextField()
     desc = models.TextField()
@@ -153,6 +161,11 @@ class Organization(BaseModel):
     contact = JSONField(default={}, blank=True, help_text='Contact data')
 
     REPR_FIELDS = ['key', 'name', 'desc']
+
+    def save(self, *args, **kwargs):
+        if not self.secret_key:
+            self.secret_key = generate_secret_key()
+        return super().save(*args, **kwargs)
 
 
 class AbstractAction(models.Model):
