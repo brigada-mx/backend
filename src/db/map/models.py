@@ -1,4 +1,4 @@
-import uuid
+import os
 
 from django.contrib.gis.db import models
 from django.utils import timezone
@@ -10,6 +10,7 @@ from db.choices import ACTION_SOURCE_CHOICES, CODE_SCIAN_GROUP_ID, ORGANIZATION_
 from db.choices import SUBMISSION_SOURCE_CHOICES
 from helpers.location import geos_location_from_coordinates
 from helpers.diceware import diceware
+from helpers.http import s3_thumbnail_url
 
 
 class Locality(BaseModel):
@@ -235,6 +236,13 @@ class Submission(BaseModel):
         if self.action and self.action.organization != self.organization:
             self.action = None
         return super().save(*args, **kwargs)
+
+    def synced_image_urls(self):
+        bucket = os.getenv('AWS_STORAGE_BUCKET_NAME')
+        return [url for url in self.image_urls if url.startswith('https://{}.s3.amazonaws.com'.format(bucket))]
+
+    def thumbnails(self, width=240, height=240):
+        return [s3_thumbnail_url(url, width, height) for url in self.synced_image_urls()]
 
 
 @receiver(models.signals.post_save, sender=Submission)

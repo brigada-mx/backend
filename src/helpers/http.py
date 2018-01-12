@@ -1,5 +1,6 @@
 import os
 import requests
+from urllib.parse import urlparse
 
 import boto3
 
@@ -28,3 +29,9 @@ def get_s3_client():
         aws_access_key_id=os.getenv('CUSTOM_AWS_ACCESS_KEY'),
         aws_secret_access_key=os.getenv('CUSTOM_AWS_SECRET_KEY'),
     )
+
+
+def s3_thumbnail_url(url, width, height):
+    base_url = os.getenv('CUSTOM_THUMBOR_SERVER')
+    path = urlparse(url).path
+    return '{}/fit-in/{}x{}{}'.format(base_url, width, height, path)

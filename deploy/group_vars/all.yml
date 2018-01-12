@@ -12,6 +12,7 @@ _env_all:
   CUSTOM_DATABASE_PORT: "5432"
   CUSTOM_REDIS_PORT: "6379"
   CUSTOM_CELERY_PORT: "5555"
+  CUSTOM_THUMBOR_SERVER: "https://d1usq577esam6j.cloudfront.net"
   AWS_REGION: "us-west-2"
 
 # this groups_vars file is loaded last, because all groups are descendants of "all"
