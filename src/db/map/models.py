@@ -167,6 +167,10 @@ class Organization(BaseModel):
             self.secret_key = generate_secret_key()
         return super().save(*args, **kwargs)
 
+    def reset_secret_key(self):
+        self.secret_key = generate_secret_key()
+        self.save()
+
 
 class AbstractAction(models.Model):
     """For fields common to `Action` and `ActionLog` tables.
