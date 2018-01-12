@@ -20,3 +20,6 @@ unzip ngrok-stable-linux-amd64.zip
 rm ngrok-stable-linux-amd64.zip
 ./ngrok http 8000
 ~~~
+
+## Images
+We serve thumbnails using Amazon's [serverless-image-handler](https://docs.aws.amazon.com/solutions/latest/serverless-image-handler/deployment.html), which uses [Thumbor](https://github.com/thumbor/thumbor) behind the scenes.

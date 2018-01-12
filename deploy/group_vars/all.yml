@@ -12,6 +12,7 @@ _env_all:
   CUSTOM_DATABASE_PORT: "5432"
   CUSTOM_REDIS_PORT: "6379"
   CUSTOM_CELERY_PORT: "5555"
+  AWS_REGION: "us-west-2"
 
 # this groups_vars file is loaded last, because all groups are descendants of "all"
 # this means this file has access to all group_vars included in a given playbook
