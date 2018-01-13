@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from db.map.models import State, Municipality, Locality, Organization, Action, ActionLog, Establishment, Submission
+from db.map.models import State, Municipality, Locality, Establishment
+from db.map.models import Organization, Action, ActionLog, Submission
 from api.mixins import EagerLoadingMixin
 from api.fields import LatLngField
 
@@ -53,7 +54,7 @@ class LocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = '__all__'
 
     def get_action_count(self, obj):
-        return obj.action_set.count()
+        return obj.action_set(manager='public_objects').count()
 
     def get_url_actions(self, obj):
         return '{}?locality_id={}'.format(
@@ -119,7 +120,7 @@ class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         exclude = ('secret_key',)
 
     def get_action_count(self, obj):
-        return obj.action_set.count()
+        return obj.action_set(manager='public_objects').count()
 
     def get_url_actions(self, obj):
         return '{}?organization_id={}'.format(reverse('api:action-list', request=self.context.get('request')), obj.pk)
@@ -175,7 +176,7 @@ class OrganizationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixi
         exclude = ('secret_key',)
 
     def get_action_count(self, obj):
-        return obj.action_set.count()
+        return obj.action_set(manager='public_objects').count()
 
 
 class ActionLogSerializer(serializers.ModelSerializer, EagerLoadingMixin):

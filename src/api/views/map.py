@@ -1,3 +1,4 @@
+from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 
 from rest_framework import generics
@@ -78,7 +79,7 @@ class ActionDetail(generics.RetrieveAPIView):
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(
-            Action.objects.filter(published=True).order_by('-modified')
+            Action.objects.filter(published=True)
         )
         return queryset
 
@@ -99,7 +100,9 @@ class OrganizationList(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(
-            Organization.objects.all().order_by('-modified')
+            Organization.objects.prefetch_related(
+                Prefetch('action_set', queryset=Action.public_objects.all())
+            ).all().order_by('-modified')
         )
         return queryset
 
@@ -109,6 +112,8 @@ class OrganizationDetail(generics.RetrieveAPIView):
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(
-            Organization.objects.all().order_by('-modified')
+            Organization.objects.prefetch_related(
+                Prefetch('action_set', queryset=Action.public_objects.all())
+            ).all().order_by('-modified')
         )
         return queryset

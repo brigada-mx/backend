@@ -21,6 +21,9 @@ rm ngrok-stable-linux-amd64.zip
 ./ngrok http 8000
 ~~~
 
+## Forms
+Forms admin [here](https://kobo.humanitarianresponse.info/#/forms). Online form [here](https://ee.humanitarianresponse.info/x/#Yhgh).
+
 ## Images
 We serve thumbnails using Amazon's [serverless-image-handler](https://docs.aws.amazon.com/solutions/latest/serverless-image-handler/deployment.html), which uses [Thumbor](https://github.com/thumbor/thumbor) behind the scenes.
 

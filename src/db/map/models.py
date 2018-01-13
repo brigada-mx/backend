@@ -191,6 +191,11 @@ class AbstractAction(models.Model):
         abstract = True
 
 
+class PublicActionManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(published=True)
+
+
 class Action(AbstractAction, BaseModel):
     """Action related to reconstruction. A new record in this table is generated
     for each new `key`.
@@ -198,6 +203,8 @@ class Action(AbstractAction, BaseModel):
     key = models.IntegerField(help_text='Essentially google sheet row number')
     organization = models.ForeignKey('Organization', help_text='Frozen after first read')
     source = models.TextField(choices=ACTION_SOURCE_CHOICES)
+    objects = models.Manager()
+    public_objects = PublicActionManager()
 
     class Meta:
         unique_together = ('key', 'organization')
