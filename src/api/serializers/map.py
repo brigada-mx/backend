@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from db.map.models import State, Municipality, Locality, Organization, Action, ActionLog, Establishment
+from db.map.models import State, Municipality, Locality, Organization, Action, ActionLog, Establishment, Submission
 from api.mixins import EagerLoadingMixin
 from api.fields import LatLngField
 
@@ -68,8 +68,26 @@ class LocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
         )
 
 
-class LocalityDetailSerializer(LocalitySerializer):
-    pass
+class SubmissionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    data = serializers.SerializerMethodField()
+    thumbnails_small = serializers.SerializerMethodField()
+    thumbnails_medium = serializers.SerializerMethodField()
+    location = LatLngField()
+
+    class Meta:
+        model = Submission
+        fields = '__all__'
+
+    def get_data(self, obj):
+        data = obj.data
+        data.pop('org_key', None)
+        return data
+
+    def get_thumbnails_small(self, obj):
+        return obj.thumbnails(240, 240)
+
+    def get_thumbnails_medium(self, obj):
+        return obj.thumbnails(960, 960)
 
 
 class ActionLocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
@@ -85,7 +103,7 @@ class ActionLocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
 class OrganizationMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     class Meta:
         model = Organization
-        fields = '__all__'
+        exclude = ('secret_key',)
 
 
 class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
@@ -98,7 +116,7 @@ class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
     class Meta:
         model = Organization
-        fields = '__all__'
+        exclude = ('secret_key',)
 
     def get_action_count(self, obj):
         return obj.action_set.count()
@@ -134,18 +152,33 @@ class ActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         return reverse('api:action-log', args=[obj.pk], request=self.context.get('request'))
 
 
-class ActionDetailSerializer(ActionSerializer):
-    _SELECT_RELATED_FIELDS = ['locality', 'organization']
+class ActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _SELECT_RELATED_FIELDS = ['locality']
+    _PREFETCH_RELATED_FIELDS = ['submission_set']
 
     locality = LocalityMediumSerializer(read_only=True)
+    submissions = SubmissionSerializer(source='submission_set', many=True, read_only=True)
+
+    class Meta:
+        model = Action
+        fields = '__all__'
 
 
-class OrganizationDetailSerializer(OrganizationSerializer):
-    actions = ActionDetailSerializer(source='action_set', many=True, read_only=True)
+class OrganizationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _PREFETCH_RELATED_FIELDS = ['action_set__submission_set', 'action_set__locality']
+
+    actions = ActionSubmissionsSerializer(source='action_set', many=True, read_only=True)
+    action_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Organization
+        exclude = ('secret_key',)
+
+    def get_action_count(self, obj):
+        return obj.action_set.count()
 
 
 class ActionLogSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-
     class Meta:
         model = ActionLog
         fields = '__all__'

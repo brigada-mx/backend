@@ -9,4 +9,6 @@ def diceware(n, sep='.'):
 
 
 def diceware_transform(s):
-    return '.'.join(s.lower().replace(',', ' ').replace('.', ' ').replace('-', ' ').replace('_', ' ').split())
+    table = str.maketrans({'á': 'a', 'é': 'e', 'í': 'i', 'ñ': 'n', 'ó': 'o', 'ú': 'u', 'ü': 'u',
+                          ',': ' ', '.': ' ', '-': ' ', '_': ' '})
+    return '.'.join(s.lower().translate(table).split())

@@ -61,7 +61,7 @@ def sync_submission(s):
     organization = Organization.objects.filter(secret_key=diceware_transform(s.get('org_key'))).first()
     if organization is None:
         return
-    action = organization.action_set.all().filter(key=int(s.get('action_id'))).first()
+    action = organization.action_set.all().filter(key=int(s.get('action_key'))).first()
     submission = Submission(
         organization=organization,
         action=action,

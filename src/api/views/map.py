@@ -4,8 +4,8 @@ from rest_framework import generics
 
 from db.map.models import State, Municipality, Locality, Action, Organization, Establishment
 from api.serializers import StateSerializer, MunicipalitySerializer
-from api.serializers import LocalitySerializer, LocalityDetailSerializer, EstablishmentSerializer
-from api.serializers import ActionSerializer, ActionDetailSerializer, ActionLogSerializer
+from api.serializers import LocalitySerializer, EstablishmentSerializer
+from api.serializers import ActionSerializer, ActionLogSerializer, ActionSubmissionsSerializer
 from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
 from api.filters import ActionFilter, EstablishmentFilter
 
@@ -42,7 +42,7 @@ class LocalityList(generics.ListAPIView):
 
 
 class LocalityDetail(generics.RetrieveAPIView):
-    serializer_class = LocalityDetailSerializer
+    serializer_class = LocalitySerializer
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(
@@ -74,7 +74,7 @@ class ActionList(generics.ListAPIView):
 
 
 class ActionDetail(generics.RetrieveAPIView):
-    serializer_class = ActionDetailSerializer
+    serializer_class = ActionSubmissionsSerializer
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(
@@ -87,7 +87,7 @@ class ActionLogList(generics.ListAPIView):
     serializer_class = ActionLogSerializer
 
     def get_queryset(self):
-        action = get_object_or_404(Action, pk=self.kwargs['pk'])
+        action = get_object_or_404(Action, pk=self.kwargs['pk'], published=True)
         queryset = self.get_serializer_class().setup_eager_loading(
             action.actionlog_set.all().order_by('-modified')
         )
