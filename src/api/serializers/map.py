@@ -91,6 +91,18 @@ class SubmissionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         return obj.thumbnails(960, 960)
 
 
+class SubmissionMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    thumbnails_small = serializers.SerializerMethodField()
+    location = LatLngField()
+
+    class Meta:
+        model = Submission
+        fields = ('id', 'thumbnails_small', 'location')
+
+    def get_thumbnails_small(self, obj):
+        return obj.thumbnails(240, 240)
+
+
 class ActionLocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['locality']
 
@@ -153,12 +165,24 @@ class ActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         return reverse('api:action-log', args=[obj.pk], request=self.context.get('request'))
 
 
-class ActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['locality']
     _PREFETCH_RELATED_FIELDS = ['submission_set']
 
     locality = LocalityMediumSerializer(read_only=True)
     submissions = SubmissionSerializer(source='submission_set', many=True, read_only=True)
+
+    class Meta:
+        model = Action
+        fields = '__all__'
+
+
+class ActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _SELECT_RELATED_FIELDS = ['locality']
+    _PREFETCH_RELATED_FIELDS = ['submission_set']
+
+    locality = LocalityMediumSerializer(read_only=True)
+    submissions = SubmissionMiniSerializer(source='submission_set', many=True, read_only=True)
 
     class Meta:
         model = Action

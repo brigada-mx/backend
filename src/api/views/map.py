@@ -6,7 +6,7 @@ from rest_framework import generics
 from db.map.models import State, Municipality, Locality, Action, Organization, Establishment
 from api.serializers import StateSerializer, MunicipalitySerializer
 from api.serializers import LocalitySerializer, EstablishmentSerializer
-from api.serializers import ActionSerializer, ActionLogSerializer, ActionSubmissionsSerializer
+from api.serializers import ActionSerializer, ActionLogSerializer, ActionDetailSerializer
 from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
 from api.filters import ActionFilter, EstablishmentFilter
 
@@ -75,7 +75,7 @@ class ActionList(generics.ListAPIView):
 
 
 class ActionDetail(generics.RetrieveAPIView):
-    serializer_class = ActionSubmissionsSerializer
+    serializer_class = ActionDetailSerializer
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(
