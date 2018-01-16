@@ -85,7 +85,7 @@ class SubmissionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         return data
 
     def get_thumbnails_small(self, obj):
-        return obj.thumbnails(240, 240)
+        return obj.thumbnails(240, 240, crop=True)
 
     def get_thumbnails_medium(self, obj):
         return obj.thumbnails(960, 960)
@@ -100,7 +100,7 @@ class SubmissionMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = ('id', 'thumbnails_small', 'location')
 
     def get_thumbnails_small(self, obj):
-        return obj.thumbnails(240, 240)
+        return obj.thumbnails(240, 240, crop=True)
 
 
 class ActionLocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):

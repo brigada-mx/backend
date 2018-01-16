@@ -31,7 +31,7 @@ def get_s3_client():
     )
 
 
-def s3_thumbnail_url(url, width, height):
+def s3_thumbnail_url(url, width=0, height=0, crop=False):
     base_url = os.getenv('CUSTOM_THUMBOR_SERVER')
     path = urlparse(url).path
-    return '{}/fit-in/{}x{}{}'.format(base_url, width, height, path)
+    return '{}/{}{}x{}{}'.format(base_url, '' if crop else 'fit-in/', width, height, path)

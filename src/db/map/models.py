@@ -248,8 +248,8 @@ class Submission(BaseModel):
         bucket = os.getenv('AWS_STORAGE_BUCKET_NAME')
         return [url for url in self.image_urls if url.startswith('https://{}.s3.amazonaws.com'.format(bucket))]
 
-    def thumbnails(self, width=240, height=240):
-        return [s3_thumbnail_url(url, width, height) for url in self.synced_image_urls()]
+    def thumbnails(self, *args, **kwargs):
+        return [s3_thumbnail_url(url, *args, **kwargs) for url in self.synced_image_urls()]
 
 
 @receiver(models.signals.post_save, sender=Submission)
