@@ -2,6 +2,7 @@
 import os
 import uuid
 from concurrent import futures
+from urllib.parse import quote_plus
 from datetime import datetime, timedelta
 
 from django.utils import timezone
@@ -95,14 +96,15 @@ def upload_submission_images(submission_id):
         if path is None:
             continue
 
-        bucket_key = 'kobo/{}/{}'.format(org_id, filename)
+        bucket_key = 'kobo/{}/{}'.format(org_id, filename)  # this will get URL encoded when it's uploaded to S3
+        encoded_bucket_key = 'kobo/{}/{}'.format(org_id, quote_plus(filename))
         try:
             with open(path, 'rb') as data:
                 s3.upload_fileobj(data, bucket, bucket_key, ExtraArgs={'ACL': 'public-read'})
         except:
             continue
         else:
-            urls[i] = 'https://{}.s3.amazonaws.com/{}'.format(bucket, bucket_key)
+            urls[i] = 'https://{}.s3.amazonaws.com/{}'.format(bucket, encoded_bucket_key)
     if urls != submission.image_urls:
         submission.image_urls = urls
         submission.save()
