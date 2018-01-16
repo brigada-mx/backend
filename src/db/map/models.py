@@ -52,7 +52,7 @@ class Establishment(BaseModel):
     cvegeo = models.TextField(blank=True)
     scian_group = models.ForeignKey('ScianGroup', default=1)
     locality = models.ForeignKey('Locality', null=True, blank=True)
-    location = models.PointField(null=True, blank=True)
+    location = models.PointField(blank=True)
 
     # verbatim DENUE fields
     denue_id = models.TextField(unique=True)
@@ -112,8 +112,8 @@ class Establishment(BaseModel):
         self.scian_group_id = CODE_SCIAN_GROUP_ID.get(self.codigo_act, 1)
         try:
             self.location = geos_location_from_coordinates(float(self.latitud), float(self.longitud))
-        except:
-            self.location = None
+        except:  # don't save records without location
+            return
         return super().save(*args, **kwargs)
 
 

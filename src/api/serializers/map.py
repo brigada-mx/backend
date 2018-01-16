@@ -154,22 +154,18 @@ class ActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     url = serializers.HyperlinkedIdentityField(view_name='api:action-detail')
     locality = serializers.HyperlinkedRelatedField(view_name='api:locality-detail', read_only=True)
     locality_id = serializers.IntegerField(read_only=True)
-    organization = OrganizationMiniSerializer(read_only=True)
-    url_log = serializers.SerializerMethodField()
 
     class Meta:
         model = Action
         fields = '__all__'
 
-    def get_url_log(self, obj):
-        return reverse('api:action-log', args=[obj.pk], request=self.context.get('request'))
-
 
 class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    _SELECT_RELATED_FIELDS = ['locality']
+    _SELECT_RELATED_FIELDS = ['locality', 'organization']
     _PREFETCH_RELATED_FIELDS = ['submission_set']
 
     locality = LocalityMediumSerializer(read_only=True)
+    organization = OrganizationMiniSerializer(read_only=True)
     submissions = SubmissionSerializer(source='submission_set', many=True, read_only=True)
 
     class Meta:
@@ -178,10 +174,11 @@ class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
 
 class ActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    _SELECT_RELATED_FIELDS = ['locality']
+    _SELECT_RELATED_FIELDS = ['locality', 'organization']
     _PREFETCH_RELATED_FIELDS = ['submission_set']
 
     locality = LocalityMediumSerializer(read_only=True)
+    organization = OrganizationMiniSerializer(read_only=True)
     submissions = SubmissionMiniSerializer(source='submission_set', many=True, read_only=True)
 
     class Meta:
@@ -190,7 +187,7 @@ class ActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin
 
 
 class OrganizationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    _PREFETCH_RELATED_FIELDS = ['action_set__submission_set', 'action_set__locality']
+    _PREFETCH_RELATED_FIELDS = ['action_set__submission_set', 'action_set__locality', 'action_set__organization']
 
     actions = ActionSubmissionsSerializer(source='action_set', many=True, read_only=True)
     action_count = serializers.SerializerMethodField()
