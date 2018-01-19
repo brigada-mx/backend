@@ -233,6 +233,7 @@ class Submission(BaseModel):
     REPR_FIELDS = ['organization_id', 'action_id', 'submitted']
 
     class Meta:
+        ordering = ('-submitted',)
         unique_together = ('source', 'source_id')
         indexes = [
             models.Index(fields=['location']),
