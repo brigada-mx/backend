@@ -1,7 +1,7 @@
 import django_filters
 from django_filters import rest_framework as filters
 
-from db.map.models import Action, Establishment
+from db.map.models import Action, Establishment, Submission
 from api.filters import parse_boolean
 
 
@@ -30,3 +30,11 @@ class EstablishmentFilter(filters.FilterSet):
     class Meta:
         model = Establishment
         fields = ['locality_id']
+
+
+class SubmissionFilter(filters.FilterSet):
+    action_id = django_filters.NumberFilter(name='action')
+
+    class Meta:
+        model = Submission
+        fields = ['action_id']

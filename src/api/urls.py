@@ -18,6 +18,8 @@ urlpatterns = [
     url(r'^actions/(?P<pk>[0-9]+)/$', views.ActionDetail.as_view(), name='action-detail'),
     url(r'^actions/(?P<pk>[0-9]+)/log/$', views.ActionLogList.as_view(), name='action-log'),
 
+    url(r'^submissions/$', views.SubmissionList.as_view(), name='submission-list'),
+
     url(r'^organizations/$', views.OrganizationList.as_view(), name='organization-list'),
     url(r'^organizations/(?P<pk>[0-9]+)/$', views.OrganizationDetail.as_view(), name='organization-detail'),
 

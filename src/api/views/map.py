@@ -3,12 +3,13 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import generics
 
-from db.map.models import State, Municipality, Locality, Action, Organization, Establishment
+from db.map.models import State, Municipality, Locality, Action, Organization, Establishment, Submission
 from api.serializers import StateSerializer, MunicipalitySerializer
 from api.serializers import LocalitySerializer, EstablishmentSerializer
 from api.serializers import ActionSubmissionsSerializer, ActionLogSerializer, ActionDetailSerializer
+from api.serializers import SubmissionSerializer
 from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
-from api.filters import ActionFilter, EstablishmentFilter
+from api.filters import ActionFilter, EstablishmentFilter, SubmissionFilter
 
 
 class StateList(generics.ListAPIView):
@@ -115,5 +116,16 @@ class OrganizationDetail(generics.RetrieveAPIView):
             Organization.objects.prefetch_related(
                 Prefetch('action_set', queryset=Action.public_objects.all())
             ).all().order_by('-modified')
+        )
+        return queryset
+
+
+class SubmissionList(generics.ListAPIView):
+    serializer_class = SubmissionSerializer
+    filter_class = SubmissionFilter
+
+    def get_queryset(self):
+        queryset = self.get_serializer_class().setup_eager_loading(
+            Submission.objects.filter(action__published=True)
         )
         return queryset
