@@ -6,7 +6,7 @@ from django.contrib.postgres.fields import JSONField
 from django.dispatch import receiver
 
 from db.config import BaseModel
-from db.choices import ACTION_SOURCE_CHOICES, CODE_SCIAN_GROUP_ID, ORGANIZATION_SECTOR_CHOICES
+from db.choices import ACTION_SOURCE_CHOICES, SCIAN_GROUP_ID_BY_CODE, ORGANIZATION_SECTOR_CHOICES
 from db.choices import SUBMISSION_SOURCE_CHOICES
 from helpers.location import geos_location_from_coordinates
 from helpers.diceware import diceware
@@ -109,7 +109,7 @@ class Establishment(BaseModel):
     def save(self, *args, **kwargs):
         self.cvegeo = ''.join(c.strip() for c in [self.cve_ent, self.cve_mun, self.cve_loc])
         self.locality = Locality.objects.filter(cvegeo=self.cvegeo).first()
-        self.scian_group_id = CODE_SCIAN_GROUP_ID.get(self.codigo_act, 1)
+        self.scian_group_id = SCIAN_GROUP_ID_BY_CODE.get(self.codigo_act, 1)
         try:
             self.location = geos_location_from_coordinates(float(self.latitud), float(self.longitud))
         except:  # don't save records without location

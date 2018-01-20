@@ -15,7 +15,7 @@ SUBMISSION_SOURCE_CHOICES = (
 )
 
 # 1 is reserved for 'unknown'
-CODE_SCIAN_GROUP_ID = {
+SCIAN_GROUP_ID_BY_CODE = {
     '931110': 2,
     '931210': 2,
     '931310': 2,
