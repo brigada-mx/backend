@@ -11,7 +11,7 @@ def scian_category_filter(queryset, name, value):
         return queryset
     if boolean is False:
         return queryset.filter(scian_group_id=1)
-    return queryset.filter(scian_group_id__gt=1)
+    return queryset.exclude(scian_group_id=1)
 
 
 class ActionFilter(filters.FilterSet):

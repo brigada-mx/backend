@@ -113,11 +113,6 @@ update map_establishment set scian_group_id = 8 where codigo_act in ('713112',
 '712190',
 '713114',
 '713944');
-update map_establishment set scian_group_id = 9 where codigo_act in ('624221',
-'624231',
-'624211',
-'624232',
-'624222');
 update map_establishment set scian_group_id = 10 where codigo_act in ('484231',
 '484121',
 '484234',

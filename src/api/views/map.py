@@ -59,7 +59,7 @@ class EstablishmentList(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(
-            Establishment.objects.all().order_by('-modified')
+            Establishment.objects.all()
         )
         return queryset
 

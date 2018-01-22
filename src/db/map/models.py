@@ -104,6 +104,7 @@ class Establishment(BaseModel):
             models.Index(fields=['cvegeo']),
             models.Index(fields=['location']),
             models.Index(fields=['codigo_act']),
+            models.Index(fields=['locality_id', 'scian_group_id']),
         ]
 
     def save(self, *args, **kwargs):
