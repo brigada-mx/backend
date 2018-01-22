@@ -1,7 +1,7 @@
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'api.exceptions.custom_exception_handler',
     # allow client to override using `?page_size={num}` in query string
-    'DEFAULT_PAGINATION_CLASS': 'api.paginators.StandardResultsSetPagination',
+    'DEFAULT_PAGINATION_CLASS': 'api.paginators.NoCountPagination',
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
         'rest_framework.filters.SearchFilter',
