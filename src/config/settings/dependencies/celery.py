@@ -22,9 +22,9 @@ CELERYBEAT_SCHEDULE = {
         'task': 'etl_actions',
         'schedule': timedelta(seconds=60 * 15),
     },
-    'etl_submissions': {
-        'task': 'etl_submissions',
-        'schedule': timedelta(seconds=60 * 15),
+    'sync_submissions': {
+        'task': 'sync_submissions',
+        'schedule': timedelta(seconds=60 * 10),
     },
     'upload_recent_submission_images': {
         'task': 'upload_recent_submission_images',

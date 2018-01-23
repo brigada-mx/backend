@@ -35,12 +35,11 @@ def get_recent_form_submissions(form_id, past_days=1):
         auth=TokenAuth('Token', AUTH_TOKEN),
         timeout=TIMEOUT,
     )
-    if r.status_code >= 400:
-        return []
+    r.raise_for_status()
     return r.json()
 
 
-@shared_task(name='etl_submissions')
+@shared_task(name='sync_submissions')
 def sync_submissions(past_days=1):
     MAX_WORKERS = 10
     form_ids = get_form_ids()
