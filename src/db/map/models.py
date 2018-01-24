@@ -255,10 +255,7 @@ class Submission(BaseModel):
 
 
 @receiver(models.signals.post_save, sender=Submission)
-def auto_assign_care_shift_schedule(sender, instance, created, **kwargs):
-    """Assign first care schedule and shift schedule are to patient on object
-    creation.
-    """
+def upload_submission_images_signal(sender, instance, created, **kwargs):
     from jobs.kobo import upload_submission_images
     if not created:
         return

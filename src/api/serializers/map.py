@@ -137,12 +137,13 @@ class OrganizationMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin)
 
 
 class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    _PREFETCH_RELATED_FIELDS = ['action_set__locality']
+    _PREFETCH_RELATED_FIELDS = ['action_set__locality', 'action_set__submission_set']
 
     url = serializers.HyperlinkedIdentityField(view_name='api:organization-detail')
     url_actions = serializers.SerializerMethodField()
     actions = ActionLocalitySerializer(source='action_set', many=True, read_only=True)
     action_count = serializers.SerializerMethodField()
+    image_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Organization
@@ -150,6 +151,12 @@ class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
     def get_action_count(self, obj):
         return obj.action_set(manager='public_objects').count()
+
+    def get_image_count(self, obj):
+        actions = obj.action_set(manager='public_objects').all()
+        return sum(
+            sum(len(s.synced_image_urls()) for s in a.submission_set.all()) for a in actions
+        )
 
     def get_url_actions(self, obj):
         return '{}?organization_id={}'.format(reverse('api:action-list', request=self.context.get('request')), obj.pk)
