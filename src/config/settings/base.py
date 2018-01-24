@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'api',
 
     # third-party apps
-    'storages',
     'rest_framework',
     'corsheaders',
     'django_filters',
