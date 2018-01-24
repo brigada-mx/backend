@@ -185,10 +185,17 @@ class ActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin
     locality = LocalityMediumSerializer(read_only=True)
     organization = OrganizationMiniSerializer(read_only=True)
     submissions = SubmissionMiniSerializer(source='submission_set', many=True, read_only=True)
+    first_thumbnail_medium = serializers.SerializerMethodField()
 
     class Meta:
         model = Action
         fields = '__all__'
+
+    def get_first_thumbnail_medium(self, obj):
+        try:
+            return obj.submission_set.first().thumbnails(1280, 240, crop=True)[0]
+        except:
+            return None
 
 
 class OrganizationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
