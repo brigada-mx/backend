@@ -17,10 +17,6 @@ REST_FRAMEWORK = {
         'burst': '30/min',  # applies to all authenticated users, including w/ token auth, except admins
         'sustained': '2000/day',  # applies to all authenticated users, including w/ token auth, except admins
         'anon': '2000/day',  # applies to all unauthenticated users
-
-        # SCOPED THROTTLES
-        'unauthenticated': '20/day',  # special throttle for unauthenticated requests used, e.g., in account creation
-        'authentication': '10/day',  # for users submitting username/email/password tuples to obtain token
     },
 }
 
