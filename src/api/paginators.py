@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 class NoCountPagination(LimitOffsetPagination):
     """Ensures Django doesn't call `count` on queryset, because counting records
-    in large tables can be very expensive, especially in PG.
+    in large tables can be very expensive, especially with PostgreSQL.
     """
     default_limit = 100
     limit_query_param = 'page_size'
@@ -35,3 +35,7 @@ class NoCountPagination(LimitOffsetPagination):
             ('previous', self.get_previous_link()),
             ('results', data)
         ]))
+
+
+class LargeNoCountPagination(NoCountPagination):
+    max_limit = 20000

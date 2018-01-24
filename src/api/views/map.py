@@ -9,6 +9,7 @@ from api.serializers import LocalitySerializer, EstablishmentSerializer
 from api.serializers import ActionSubmissionsSerializer, ActionLogSerializer, ActionDetailSerializer
 from api.serializers import SubmissionSerializer
 from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
+from api.paginators import LargeNoCountPagination
 from api.filters import ActionFilter, EstablishmentFilter, SubmissionFilter
 
 
@@ -35,6 +36,7 @@ class MunicipalityList(generics.ListAPIView):
 class LocalityList(generics.ListAPIView):
     serializer_class = LocalitySerializer
     filter_fields = ('has_data', 'cvegeo')
+    pagination_class = LargeNoCountPagination
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(
