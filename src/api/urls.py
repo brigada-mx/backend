@@ -5,7 +5,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from api import views
 
 
-# caching also sets `Cache-Control: max-age=<seconds>` in response headers
+# `cache_page` also sets `Cache-Control: max-age=<seconds>` in response headers
 urlpatterns = [
     url(r'^webhooks/kobo_submission/$', views.KoboSubmissionWebhook.as_view(), name='kobo-submission-webhook'),
 
@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^municipalities/$', cache_page(60 * 5)(views.MunicipalityList.as_view()), name='municipality-list'),
 
     url(r'^localities/$', cache_page(60 * 20)(views.LocalityList.as_view()), name='locality-list'),
+    url(r'^localities_raw/$', cache_page(60 * 20)(views.LocalityListRaw.as_view()), name='locality-list-raw'),
     url(r'^localities/(?P<pk>[0-9]+)/$', views.LocalityDetail.as_view(), name='locality-detail'),
 
     url(r'^actions/$', views.ActionList.as_view(), name='action-list'),

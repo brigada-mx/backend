@@ -39,9 +39,7 @@ class LocalityMediumSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = ('id', 'cvegeo', 'location', 'name', 'municipality_name', 'state_name', 'meta')
 
 
-class LocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    _PREFETCH_RELATED_FIELDS = ['action_set']
-
+class LocalityRawSerializer(serializers.ModelSerializer):
     meta = serializers.SerializerMethodField()
     location = LatLngField()
     action_count = serializers.SerializerMethodField()
@@ -56,18 +54,15 @@ class LocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
         return {key: obj.meta.get(key) for key in keys}
 
     def get_action_count(self, obj):
-        return obj.action_set(manager='public_objects').count()
+        return obj.action_count
 
 
-class LocalityDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class LocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_RELATED_FIELDS = ['action_set']
 
-    url = serializers.HyperlinkedIdentityField(view_name='api:locality-detail')
     meta = serializers.JSONField()
     location = LatLngField()
     action_count = serializers.SerializerMethodField()
-    url_actions = serializers.SerializerMethodField()
-    url_establishments = serializers.SerializerMethodField()
 
     class Meta:
         model = Locality
@@ -75,18 +70,6 @@ class LocalityDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
     def get_action_count(self, obj):
         return obj.action_set(manager='public_objects').count()
-
-    def get_url_actions(self, obj):
-        return '{}?locality_id={}'.format(
-            reverse('api:action-list', request=self.context.get('request')),
-            obj.pk
-        )
-
-    def get_url_establishments(self, obj):
-        return '{}?locality_id={}&is_categorized=true'.format(
-            reverse('api:establishment-list', request=self.context.get('request')),
-            obj.pk
-        )
 
 
 class ActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):

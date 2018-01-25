@@ -5,7 +5,7 @@ from rest_framework import generics
 
 from db.map.models import State, Municipality, Locality, Action, Organization, Establishment, Submission
 from api.serializers import StateSerializer, MunicipalitySerializer
-from api.serializers import LocalitySerializer, LocalityDetailSerializer, EstablishmentSerializer
+from api.serializers import LocalitySerializer, LocalityRawSerializer, EstablishmentSerializer
 from api.serializers import ActionSubmissionsSerializer, ActionLogSerializer, ActionDetailSerializer
 from api.serializers import SubmissionSerializer
 from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
@@ -33,10 +33,29 @@ class MunicipalityList(generics.ListAPIView):
         return queryset
 
 
+locality_list_raw_query = """
+SELECT
+    map_locality.*,
+    (SELECT
+        COUNT(*)
+        FROM map_action
+        WHERE map_action.locality_id = map_locality.id AND map_action.published = true
+    ) AS action_count
+FROM map_locality
+WHERE map_locality.has_data = true"""
+
+
+class LocalityListRaw(generics.ListAPIView):
+    serializer_class = LocalityRawSerializer
+    pagination_class = LargeNoCountPagination
+
+    def get_queryset(self):
+        return Locality.objects.raw(locality_list_raw_query)
+
+
 class LocalityList(generics.ListAPIView):
     serializer_class = LocalitySerializer
-    filter_fields = ('has_data', 'cvegeo')
-    pagination_class = LargeNoCountPagination
+    filter_fields = ('has_data',)
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(
@@ -46,7 +65,7 @@ class LocalityList(generics.ListAPIView):
 
 
 class LocalityDetail(generics.RetrieveAPIView):
-    serializer_class = LocalityDetailSerializer
+    serializer_class = LocalitySerializer
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(
