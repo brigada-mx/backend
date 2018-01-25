@@ -5,7 +5,7 @@ from rest_framework import generics
 
 from db.map.models import State, Municipality, Locality, Action, Organization, Establishment, Submission
 from api.serializers import StateSerializer, MunicipalitySerializer
-from api.serializers import LocalitySerializer, EstablishmentSerializer
+from api.serializers import LocalitySerializer, LocalityDetailSerializer, EstablishmentSerializer
 from api.serializers import ActionSubmissionsSerializer, ActionLogSerializer, ActionDetailSerializer
 from api.serializers import SubmissionSerializer
 from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
@@ -40,13 +40,13 @@ class LocalityList(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(
-            Locality.objects.all().order_by('-modified')
+            Locality.objects.all()
         )
         return queryset
 
 
 class LocalityDetail(generics.RetrieveAPIView):
-    serializer_class = LocalitySerializer
+    serializer_class = LocalityDetailSerializer
 
     def get_queryset(self):
         queryset = self.get_serializer_class().setup_eager_loading(

@@ -42,6 +42,26 @@ class LocalityMediumSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 class LocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_RELATED_FIELDS = ['action_set']
 
+    meta = serializers.SerializerMethodField()
+    location = LatLngField()
+    action_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Locality
+        fields = ('id', 'cvegeo', 'cvegeo_municipality', 'cvegeo_state', 'name', 'municipality_name',
+                  'state_name', 'location', 'meta', 'action_count')
+
+    def get_meta(self, obj):
+        keys = ['destroyed', 'habit', 'margGrade', 'notHabit', 'total']
+        return {key: obj.meta.get(key) for key in keys}
+
+    def get_action_count(self, obj):
+        return obj.action_set(manager='public_objects').count()
+
+
+class LocalityDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _PREFETCH_RELATED_FIELDS = ['action_set']
+
     url = serializers.HyperlinkedIdentityField(view_name='api:locality-detail')
     meta = serializers.JSONField()
     location = LatLngField()

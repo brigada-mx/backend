@@ -114,7 +114,7 @@ STATIC_URL = '/static/'
 
 
 REDIS_URL = 'redis://:{password}@{host}:{port}/{database}'.format(
-    password=os.getenv('CUSTOM_REDIS_PASSWORD'),
+    password=os.getenv('CUSTOM_REDIS_PASSWORD'),  # make sure password is URL safe
     host=os.getenv('CUSTOM_REDIS_HOST'),
     port=os.getenv('CUSTOM_REDIS_PORT'),
     database=os.getenv('CUSTOM_REDIS_DATABASE'),
@@ -123,9 +123,20 @@ CELERY_RESULT_BACKEND = REDIS_URL
 BROKER_URL = REDIS_URL
 
 
+
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://{host}:{port}/{database}'.format(
+            host=os.getenv('CUSTOM_REDIS_HOST'),
+            port=os.getenv('CUSTOM_REDIS_PORT'),
+            database=os.getenv('CUSTOM_REDIS_DATABASE'),
+        ),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'PASSWORD': os.getenv('CUSTOM_REDIS_PASSWORD'),
+        },
+        'KEY_PREFIX': 'cache_',
     },
 }
 
