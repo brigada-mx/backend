@@ -3,8 +3,6 @@ version: '3'
 services:
   db:
     container_name: 919_db
-    env_file:
-      - ./env
     restart: always
     image: mdillon/postgis:9.6-alpine
     expose:
@@ -22,7 +20,7 @@ services:
   api:
     container_name: 919_api
     env_file:
-      - ./env
+      - ./.env
     build:
       context: .
       dockerfile: ./Dockerfile.api
@@ -34,15 +32,41 @@ services:
     ports:
       - "8000:8000"
 
-  jobs:
-    container_name: 919_jobs
+  celery_worker:
+    container_name: 919_celery_worker
     env_file:
-      - ./env
+      - ./.env
     build:
       context: .
-      dockerfile: ./Dockerfile.jobs
+      dockerfile: ./Dockerfile.celery_worker
     volumes:
       - .:/code
     depends_on:
       - db
       - redis
+
+  celery_beat:
+    container_name: 919_celery_beat
+    env_file:
+      - ./.env
+    build:
+      context: .
+      dockerfile: ./Dockerfile.celery_beat
+    volumes:
+      - .:/code
+    depends_on:
+      - celery_worker
+
+  celery_flower:
+    container_name: 919_celery_flower
+    env_file:
+      - ./.env
+    build:
+      context: .
+      dockerfile: ./Dockerfile.celery_flower
+    volumes:
+      - .:/code
+    depends_on:
+      - celery_worker
+    ports:
+    - "5555:5555"

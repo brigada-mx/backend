@@ -4,9 +4,9 @@ python manage.py loaddata scian_group.json
 
 USAGE:
 python manage.py load --load_dir db/load
-python manage.py load --denue_dir db/load/denue
-python manage.py load --denue_file db/load/denue/<denue_file>
-python manage.py load --locality_csv db/load/<locality_csv>
+python manage.py load --denue_dir <dir>
+python manage.py load --denue_file <file>
+python manage.py load --locality_csv <file>
 """
 import os
 import csv

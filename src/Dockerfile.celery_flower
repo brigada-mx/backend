@@ -6,6 +6,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         postgresql-client \
         gdal-bin \
+        lsof \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install -r requirements-dev.txt
@@ -14,4 +15,5 @@ RUN mkdir /code/
 WORKDIR /code/
 ADD . /code/
 
-CMD ./jobs.sh
+EXPOSE 5555
+CMD ./celery_flower.sh

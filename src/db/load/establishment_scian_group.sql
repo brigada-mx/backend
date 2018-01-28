@@ -1,4 +1,4 @@
--- psql --user custom --host 127.0.0.1 --port 5432 -f db/load/establishment_scian_group.sql
+-- `psql --user custom --host 127.0.0.1 --port 5432 -f db/load/establishment_scian_group.sql`
 
 update map_establishment set scian_group_id = 1;
 update map_establishment set scian_group_id = 2 where codigo_act in ('931110',
