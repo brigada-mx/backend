@@ -6,9 +6,6 @@ vagrant_login_user: "vagrant"
 base_website_url: ""
 
 _env_all:
-  CUSTOM_CONTACT_EMAIL: ""
-  CUSTOM_CONTACT_PHONE: ""
-  CUSTOM_CONTACT_ADDRESS: ""
   CUSTOM_DATABASE_PORT: "5432"
   CUSTOM_REDIS_PORT: "6379"
   CUSTOM_CELERY_PORT: "5555"

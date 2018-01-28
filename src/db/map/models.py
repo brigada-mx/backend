@@ -247,7 +247,7 @@ class Submission(BaseModel):
         return super().save(*args, **kwargs)
 
     def synced_image_urls(self):
-        bucket = os.getenv('AWS_STORAGE_BUCKET_NAME')
+        bucket = os.getenv('CUSTOM_AWS_STORAGE_BUCKET_NAME')
         return [url for url in self.image_urls if url.startswith('https://{}.s3.amazonaws.com'.format(bucket))]
 
     def thumbnails(self, *args, **kwargs):

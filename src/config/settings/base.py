@@ -3,12 +3,7 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-ADMINS = (
-    ('Kyle Bebak', 'kylebebak@gmail.com'),
-)
-
 SECRET_KEY = os.getenv('CUSTOM_SECRET_KEY')
-
 
 DATABASES = {
     'default': {
@@ -113,15 +108,13 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 
-REDIS_URL = 'redis://:{password}@{host}:{port}/{database}'.format(
-    password=os.getenv('CUSTOM_REDIS_PASSWORD'),  # make sure password is URL safe
+REDIS_URL = 'redis://{host}:{port}/{database}'.format(
     host=os.getenv('CUSTOM_REDIS_HOST'),
     port=os.getenv('CUSTOM_REDIS_PORT'),
     database=os.getenv('CUSTOM_REDIS_DATABASE'),
 )
 CELERY_RESULT_BACKEND = REDIS_URL
 BROKER_URL = REDIS_URL
-
 
 
 CACHES = {
@@ -134,7 +127,6 @@ CACHES = {
         ),
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'PASSWORD': os.getenv('CUSTOM_REDIS_PASSWORD'),
         },
         'KEY_PREFIX': 'cache_',
     },
@@ -147,25 +139,9 @@ CORS_ORIGIN_WHITELIST = (
     '919.local.mx:8080',
     '919.local.mx:8081',
 )
+CORS_ALLOW_METHODS = ( 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS')
 
-CORS_ALLOW_METHODS = (
-    'GET',
-    'POST',
-    'PUT',
-    'PATCH',
-    'DELETE',
-    'OPTIONS',
-)
-
-SITE_URL_WITHOUT_SCHEME = os.getenv('CUSTOM_SITE_URL')
-SITE_URL = 'https://{}'.format(SITE_URL_WITHOUT_SCHEME)
-LOCAL_API_URL = os.getenv('CUSTOM_API_HOST')
-ALLOWED_HOSTS = [SITE_URL_WITHOUT_SCHEME, LOCAL_API_URL, os.getenv('CUSTOM_NGROK_HOST')]
-
-# contact info
-CONTACT_PHONE = os.getenv('CUSTOM_CONTACT_PHONE')
-CONTACT_EMAIL = os.getenv('CUSTOM_CONTACT_EMAIL')
-CONTACT_ADDRESS = os.getenv('CUSTOM_CONTACT_ADDRESS')
+ALLOWED_HOSTS = [os.getenv('CUSTOM_SITE_URL'), os.getenv('CUSTOM_API_HOST'), os.getenv('CUSTOM_NGROK_HOST')]
 
 # settings for dependencies (keep at the end of file)
 from config.settings.dependencies.celery import *

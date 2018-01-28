@@ -16,7 +16,6 @@ class CustomAbstractBaseUser(AbstractBaseUser, BaseModel, PermissionsMixin):
     REQUIRED_FIELDS = ['full_name']
 
     class Meta:
-        # This model should not be created in the database
         abstract = True
 
     @property
@@ -31,7 +30,6 @@ class CustomAbstractBaseUser(AbstractBaseUser, BaseModel, PermissionsMixin):
 
 
 class StaffUser(CustomAbstractBaseUser):
-
     @property
     def is_staff(self):
         """Staff users can use Django Admin Site.

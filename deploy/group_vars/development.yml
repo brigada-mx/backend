@@ -8,16 +8,14 @@ upstart_django_autostart: true
 upstart_scripts_backend:
   - django
 
-requirements_files_: ["requirements.txt", "requirements-dev.txt"]
+requirements_files_: ["requirements-dev.txt"]
 
 _env:
   CUSTOM_DATABASE_HOST: "127.0.0.1"
   CUSTOM_REDIS_HOST: "127.0.0.1"
   CUSTOM_API_HOST: "127.0.0.1"
   CUSTOM_WEBAPP_HOST: "127.0.0.1"
-  CUSTOM_ENV: "development"
   DJANGO_SETTINGS_MODULE: "config.settings.development"
   CUSTOM_SITE_URL: "919.test"
   CUSTOM_REDIS_DATABASE: "0"
   AWS_STORAGE_BUCKET_NAME: "719s"
-  AWS_CACHE_CONTROL_MAX_AGE: "120"

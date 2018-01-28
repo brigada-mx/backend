@@ -84,7 +84,7 @@ def upload_submission_images(submission_id):
     submission = Submission.objects.get(id=submission_id)
     org_id = submission.organization_id
     s3 = get_s3_client()
-    bucket = os.getenv('AWS_STORAGE_BUCKET_NAME')
+    bucket = os.getenv('CUSTOM_AWS_STORAGE_BUCKET_NAME')
 
     urls = list(submission.image_urls)
     for i, url in enumerate(submission.image_urls):

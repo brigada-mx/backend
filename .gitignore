@@ -11,6 +11,7 @@ __pycache__/
 # distribution / packaging
 .Python
 .env
+env
 env/
 build/
 develop-eggs/
@@ -75,3 +76,5 @@ celerybeat.pid
 denue/
 
 requester.pyr
+
+dbdata/

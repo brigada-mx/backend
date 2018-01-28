@@ -1,0 +1,20 @@
+FROM python:3.5
+
+ADD requirements-dev.txt /requirements-dev.txt
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        postgresql-client \
+        gdal-bin \
+        lsof \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install -r requirements-dev.txt
+
+RUN mkdir /code/
+WORKDIR /code/
+ADD . /code/
+
+EXPOSE 8000
+ENTRYPOINT ["/code/docker-entrypoint.sh"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
