@@ -1,8 +1,0 @@
-- name: Tune /etc/ssh/sshd_config for faster SSH login
-  lineinfile: dest=/etc/ssh/sshd_config line="UseDNS no"
-
-- name: Install cachefilesd
-  apt: name="cachefilesd" state=present
-
-- name: Enable cachefilesd for faster NFS
-  lineinfile: dest=/etc/default/cachefilesd line="RUN=yes"

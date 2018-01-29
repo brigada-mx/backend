@@ -1,4 +1,0 @@
----
-certbot_download_url: "https://dl.eff.org/certbot-auto"
-certbot_dir: "/opt"
-certbot_path: "/opt/certbot-auto"

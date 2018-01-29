@@ -1,9 +1,0 @@
-/var/log/upstart/*.log {
-  maxsize {{ logrotate_maxsize }}
-  {{ logrotate_frequency }}
-  missingok
-  rotate {{ logrotate_backups }}
-  compress
-  notifempty
-  nocreate
-}

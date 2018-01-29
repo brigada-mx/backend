@@ -1,9 +1,0 @@
----
-shell_scripts: []
-shell_scripts_path: /usr/local/bin
-scripts: []
-service_namespace: ""
-replace_logrotate: false
-logrotate_maxsize: "10M"
-logrotate_frequency: "daily"
-logrotate_backups: 7

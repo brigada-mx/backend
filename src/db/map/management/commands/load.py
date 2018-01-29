@@ -3,7 +3,7 @@ DEPS:
 python manage.py loaddata scian_group.json
 
 USAGE:
-python manage.py load --load_dir db/load
+python manage.py load --load_dir <dir>
 python manage.py load --denue_dir <dir>
 python manage.py load --denue_file <file>
 python manage.py load --locality_csv <file>
