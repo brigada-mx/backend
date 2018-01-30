@@ -39,6 +39,14 @@ class LocalityMediumSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = ('id', 'cvegeo', 'location', 'name', 'municipality_name', 'state_name', 'meta')
 
 
+class LocalitySearchSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    location = LatLngField()
+
+    class Meta:
+        model = Locality
+        fields = ('id', 'cvegeo', 'location', 'name', 'municipality_name', 'state_name')
+
+
 class LocalityRawSerializer(serializers.ModelSerializer):
     meta = serializers.SerializerMethodField()
     location = LatLngField()

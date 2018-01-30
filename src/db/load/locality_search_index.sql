@@ -3,6 +3,7 @@ CREATE EXTENSION IF NOT EXISTS unaccent;
 CREATE MATERIALIZED VIEW IF NOT EXISTS locality_search_index AS
 SELECT id,
        cvegeo,
+       location,
        name,
        municipality_name,
        state_name,

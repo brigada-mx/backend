@@ -5,7 +5,7 @@ from rest_framework import generics
 
 from db.map.models import State, Municipality, Locality, Action, Organization, Establishment, Submission
 from api.serializers import StateSerializer, MunicipalitySerializer
-from api.serializers import LocalitySerializer, LocalityRawSerializer, EstablishmentSerializer
+from api.serializers import LocalitySerializer, LocalityRawSerializer, LocalitySearchSerializer, EstablishmentSerializer
 from api.serializers import ActionSubmissionsSerializer, ActionLogSerializer, ActionDetailSerializer
 from api.serializers import SubmissionSerializer
 from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
@@ -150,3 +150,19 @@ class SubmissionList(generics.ListAPIView):
             Submission.objects.filter(action__published=True)
         )
         return queryset
+
+
+locality_list_search_query = """
+SELECT id, cvegeo, location, name, municipality_name, state_name
+FROM locality_search_index
+WHERE document @@ to_tsquery('spanish', '{}')
+LIMIT 30"""
+
+
+class LocalitySearch(generics.ListAPIView):
+    serializer_class = LocalitySearchSerializer
+
+    def get_queryset(self):
+        search = self.request.query_params.get('search', '')
+        tokens = ' & '.join(search.split())
+        return Locality.objects.raw(locality_list_search_query.format(tokens))
