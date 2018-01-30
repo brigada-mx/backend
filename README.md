@@ -34,6 +34,21 @@ docker exec -it 919_db rm /dump.sql
 ~~~
 
 
+#### Locality search index
+After localities have been loaded to DB, execute `locality_search_index.sql` to build a full text search index on `name`, `municipality_name` and `state_name` of localities.
+
+Based on [this awesome article](http://rachbelaid.com/postgres-full-text-search-is-good-enough/).
+
+I also built a similar index [using Algolia](https://www.algolia.com/apps/X7TC2B45DA/dashboard), but the free tier only allows us 10000 documents.
+
+~~~sh
+COPY (SELECT id, cvegeo, name, municipality_name, state_name FROM map_locality WHERE has_data=true) TO '/tmp/localities_index.csv' CSV;
+docker cp 919_db:/tmp/localities_index.csv ../data/algolia/
+~~~
+
+The search results may be of higher quality, and they're faster. But we can't put all of the countries localities in the index, which means we have to rebuild it every time we get new data on damaged buildings. PostgreSQL's full text search is good enough.
+
+
 ## Deploy
 
 
