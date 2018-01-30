@@ -1,4 +1,4 @@
-from rest_framework.throttling import UserRateThrottle
+from rest_framework.throttling import UserRateThrottle, ScopedRateThrottle
 
 
 class BurstRateThrottle(UserRateThrottle):
@@ -7,3 +7,11 @@ class BurstRateThrottle(UserRateThrottle):
 
 class SustainedRateThrottle(UserRateThrottle):
     scope = 'sustained'
+
+
+class SearchBurstRateScopedThrottle(ScopedRateThrottle):
+    scope_attr = 'search_burst_throttle_scope'
+
+
+class SearchSustainedRateScopedThrottle(ScopedRateThrottle):
+    scope_attr = 'search_sustained_throttle_scope'

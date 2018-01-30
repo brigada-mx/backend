@@ -10,13 +10,15 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_CLASSES': (
         'api.throttles.BurstRateThrottle',
         'api.throttles.SustainedRateThrottle',
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.ScopedRateThrottle',
+        'api.throttles.SearchBurstRateScopedThrottle',
+        'api.throttles.SearchSustainedRateScopedThrottle',
     ),
     'DEFAULT_THROTTLE_RATES': {
-        'burst': '30/min',  # applies to all authenticated users, including w/ token auth, except admins
-        'sustained': '2000/day',  # applies to all authenticated users, including w/ token auth, except admins
-        'anon': '2000/day',  # applies to all unauthenticated users
+        # applies to all authenticated users, including w/ token auth, except admins
+        'burst': '30/min',
+        'sustained': '2000/day',
+        'search_burst': '80/min',
+        'search_sustained': '10000/day',
     },
 }
 
