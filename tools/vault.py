@@ -52,7 +52,7 @@ def decrypt_file(key, infile, outfile=None, chunksize=24*1024):
     with open(infile, 'rb') as file:
         header = file.readline()
         if header.decode('utf-8').strip() != vault_header:
-            raise RuntimeError('this file is was not encrypted by vault')
+            raise RuntimeError('this file is not encrypted by vault')
 
         origsize = struct.unpack('<Q', file.read(struct.calcsize('Q')))[0]
         iv = file.read(16)
