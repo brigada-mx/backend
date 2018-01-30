@@ -162,7 +162,8 @@ class Organization(BaseModel):
     year_established = models.IntegerField()
     contact = JSONField(default={}, blank=True, help_text='Contact data')
 
-    REPR_FIELDS = ['key', 'name', 'desc']
+    REPR_FIELDS = ['name', 'desc']
+    STR_FIELDS = ['name']
 
     def save(self, *args, **kwargs):
         if not self.secret_key:

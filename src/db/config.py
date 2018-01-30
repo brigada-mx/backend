@@ -8,12 +8,7 @@ class BaseModel(models.Model):
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     modified = models.DateTimeField(auto_now=True, db_index=True)
 
-    def __repr__(self):
-        """Reads fields list from model's `REPR_FIELDS` class attribute.
-        """
-        if not hasattr(self, 'REPR_FIELDS'):
-            return super().__repr__()
-        fields = self.REPR_FIELDS
+    def _fields_to_string(self, fields):
         parts = ['{}('.format(self.__class__.__name__)]
 
         for f in fields:
@@ -21,6 +16,20 @@ class BaseModel(models.Model):
                 parts.append('{}={}, '.format(f, repr(self.__getattribute__(f))))
         parts.append(')')
         return ''.join(parts)
+
+    def __repr__(self):
+        """Reads fields list from model's `REPR_FIELDS` class attribute.
+        """
+        if not hasattr(self, 'REPR_FIELDS'):
+            return super().__repr__()
+        return self._fields_to_string(self.REPR_FIELDS)
+
+    def __str__(self):
+        """Reads fields list from model's `STR_FIELDS` class attribute.
+        """
+        if not hasattr(self, 'STR_FIELDS'):
+            return super().__str__()
+        return self._fields_to_string(self.STR_FIELDS)
 
     def update_fields(self, **fields):
         """Avoids using `QuerySet.update` method.
