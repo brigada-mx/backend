@@ -33,5 +33,7 @@ class BaseModel(models.Model):
         abstract = True
 
     def save(self, *args, **kwargs):
+        """https://stackoverflow.com/questions/4441539/why-doesnt-djangos-model-save-call-full-clean
+        """
         self.full_clean()
         return super().save(*args, **kwargs)

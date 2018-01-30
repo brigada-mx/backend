@@ -5,11 +5,6 @@ ORGANIZATION_SECTOR_CHOICES = (
     ('religious', 'Religioso'),
 )
 
-ACTION_SOURCE_CHOICES = (
-    ('google_sheets', 'Google Sheets'),
-    ('chucky', 'Chucky'),
-)
-
 SUBMISSION_SOURCE_CHOICES = (
     ('kobo', 'KoBo'),
 )

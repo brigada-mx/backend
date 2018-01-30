@@ -1,12 +1,13 @@
 import os
 
 from django.contrib.gis.db import models
+from django.db.models import Max
 from django.utils import timezone
 from django.contrib.postgres.fields import JSONField
 from django.dispatch import receiver
 
 from db.config import BaseModel
-from db.choices import ACTION_SOURCE_CHOICES, SCIAN_GROUP_ID_BY_CODE, ORGANIZATION_SECTOR_CHOICES
+from db.choices import SCIAN_GROUP_ID_BY_CODE, ORGANIZATION_SECTOR_CHOICES
 from db.choices import SUBMISSION_SOURCE_CHOICES
 from helpers.location import geos_location_from_coordinates
 from helpers.diceware import diceware
@@ -154,7 +155,6 @@ def generate_secret_key():
 class Organization(BaseModel):
     """A reconstruction actor or data-gathering organization.
     """
-    key = models.TextField(unique=True, help_text='Essentially google sheet tab name')
     secret_key = models.TextField(unique=True, blank=True)
     sector = models.TextField(choices=ORGANIZATION_SECTOR_CHOICES, db_index=True)
     name = models.TextField()
@@ -198,18 +198,27 @@ class PublicActionManager(models.Manager):
 
 
 class Action(AbstractAction, BaseModel):
-    """Action related to reconstruction. A new record in this table is generated
-    for each new `key`.
+    """Action related to reconstruction.
     """
-    key = models.IntegerField(help_text='Essentially google sheet row number')
+    key = models.IntegerField(blank=True, help_text="Auto-incremented number for actions in organization")
     organization = models.ForeignKey('Organization', help_text='Frozen after first read')
-    source = models.TextField(choices=ACTION_SOURCE_CHOICES)
     objects = models.Manager()
     public_objects = PublicActionManager()
 
     class Meta:
         unique_together = ('key', 'organization')
         ordering = ('-end_date', '-start_date', '-modified')
+
+    def save(self, *args, **kwargs):
+        if self.pk is not None:
+            return super().save(*args, **kwargs)
+        max_key = Action.objects.filter(organization=self.organization).aggregate(Max('key'))
+        self.key = (max_key.get('key__max') or 0) + 1
+        while True:
+            try:
+                return super().save(*args, **kwargs)
+            except Exception as e:
+                self.key += 1
 
 
 class ActionLog(AbstractAction, BaseModel):
