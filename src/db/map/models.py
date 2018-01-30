@@ -29,6 +29,7 @@ class Locality(BaseModel):
     meta = JSONField(default={}, blank=True, help_text='Metrics, file URLs, etc')
 
     REPR_FIELDS = ['cvegeo', 'name', 'municipality_name', 'state_name']
+    STR_FIELDS = ['cvegeo', 'name', 'municipality_name', 'state_name']
 
     class Meta:
         indexes = [
@@ -205,6 +206,8 @@ class Action(AbstractAction, BaseModel):
     organization = models.ForeignKey('Organization', help_text='Frozen after first read')
     objects = models.Manager()
     public_objects = PublicActionManager()
+
+    STR_FIELDS = ['locality_id', 'organization_id', 'action_type']
 
     class Meta:
         unique_together = ('key', 'organization')

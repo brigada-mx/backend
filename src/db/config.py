@@ -8,13 +8,14 @@ class BaseModel(models.Model):
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     modified = models.DateTimeField(auto_now=True, db_index=True)
 
-    def _fields_to_string(self, fields):
-        parts = ['{}('.format(self.__class__.__name__)]
+    def _fields_to_string(self, fields, verbose=False):
+        parts = ['{}('.format(self.__class__.__name__)] if verbose else []
 
         for f in fields:
             if hasattr(self, f):
                 parts.append('{}={}, '.format(f, repr(self.__getattribute__(f))))
-        parts.append(')')
+        if verbose:
+            parts.append(')')
         return ''.join(parts)
 
     def __repr__(self):
@@ -22,14 +23,14 @@ class BaseModel(models.Model):
         """
         if not hasattr(self, 'REPR_FIELDS'):
             return super().__repr__()
-        return self._fields_to_string(self.REPR_FIELDS)
+        return self._fields_to_string(self.REPR_FIELDS, verbose=True)
 
     def __str__(self):
         """Reads fields list from model's `STR_FIELDS` class attribute.
         """
         if not hasattr(self, 'STR_FIELDS'):
             return super().__str__()
-        return self._fields_to_string(self.STR_FIELDS)
+        return self._fields_to_string(self.STR_FIELDS, verbose=False)
 
     def update_fields(self, **fields):
         """Avoids using `QuerySet.update` method.
