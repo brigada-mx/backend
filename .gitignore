@@ -1,78 +1,23 @@
-# byte-compiled / optimized / dll files
 __pycache__/
-*.py[cod]
 
-# c extensions
-*.so
-
-# backup files
-*.bak
-
-# distribution / packaging
-.Python
+# env
 .env
-env
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-sandbox/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# pyinstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*,cover
-
-# django
-*.log
-
-# pybuilder
-target/
 
 # os x
 .DS_Store
 
 # statics
 statics/
-
 media/
 
-# Celery
+# celery
 celerybeat-schedule
 celerybeat.pid
 
-# ansible
-*.retry
-.ansible-vault-pass
-
-# vagrant
-.vagrant/
-
+# requester
 requester.pyr
 
 # docker
 dbdata/
+
+sandbox/
