@@ -2,6 +2,7 @@ __pycache__/
 
 # env
 .env
+.vault-password
 
 # os x
 .DS_Store

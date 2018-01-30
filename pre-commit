@@ -1,6 +1,6 @@
-#!/bin/bash -e
+#!/bin/bash
 
-declare -a arr=("deploy/group_vars/all-secret.yml" "deploy/group_vars/development-secret.yml" "deploy/group_vars/production-secret.yml" "deploy/group_vars/client_secret.json")
+declare -a arr=("src/env.dev" "src/env.prod")
 
 all_encrypted=0
 # iterate over files and check if any are not encrypted
@@ -11,7 +11,7 @@ do
     exit 1
   fi
 
-  head -1 "$i" | grep -qe "ANSIBLE_VAULT"
+  head -1 "$i" | grep -q "vault/encrypted"
   status=$?
 
   if [ $status -ne 0 ]; then
@@ -34,6 +34,3 @@ do
 done
 
 printf "\nall sensitive files encrypted correctly\n"
-
-printf "\nrunning flake8 validation\n"
-# flake8

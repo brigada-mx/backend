@@ -8,6 +8,8 @@ To start docker containers, run `docker-compose up --build -d`. To see which con
 
 To blow all containers away and build them from scratch, use `docker-compose rm` and then `docker-compose up --build -d`.
 
+To decrypt env vars in `env.dev` and run dev, execute `./run_dev.sh`.
+
 
 ### Data with Git Large File Storage
 We store data for localities, municipalities, states and establishments in the [data](https://github.com/919MX/data) repo using [git lfs](https://git-lfs.github.com/). Large file storage allows us to work with these files using normal git commands.
@@ -33,6 +35,20 @@ docker exec -it 919_db rm /dump.sql
 
 
 ## Deploy
+
+
+## Env vars
+Application configuration is stored in environment variables. These are stored in the `env.dev` and `env.prod` files.
+
+`run_dev.sh` decrypts env vars in `env.dev` and then runs our containers. These env vars are sourced by `docker-compose.yml` and our containers.
+
+
+### Editing env vars
+Make sure you have the `.vault-password` file, with the correct password, in the root of the repo. To decrypt env vars, run `python tools/vault.py --infile=src/env.<dev|prod>`. To encrypt them again run `python tools/vault.py --infile=src/env.<dev|prod> --encrypt`.
+
+
+### Committing
+To make sure unencrypted env vars don't get committed, run `cp pre-commit .git/hooks` from the root of this repo. The `pre-commit` hook fails if any env files are not encrypted.
 
 
 ## ngrok
