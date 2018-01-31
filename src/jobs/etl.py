@@ -32,13 +32,9 @@ def money_parse(s):
     return float(re.sub('[^\d]', '', s))
 
 
-def sync_organization(row):
-    (key, name, desc, year_established, rfc, sector, person_responsible, phone, email, website,
+def sync_organization(row, organization):
+    (name, desc, year_established, rfc, sector, person_responsible, phone, email, website,
         street, city, zip_code, *rest) = [v.strip() for v in row]
-
-    organization = Organization.objects.filter(key=key).first()
-    if organization is None:
-        organization = Organization(key=key)
 
     if sector not in [c[0] for c in ORGANIZATION_SECTOR_CHOICES]:
         sector = 'civil'
@@ -106,7 +102,7 @@ def sync_action(row, organization):
     action = organization.action_set.filter(key=key).first()
     if action is None:
         action = Action.objects.create(
-            key=key, organization=organization, source='google_sheets', **fields)
+            key=key, organization=organization, **fields)
         ActionLog.objects.create(action=action, **fields)
         return
 
@@ -117,7 +113,7 @@ def sync_action(row, organization):
 
 def get_google_client():
     from django.conf import settings
-    file = os.path.join(settings.HOME, 'client_secret.json')
+    file = os.path.join(settings.BASE_DIR, 'jobs', 'client_secret.json')
     return pygsheets.authorize(service_file=file)
 
 
@@ -137,9 +133,21 @@ def etl_actions():
             rows = sheet.get_all_values()
         except:
             exceptions.append('could not get sheet values')
+            continue
 
         try:
-            organization = sync_organization(rows[1])
+            pk = int(sheet.title[1:])
+        except:
+            exceptions.append('{} is not a valid sheet title'.format(sheet.title))
+            continue
+
+        organization = Organization.objects.filter(pk=pk).first()
+        if organization is None:
+            exceptions.append('no such organization: {}'.format(pk))
+            continue
+
+        try:
+            organization = sync_organization(rows[1], organization)
         except Exception as e:
             exceptions.append('{}: {}'.format(rows[1], e))
         else:

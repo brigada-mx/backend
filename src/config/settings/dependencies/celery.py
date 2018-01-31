@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from datetime import timedelta
 
 CELERY_IMPORTS = (
+    'jobs.etl',
     'jobs.kobo',
 )
 
@@ -17,6 +18,10 @@ CELERYBEAT_SCHEDULE = {
     ##########
     # ETL
     ##########
+    'etl_actions': {
+        'task': 'etl_actions',
+        'schedule': timedelta(seconds=60 * 5),
+    },
     'sync_submissions': {
         'task': 'sync_submissions',
         'schedule': timedelta(seconds=60 * 10),

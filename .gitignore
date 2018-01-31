@@ -22,3 +22,6 @@ requester.pyr
 dbdata/
 
 sandbox/
+
+# google sheets, delete this
+client_secret.json
