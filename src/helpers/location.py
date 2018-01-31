@@ -20,8 +20,8 @@ def calculate_distance_between_points(p0, p1, **kwargs):
 
 def geos_location_from_coordinate_string(coords):
     latitude, longitude = [coordinate.strip() for coordinate in coords.split(',')]
-    return GEOSGeometry('POINT({} {})'.format(longitude, latitude))
+    return GEOSGeometry(f'POINT({longitude} {latitude})')
 
 
 def geos_location_from_coordinates(latitude, longitude):
-    return GEOSGeometry('POINT({} {})'.format(longitude, latitude))
+    return GEOSGeometry(f'POINT({longitude} {latitude})')

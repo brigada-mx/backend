@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework.reverse import reverse
 
 from db.map.models import State, Municipality, Locality, Establishment
 from db.map.models import Organization, Action, ActionLog, Submission
@@ -151,7 +150,6 @@ class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_RELATED_FIELDS = ['action_set__locality', 'action_set__submission_set']
 
     url = serializers.HyperlinkedIdentityField(view_name='api:organization-detail')
-    url_actions = serializers.SerializerMethodField()
     actions = ActionLocalitySerializer(source='action_set', many=True, read_only=True)
     action_count = serializers.SerializerMethodField()
     image_count = serializers.SerializerMethodField()
@@ -168,9 +166,6 @@ class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         return sum(
             sum(len(s.synced_image_urls()) for s in a.submission_set.all()) for a in actions
         )
-
-    def get_url_actions(self, obj):
-        return '{}?organization_id={}'.format(reverse('api:action-list', request=self.context.get('request')), obj.pk)
 
 
 class EstablishmentSerializer(serializers.ModelSerializer, EagerLoadingMixin):

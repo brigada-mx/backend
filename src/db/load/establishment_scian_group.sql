@@ -1,4 +1,5 @@
--- `psql --user custom --host 127.0.0.1 --port 5432 -f db/load/establishment_scian_group.sql`
+-- `psql -U postgres --host 127.0.0.1 --port 5432 -f db/load/establishment_scian_group.sql`
+-- this script doesn't need to be executed if we populate database with `dump.sql` in `data` repo
 
 update map_establishment set scian_group_id = 1;
 update map_establishment set scian_group_id = 2 where codigo_act in ('931110',

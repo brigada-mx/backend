@@ -3,6 +3,7 @@ Adapted from:
 https://eli.thegreenplace.net/2010/06/25/aes-encryption-of-files-in-python-with-pycrypto
 """
 import os
+import sys
 import random
 import struct
 import hashlib
@@ -10,8 +11,8 @@ import argparse
 try:
     from Crypto.Cipher import AES
 except ImportError:
-    print('run `pip install pycrypto` before running vault')
-
+    print("error: run `pip install pycrypto` before running vault")
+    sys.exit(1)
 
 vault_header = 'vault/encrypted'
 
@@ -27,7 +28,7 @@ def encrypt_file(key, infile, outfile=None, chunksize=64*1024):
             raise RuntimeError('this file is already encrypted by vault')
 
     with open(infile, 'rb') as file:
-        contents = '{}\n'.format(vault_header).encode('utf-8')  # add vault header
+        contents = f'{vault_header}\n'.encode('utf-8')  # add vault header
         contents += struct.pack('<Q', filesize)
         contents += iv.encode('utf-8')
 

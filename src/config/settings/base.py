@@ -57,24 +57,8 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
-
 ROOT_URLCONF = 'config.urls'
 
-# DON'T REMOVE context processors, this could introduce a lot of subtle bugs
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -121,11 +105,7 @@ BROKER_URL = REDIS_URL
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://{host}:{port}/{database}'.format(
-            host=os.getenv('CUSTOM_REDIS_HOST'),
-            port=os.getenv('CUSTOM_REDIS_PORT'),
-            database=os.getenv('CUSTOM_REDIS_DATABASE'),
-        ),
+        'LOCATION': REDIS_URL,
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         },

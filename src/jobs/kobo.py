@@ -30,7 +30,7 @@ def get_form_ids():
 def get_recent_form_submissions(form_id, past_days=1):
     date = datetime.today() - timedelta(days=past_days)
     r = requests.get(
-        API_HOST + '/data/{}'.format(form_id),
+        API_HOST + f'/data/{form_id}',
         params={'query': '{"_submission_time": {"$gte": "' + date.strftime('%Y-%m-%d') + '"}}'},
         auth=TokenAuth('Token', AUTH_TOKEN),
         timeout=TIMEOUT,
@@ -88,22 +88,22 @@ def upload_submission_images(submission_id):
 
     urls = list(submission.image_urls)
     for i, url in enumerate(submission.image_urls):
-        if url.startswith('https://{}.s3.amazonaws.com'.format(bucket)):
+        if url.startswith(f'https://{bucket}.s3.amazonaws.com'):
             continue
-        filename = '{}-{}'.format(uuid.uuid4(), url.split('/')[-1].split('?')[0])
+        filename = f'{uuid.uuid4()}-{url.split("/")[-1].split("?")[0]}'
         path = download_file(url, os.path.join(os.sep, 'tmp', filename))
         if path is None:
             continue
 
-        bucket_key = 'kobo/{}/{}'.format(org_id, filename)  # this will get URL encoded when it's uploaded to S3
-        encoded_bucket_key = 'kobo/{}/{}'.format(org_id, quote_plus(filename))
+        bucket_key = f'kobo/{org_id}/{filename}'  # this will get URL encoded when it's uploaded to S3
+        encoded_bucket_key = f'kobo/{org_id}/{quote_plus(filename)}'
         try:
             with open(path, 'rb') as data:
                 s3.upload_fileobj(data, bucket, bucket_key, ExtraArgs={'ACL': 'public-read'})
         except:
             continue
         else:
-            urls[i] = 'https://{}.s3.amazonaws.com/{}'.format(bucket, encoded_bucket_key)
+            urls[i] = f'https://{bucket}.s3.amazonaws.com/{encoded_bucket_key}'
     if urls != submission.image_urls:
         submission.image_urls = urls
         submission.save()

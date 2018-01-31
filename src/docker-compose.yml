@@ -69,4 +69,4 @@ services:
     depends_on:
       - celery_worker
     ports:
-    - "5555:5555"
+      - "5555:5555"

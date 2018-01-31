@@ -11,7 +11,7 @@ class TokenAuth:
         self.token = token
 
     def __call__(self, r):
-        r.headers['Authorization'] = '{0} {1}'.format(self.auth_prefix, self.token).strip()
+        r.headers['Authorization'] = f'{self.auth_prefix} {self.token}'.strip()
         return r
 
 
@@ -34,4 +34,4 @@ def get_s3_client():
 def s3_thumbnail_url(url, width=0, height=0, crop=False):
     base_url = os.getenv('CUSTOM_THUMBOR_SERVER')
     path = urlparse(url).path
-    return '{}/{}{}x{}{}'.format(base_url, '' if crop else 'fit-in/', width, height, path)
+    return f'{base_url}/{"" if crop else "fit-in/"}{width}x{height}{path}'

@@ -32,7 +32,7 @@ class RelatedObjectsCountFilter(django_filters.Filter):
     def filter(self, qs, value):
         if value not in (None, ''):
             pks = qs.annotate(_num_objects=Count(self.name)).filter(
-                **{'{}__{}'.format('_num_objects', self._lookup_expr): value}
+                **{f'_num_objects__{self._lookup_expr}': value}
             ).values_list('pk', flat=True)
             return self._model.objects.filter(pk__in=pks)
         return qs

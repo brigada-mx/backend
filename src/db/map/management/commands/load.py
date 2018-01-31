@@ -139,7 +139,7 @@ class Command(BaseCommand):
         if load_dir is not None:
             print('loading localities, municipalities and states')
             for source in ['locality', 'municipality', 'state']:
-                load_from_csv(os.path.join(load_dir, '{}.csv'.format(source)), source)
+                load_from_csv(os.path.join(load_dir, f'{source}.csv'), source)
 
         if locality_csv is not None:
             print('syncing locality features')
@@ -154,5 +154,5 @@ class Command(BaseCommand):
                 load_from_csv(os.path.join(denue_dir, f), 'denue')
 
         if denue_file is not None:
-            print('syncing denue establishment data: {}'.format(denue_file))
+            print(f'syncing denue establishment data: {denue_file}')
             load_from_csv(denue_file, 'denue')

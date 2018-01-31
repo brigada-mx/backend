@@ -9,14 +9,14 @@ class BaseModel(models.Model):
     modified = models.DateTimeField(auto_now=True, db_index=True)
 
     def _fields_to_string(self, fields, verbose=False):
-        parts = ['{}('.format(self.__class__.__name__)] if verbose else []
+        parts = [f'{self.__class__.__name__}('] if verbose else []
 
         for f in fields:
             if hasattr(self, f):
-                parts.append('{}={}, '.format(f, repr(self.__getattribute__(f))))
+                parts.append(f'{f}={repr(self.__getattribute__(f))}')
         if verbose:
             parts.append(')')
-        return ''.join(parts)
+        return ', '.join(parts)
 
     def __repr__(self):
         """Reads fields list from model's `REPR_FIELDS` class attribute.
