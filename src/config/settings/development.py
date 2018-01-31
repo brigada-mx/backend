@@ -9,11 +9,7 @@ MIDDLEWARE += [
     'django_pdb.middleware.PdbMiddleware',
 ]
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-# Used for payments and other transactions that should not be real except in production
-SANDBOX = True
-
 DEBUG_PROPAGATE_EXCEPTIONS = True
 
 # shell_plus from django-extensions
@@ -23,5 +19,3 @@ SHELL_PLUS_PRE_IMPORTS = (
 
 SHELL_PLUS_POST_IMPORTS = (
 )
-
-HOME = '/home/vagrant'

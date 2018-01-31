@@ -12,7 +12,7 @@ DATABASES = {
         'USER': os.getenv('CUSTOM_DATABASE_USER'),
         'PASSWORD': os.getenv('CUSTOM_DATABASE_PASSWORD'),
         'HOST': os.getenv('CUSTOM_DATABASE_HOST'),
-        'PORT': os.getenv('CUSTOM_DATABASE_PORT')
+        'PORT': os.getenv('CUSTOM_DATABASE_PORT'),
     }
 }
 
@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'helpers',
     'jobs',
     'api',
+    'web',
 
     # third-party apps
     'rest_framework',
