@@ -120,7 +120,7 @@ CORS_ORIGIN_WHITELIST = (
     '919.local.mx:8080',
     '919.local.mx:8081',
 )
-CORS_ALLOW_METHODS = ( 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS')
+CORS_ALLOW_METHODS = ('GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS')
 
 ALLOWED_HOSTS = [os.getenv('CUSTOM_SITE_URL'), os.getenv('CUSTOM_API_HOST'), os.getenv('CUSTOM_NGROK_HOST')]
 

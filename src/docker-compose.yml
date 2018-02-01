@@ -23,7 +23,7 @@ services:
       - ./.env
     build:
       context: .
-      dockerfile: ./Dockerfile.api
+      dockerfile: ./Dockerfile.api.dev
     volumes:
       - .:/code
     depends_on:
