@@ -14,7 +14,7 @@ RUN pip install -r requirements.txt
 
 RUN mkdir /code/
 WORKDIR /code/
-ADD . /code/
+ADD ./src /code/
 
 EXPOSE 8000
 ENTRYPOINT ["/code/docker-entrypoint.sh"]

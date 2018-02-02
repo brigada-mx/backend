@@ -1,0 +1,8 @@
+.git
+
+dbdata
+
+celerybeat-schedule
+celerybeat.pid
+
+sandbox

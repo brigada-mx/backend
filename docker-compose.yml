@@ -20,12 +20,12 @@ services:
   api:
     container_name: 919_api
     env_file:
-      - ./.env
+      - .env
     build:
       context: .
       dockerfile: ./Dockerfile.api.dev
     volumes:
-      - .:/code
+      - ./src:/code
     depends_on:
       - db
       - redis
@@ -35,12 +35,12 @@ services:
   celery_worker:
     container_name: 919_celery_worker
     env_file:
-      - ./.env
+      - .env
     build:
       context: .
       dockerfile: ./Dockerfile.celery_worker
     volumes:
-      - .:/code
+      - ./src:/code
     depends_on:
       - db
       - redis
@@ -48,24 +48,24 @@ services:
   celery_beat:
     container_name: 919_celery_beat
     env_file:
-      - ./.env
+      - .env
     build:
       context: .
       dockerfile: ./Dockerfile.celery_beat
     volumes:
-      - .:/code
+      - ./src:/code
     depends_on:
       - celery_worker
 
   celery_flower:
     container_name: 919_celery_flower
     env_file:
-      - ./.env
+      - .env
     build:
       context: .
       dockerfile: ./Dockerfile.celery_flower
     volumes:
-      - .:/code
+      - ./src:/code
     depends_on:
       - celery_worker
     ports:

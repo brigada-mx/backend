@@ -32,7 +32,6 @@ INSTALLED_APPS = [
     'helpers',
     'jobs',
     'api',
-    'web',
 
     # third-party apps
     'rest_framework',
@@ -77,7 +76,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 LANGUAGE_CODE = 'es-MX'
 
 TIME_ZONE = 'UTC'
@@ -88,10 +86,8 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 STATIC_URL = '/static/'
-
 
 REDIS_URL = 'redis://{host}:{port}/{database}'.format(
     host=os.getenv('CUSTOM_REDIS_HOST'),
@@ -100,7 +96,6 @@ REDIS_URL = 'redis://{host}:{port}/{database}'.format(
 )
 CELERY_RESULT_BACKEND = REDIS_URL
 BROKER_URL = REDIS_URL
-
 
 CACHES = {
     'default': {
@@ -112,7 +107,6 @@ CACHES = {
         'KEY_PREFIX': 'cache_',
     },
 }
-
 
 # list of origin hostnames that are authorized to make cross-site HTTP requests
 # https://github.com/ottoyiu/django-cors-headers#cors_origin_whitelist

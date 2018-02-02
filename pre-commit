@@ -1,6 +1,6 @@
 #!/bin/bash
 
-declare -a arr=("src/env.dev" "src/env.prod")
+declare -a arr=("env.dev" "env.prod")
 
 all_encrypted=0
 # iterate over files and check if any are not encrypted

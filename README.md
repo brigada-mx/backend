@@ -59,7 +59,7 @@ Application configuration is stored in environment variables. These are stored i
 
 
 ### Editing env vars
-Make sure you have the `.vault-password` file, with the correct password, in the root of the repo. To decrypt env vars, run `python3 tools/vault.py --infile=src/env.<dev|prod>`. To encrypt them again run `python3 tools/vault.py --infile=src/env.<dev|prod> --encrypt`.
+Make sure you have the `.vault-password` file, with the correct password, in the root of the repo. To decrypt env vars, run `python3 tools/vault.py --infile=env.<dev|prod>`. To encrypt them again run `python3 tools/vault.py --infile=env.<dev|prod> --encrypt`.
 
 
 ### Committing

@@ -14,6 +14,6 @@ RUN pip install -r requirements.txt
 
 RUN mkdir /code/
 WORKDIR /code/
-ADD . /code/
+ADD ./src /code/
 
-CMD ["celery", "worker", "-A", "config"]
+CMD ["celery", "beat", "-A", "config"]
