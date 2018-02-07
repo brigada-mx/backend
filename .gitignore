@@ -20,6 +20,7 @@ celerybeat.pid
 requester.pyr
 
 # docker
+Dockerfile
 dbdata/
 
 sandbox/

@@ -8,7 +8,7 @@ To start docker containers, run `docker-compose up --build -d`. To see which con
 
 To blow all containers away and build them from scratch, use `docker-compose rm` and then `docker-compose up --build -d`.
 
-To decrypt env vars in `env.dev` and run dev, execute `./run_dev.sh`.
+To decrypt env vars in `env.dev` and run dev, execute `./dev.sh`.
 
 
 ### Data with Git Large File Storage
@@ -55,7 +55,7 @@ The search results may be of higher quality, and they're faster. But we can't pu
 ## Env vars
 Application configuration is stored in environment variables. These are stored in the `env.dev` and `env.prod` files.
 
-`run_dev.sh` decrypts env vars in `env.dev` and then runs our containers. These env vars are sourced by `docker-compose.yml` and our containers.
+`dev.sh` decrypts env vars in `env.dev` and then runs our containers. These env vars are sourced by `docker-compose.yml` and our containers.
 
 
 ### Editing env vars
