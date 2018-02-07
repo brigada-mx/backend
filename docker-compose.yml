@@ -19,8 +19,6 @@ services:
 
   api:
     container_name: 919_api
-    env_file:
-      - .env
     build:
       context: .
       dockerfile: ./Dockerfile.api.dev
@@ -34,8 +32,6 @@ services:
 
   celery_worker:
     container_name: 919_celery_worker
-    env_file:
-      - .env
     build:
       context: .
       dockerfile: ./Dockerfile.celery_worker
@@ -47,8 +43,6 @@ services:
 
   celery_beat:
     container_name: 919_celery_beat
-    env_file:
-      - .env
     build:
       context: .
       dockerfile: ./Dockerfile.celery_beat
@@ -59,8 +53,6 @@ services:
 
   celery_flower:
     container_name: 919_celery_flower
-    env_file:
-      - .env
     build:
       context: .
       dockerfile: ./Dockerfile.celery_flower

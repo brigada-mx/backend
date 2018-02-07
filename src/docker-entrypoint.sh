@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+. ./.env
+
 until psql postgres://postgres:password@db/postgres -c '\l'; do
   >&2 echo "Postgres is unavailable - sleeping"
   sleep 1

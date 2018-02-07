@@ -14,14 +14,11 @@ CELERY_ACCEPT_CONTENT = ['json', 'msgpack', 'yaml']
 
 CELERYBEAT_SCHEDULE = {
     # http://docs.celeryproject.org/en/latest/reference/celery.schedules.html
-
-    ##########
-    # ETL
-    ##########
     'etl_actions': {
         'task': 'etl_actions',
         'schedule': timedelta(seconds=60 * 5),
     },
+
     'sync_submissions': {
         'task': 'sync_submissions',
         'schedule': timedelta(seconds=60 * 10),
@@ -30,5 +27,4 @@ CELERYBEAT_SCHEDULE = {
         'task': 'upload_recent_submission_images',
         'schedule': timedelta(seconds=60 * 10),
     },
-
 }

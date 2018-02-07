@@ -5,17 +5,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 
 SECRET_KEY = os.getenv('CUSTOM_SECRET_KEY')
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': os.getenv('CUSTOM_DATABASE_NAME'),
-        'USER': os.getenv('CUSTOM_DATABASE_USER'),
-        'PASSWORD': os.getenv('CUSTOM_DATABASE_PASSWORD'),
-        'HOST': os.getenv('CUSTOM_DATABASE_HOST'),
-        'PORT': os.getenv('CUSTOM_DATABASE_PORT'),
-    }
-}
-
 INSTALLED_APPS = [
     # built-in apps
     'django.contrib.admin',
@@ -88,6 +77,17 @@ USE_TZ = True
 
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 STATIC_URL = '/static/'
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': os.getenv('CUSTOM_DATABASE_NAME'),
+        'USER': os.getenv('CUSTOM_DATABASE_USER'),
+        'PASSWORD': os.getenv('CUSTOM_DATABASE_PASSWORD'),
+        'HOST': os.getenv('CUSTOM_DATABASE_HOST'),
+        'PORT': os.getenv('CUSTOM_DATABASE_PORT'),
+    }
+}
 
 REDIS_URL = 'redis://{host}:{port}/{database}'.format(
     host=os.getenv('CUSTOM_REDIS_HOST'),

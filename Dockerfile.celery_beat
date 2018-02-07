@@ -16,4 +16,4 @@ RUN mkdir /code/
 WORKDIR /code/
 ADD ./src /code/
 
-CMD ["celery", "beat", "-A", "config"]
+CMD ./celery_beat.sh
