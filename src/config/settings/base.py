@@ -78,36 +78,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 STATIC_URL = '/static/'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': os.getenv('CUSTOM_DATABASE_NAME'),
-        'USER': os.getenv('CUSTOM_DATABASE_USER'),
-        'PASSWORD': os.getenv('CUSTOM_DATABASE_PASSWORD'),
-        'HOST': os.getenv('CUSTOM_DATABASE_HOST'),
-        'PORT': os.getenv('CUSTOM_DATABASE_PORT'),
-    }
-}
-
-REDIS_URL = 'redis://{host}:{port}/{database}'.format(
-    host=os.getenv('CUSTOM_REDIS_HOST'),
-    port=os.getenv('CUSTOM_REDIS_PORT'),
-    database=os.getenv('CUSTOM_REDIS_DATABASE'),
-)
-CELERY_RESULT_BACKEND = REDIS_URL
-BROKER_URL = REDIS_URL
-
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': REDIS_URL,
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        },
-        'KEY_PREFIX': 'cache_',
-    },
-}
-
 # list of origin hostnames that are authorized to make cross-site HTTP requests
 # https://github.com/ottoyiu/django-cors-headers#cors_origin_whitelist
 CORS_ORIGIN_WHITELIST = (

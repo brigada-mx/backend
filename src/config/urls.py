@@ -7,5 +7,5 @@ urlpatterns = (
     url(r'^api/', include('api.urls', namespace='api')),
 
     # admin
-    url(r'^djadmin/', include(admin.site.urls)),
+    url(r'^admin/', include(admin.site.urls)),
 )

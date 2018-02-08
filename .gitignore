@@ -20,10 +20,14 @@ celerybeat.pid
 requester.pyr
 
 # docker
-Dockerfile
 dbdata/
 
 sandbox/
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
 
 # google sheets, delete this
 client_secret.json
