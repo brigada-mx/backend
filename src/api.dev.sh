@@ -1,7 +1,7 @@
 #!/bin/sh
 . ./.env
 
-until psql postgres://postgres:password@db/postgres -c '\l'; do
+until psql postgres://${CUSTOM_DATABASE_USER}:${CUSTOM_DATABASE_PASSWORD}@${CUSTOM_DATABASE_HOST}/${CUSTOM_DATABASE_NAME} -c '\l'; do
   >&2 echo "Postgres is unavailable - sleeping"
   sleep 1
 done

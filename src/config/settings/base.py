@@ -78,15 +78,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 STATIC_URL = '/static/'
 
-# list of origin hostnames that are authorized to make cross-site HTTP requests
-# https://github.com/ottoyiu/django-cors-headers#cors_origin_whitelist
-CORS_ORIGIN_WHITELIST = (
-    '919.local.mx:8080',
-    '919.local.mx:8081',
-)
 CORS_ALLOW_METHODS = ('GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS')
-
-ALLOWED_HOSTS = [os.getenv('CUSTOM_SITE_URL'), os.getenv('CUSTOM_API_HOST'), os.getenv('CUSTOM_NGROK_HOST')]
 
 # settings for dependencies (keep at the end of file)
 from config.settings.dependencies.celery import *

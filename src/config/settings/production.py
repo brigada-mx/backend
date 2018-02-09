@@ -17,7 +17,7 @@ DATABASES = {
     }
 }
 
-REDIS_URL = f'redis://{os.getenv('CUSTOM_REDIS_URL')}'
+REDIS_URL = f"redis://{os.getenv('CUSTOM_REDIS_URL')}/0"
 CELERY_RESULT_BACKEND = REDIS_URL
 BROKER_URL = REDIS_URL
 
@@ -31,3 +31,8 @@ CACHES = {
         'KEY_PREFIX': 'cache_',
     },
 }
+
+# https://github.com/ottoyiu/django-cors-headers#cors_origin_whitelist
+CORS_ORIGIN_WHITELIST = []
+
+ALLOWED_HOSTS = [os.getenv('CUSTOM_SITE_URL'), os.getenv('CUSTOM_API_HOST')]
