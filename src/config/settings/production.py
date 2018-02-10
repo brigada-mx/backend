@@ -35,4 +35,4 @@ CACHES = {
 # https://github.com/ottoyiu/django-cors-headers#cors_origin_whitelist
 CORS_ORIGIN_WHITELIST = []
 
-ALLOWED_HOSTS = [os.getenv('CUSTOM_SITE_URL'), os.getenv('CUSTOM_API_HOST')]
+ALLOWED_HOSTS = ['*']

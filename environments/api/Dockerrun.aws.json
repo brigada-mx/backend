@@ -35,21 +35,6 @@
       "memory": 400
     },
     {
-      "name": "celery_flower",
-      "image": "306439459454.dkr.ecr.us-west-2.amazonaws.com/backend_base",
-      "command": [
-        "./celery_flower.sh"
-      ],
-      "essential": true,
-      "memory": 400,
-      "portMappings": [
-        {
-          "hostPort": 5555,
-          "containerPort": 5555
-        }
-      ]
-    },
-    {
       "name": "nginx",
       "image": "306439459454.dkr.ecr.us-west-2.amazonaws.com/nginx",
       "essential": true,
@@ -59,6 +44,9 @@
           "hostPort": 80,
           "containerPort": 80
         }
+      ],
+      "links": [
+        "api"
       ]
     }
   ]

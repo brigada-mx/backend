@@ -54,4 +54,4 @@ CACHES = {
 CORS_ORIGIN_WHITELIST = (
     '919.local.mx:8080',
 )
-ALLOWED_HOSTS = [os.getenv('CUSTOM_SITE_URL'), os.getenv('CUSTOM_API_HOST'), os.getenv('CUSTOM_NGROK_HOST')]
+ALLOWED_HOSTS = ['*']
