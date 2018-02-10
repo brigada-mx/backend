@@ -41,7 +41,13 @@
         "./celery_flower.sh"
       ],
       "essential": true,
-      "memory": 400
+      "memory": 400,
+      "portMappings": [
+        {
+          "hostPort": 5555,
+          "containerPort": 5555
+        }
+      ]
     },
     {
       "name": "nginx",

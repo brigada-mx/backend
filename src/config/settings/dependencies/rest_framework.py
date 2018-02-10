@@ -9,16 +9,12 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_THROTTLE_CLASSES': (
         'api.throttles.BurstRateThrottle',
-        'api.throttles.SustainedRateThrottle',
         'api.throttles.SearchBurstRateScopedThrottle',
-        'api.throttles.SearchSustainedRateScopedThrottle',
     ),
     'DEFAULT_THROTTLE_RATES': {
         # applies to all authenticated users, including w/ token auth, except admins
         'burst': '30/min',
-        'sustained': '2000/day',
         'search_burst': '80/min',
-        'search_sustained': '10000/day',
     },
 }
 

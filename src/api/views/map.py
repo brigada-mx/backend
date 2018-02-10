@@ -10,7 +10,7 @@ from api.serializers import ActionSubmissionsSerializer, ActionLogSerializer, Ac
 from api.serializers import SubmissionSerializer
 from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
 from api.paginators import LargeNoCountPagination
-from api.throttles import SearchBurstRateScopedThrottle, SearchSustainedRateScopedThrottle
+from api.throttles import SearchBurstRateScopedThrottle
 from api.filters import ActionFilter, EstablishmentFilter, SubmissionFilter
 
 
@@ -162,8 +162,7 @@ LIMIT 30"""
 
 class LocalitySearch(generics.ListAPIView):
     search_burst_throttle_scope = 'search_burst'
-    search_sustained_throttle_scope = 'search_sustained'
-    throttle_classes = (SearchBurstRateScopedThrottle, SearchSustainedRateScopedThrottle)
+    throttle_classes = (SearchBurstRateScopedThrottle,)
 
     serializer_class = LocalitySearchSerializer
 
