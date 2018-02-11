@@ -1,0 +1,14 @@
+{
+  "AWSEBDockerrunVersion": 2,
+  "containerDefinitions": [
+    {
+      "name": "celery_beat",
+      "image": "306439459454.dkr.ecr.us-west-2.amazonaws.com/backend_base",
+      "command": [
+        "./celery_beat.sh"
+      ],
+      "essential": true,
+      "memory": 500
+    }
+  ]
+}

@@ -18,6 +18,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         email = options.get('email')
         password = options.get('password')
+        if not email or not password:
+            raise ValueError('Both email and password must be defined')
         full_name = options.get('full_name')
 
         user = StaffUser.objects.filter(email='admin@fortana.co').first()

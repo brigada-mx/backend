@@ -31,3 +31,6 @@ sandbox/
 
 # google sheets, delete this
 client_secret.json
+
+# web app
+dist/

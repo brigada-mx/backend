@@ -2,15 +2,12 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
 from db.config import BaseModel
-from db.users.manager import UserManager
 
 
 class CustomAbstractBaseUser(AbstractBaseUser, BaseModel, PermissionsMixin):
     email = models.EmailField(unique=True, db_index=True)
     full_name = models.CharField(max_length=100, db_index=True)
     is_active = models.BooleanField(default=True)
-
-    objects = UserManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['full_name']
