@@ -17,6 +17,21 @@
       ]
     },
     {
+      "name": "celery_flower",
+      "image": "306439459454.dkr.ecr.us-west-2.amazonaws.com/backend_base",
+      "command": [
+        "./celery_flower.sh"
+      ],
+      "essential": true,
+      "memory": 400,
+      "portMappings": [
+        {
+          "hostPort": 5555,
+          "containerPort": 5555
+        }
+      ]
+    },
+    {
       "name": "celery_worker",
       "image": "306439459454.dkr.ecr.us-west-2.amazonaws.com/backend_base",
       "command": [
@@ -33,21 +48,6 @@
       ],
       "essential": true,
       "memory": 400
-    },
-    {
-      "name": "celery_flower",
-      "image": "306439459454.dkr.ecr.us-west-2.amazonaws.com/backend_base",
-      "command": [
-        "./celery_flower.sh"
-      ],
-      "essential": true,
-      "memory": 400,
-      "portMappings": [
-        {
-          "hostPort": 5555,
-          "containerPort": 5555
-        }
-      ]
     },
     {
       "name": "nginx",
