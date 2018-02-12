@@ -34,6 +34,6 @@ CACHES = {
 }
 
 # https://github.com/ottoyiu/django-cors-headers#cors_origin_whitelist
-CORS_ORIGIN_WHITELIST = []
+CORS_ORIGIN_WHITELIST = ['app.719s.mx']
 
 ALLOWED_HOSTS = ['*']
