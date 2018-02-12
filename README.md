@@ -4,11 +4,9 @@
 ## Dev
 We use [Docker](https://docs.docker.com/docker-for-mac/) and `docker-compose` in development to package and deploy our application.
 
-To start docker containers, run `docker-compose up --build -d`. To see which containers are running, run `docker-compose ps`. To stop all containers, run `docker-compose stop`.
+To decrypt env vars in `env.dev` and run dev, execute `./dev.sh`. To see which containers are running, run `docker-compose ps`. To stop all containers, run `docker-compose stop`.
 
-To blow all containers away and build them from scratch, use `docker-compose rm` and then `docker-compose up --build -d`.
-
-To decrypt env vars in `env.dev` and run dev, execute `./dev.sh`.
+To blow all containers away and build them from scratch, use `docker-compose rm` and then `./dev.sh`.
 
 
 ### Data with Git Large File Storage
