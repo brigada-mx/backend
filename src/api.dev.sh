@@ -9,6 +9,6 @@ done
 >&2 echo "Postgres is up - continuing"
 
 python manage.py migrate --noinput
-python manage.py superuser --email $CUSTOM_SUPERUSER_EMAIL --password $CUSTOM_SUPERUSER_PASSWORD
+python manage.py staffuser --superuser --email $CUSTOM_SUPERUSER_EMAIL --password $CUSTOM_SUPERUSER_PASSWORD
 
 python manage.py runserver 0.0.0.0:8000

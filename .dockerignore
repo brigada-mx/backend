@@ -6,3 +6,5 @@ celerybeat-schedule
 celerybeat.pid
 
 sandbox
+
+src/static
