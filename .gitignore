@@ -30,6 +30,3 @@ sandbox/
 
 # google sheets, DELETE THIS
 client_secret.json
-
-# web app, deploy web app from web repo, DELETE THIS
-dist/
