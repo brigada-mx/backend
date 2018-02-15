@@ -50,8 +50,7 @@ CACHES = {
     },
 }
 
-# https://github.com/ottoyiu/django-cors-headers#cors_origin_whitelist
-CORS_ORIGIN_WHITELIST = (
-    '919.local.mx:8080',
-)
+# https://github.com/ottoyiu/django-cors-headers
+CORS_ORIGIN_REGEX_WHITELIST = [r'^.*$',]
+
 ALLOWED_HOSTS = ['*']

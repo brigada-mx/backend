@@ -39,7 +39,7 @@ class Locality(BaseModel):
     def save(self, *args, **kwargs):
         self.cvegeo_municipality = self.cvegeo[:5]
         self.cvegeo_state = self.cvegeo[:2]
-        self.has_data = bool(self.meta)
+        self.has_data = bool(self.meta.get('total'))
         return super().save(*args, **kwargs)
 
 
