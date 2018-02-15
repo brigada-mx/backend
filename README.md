@@ -1,4 +1,4 @@
-# 719s.mx
+# ensintonia.org
 
 
 ## Dev
@@ -6,11 +6,11 @@ We use [Docker](https://docs.docker.com/docker-for-mac/) and `docker-compose` in
 
 To decrypt env vars in `env.dev` and run dev, execute `./dev.sh`. To see which containers are running, run `docker-compose ps`. To stop all containers, run `docker-compose stop`.
 
-To blow containers away and build them from scratch, use `docker-compose rm` and then `./dev.sh`.
+To blow containers away and build them from scratch, use `docker-compose rm` then `./dev.sh`.
 
 
 ## Deploy
-For devs only. Run `./build.sh`. This will decrypt production env vars and build the `backend_base` and `nginx` images. Tag and push these images to [ECR](https://us-west-2.console.aws.amazon.com/ecs/home?region=us-west-2#/repositories/), and then deploy from the AWS ElasticBeanstalk console.
+For devs only. Run `./build.sh`. This will decrypt production env vars and build the `backend_base` and `nginx` images. Tag and push these images to [ECR](https://us-west-2.console.aws.amazon.com/ecs/home?region=us-west-2#/repositories/), then deploy from the AWS Elastic Beanstalk console.
 
 ~~~sh
 # log in
@@ -21,19 +21,19 @@ docker tag nginx:latest 306439459454.dkr.ecr.us-west-2.amazonaws.com/nginx:lates
 docker push 306439459454.dkr.ecr.us-west-2.amazonaws.com/nginx:latest
 ~~~
 
-__Make sure ElasticBeanstalk IAM user has permissions to read from ECR__. If not deploy will fail.
+__Make sure Elastic Beanstalk IAM user has permissions to read from ECR__. If not deploy will fail.
 
 
 ## Endpoints
 NGINX forces HTTPS for all requests to these endpoints. It also compresses responses.
 
-- API: <https://api.719s.mx/api/>
-- Celery flower: <https://api.719s.mx/flower/>
-- Django admin: <https://api.719s.mx/admin/>\
+- API: <https://api.ensintonia.org/api/>
+- Celery flower: <https://api.ensintonia.org/flower/>
+- Django admin: <https://api.ensintonia.org/admin/>\
 
 
 ## AWS
-We manage our infrastructure with AWS. We deploy to ElasticBeanstalk multi container Docker environments. This means the same `Dockerfile`s that build our images in dev build them in production.
+We manage our infrastructure with AWS. We deploy to Elastic Beanstalk multi container Docker environments. This means the same `Dockerfile`s that build our images in dev build them in production.
 
 
 ### SSL
@@ -51,12 +51,18 @@ Traffic between our backend AWS instances is not encrypted, because [it's not ne
 ### RDS and ElastiCache
 Our PostgreSQL and Redis instances are managed by [RDS](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/AWSHowTo.RDS.html) and [ElastiCache](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/AWSHowTo.ElastiCache.html).
 
->To allow the Amazon EC2 instances in your environment to connect to an outside database, you can configure the environment's Auto Scaling group with an additional security group. The security group that you attach to your environment can be the same one that is attached to your database instance, or a separate security group from which the database's security group allows ingress.
+There are many ways to grant RDS/ElastiCache ingress access to EC2 instances, for example:
 
-__I think new instances in the same environment get the same security group as old instances__. So, to ensure all instances can connect our data stores:
-
-- find the VPC security group that is assigned to both ElastiCache and RDS instances
+- find the __default VPC security group__ that is assigned to both ElastiCache and RDS instances
 - add ingress rules to this group on ports 5432 and 6379 for `919-api` and `919-celery-beat` environment security groups
+
+However, this creates an explicit dependency between the EC2 instance and our data stores. This means __we won't be able rebuild or terminate our environment__.
+
+If you try to do so, __you're entering a world of pain__. Instead of failing fast, AWS kill your EC2 instances, then hang for an hour or more while it periodically informs you that your security groups can't be deleted.
+
+Here's how to do it right: [Grant Elastic Beanstalk environment access to RDS and ElastiCache automatically](https://notebookheavy.com/2017/06/22/elastic-beanstalk-rds-automatic-access/).
+
+Basically, create a security group called `redis-postgres-read`. Then find the __default VPC security group__ for RDS/ElastiCache and add ingress rules on ports 5432 and 6379 for the `redis-postgres-read` security group. Finally, add this group to __EC2 security groups__ in __Configuration > Instances__ in the Elastic Beanstalk environment console.
 
 
 #### Testing connections
@@ -118,13 +124,13 @@ COPY (SELECT id, cvegeo, name, municipality_name, state_name FROM map_locality W
 docker cp 919_db:/tmp/localities_index.csv ../data/algolia/
 ~~~
 
-The search results may be of higher quality, and they're faster. But we can't put all of the countries localities in the index, which means we have to rebuild it every time we get new data on damaged buildings. PostgreSQL's full text search is good enough.
+The search results may be of higher quality, and they're faster. But we can't put all the localities in the index, which means we have to rebuild it every time we get new data on damaged buildings. PostgreSQL's full text search is good enough.
 
 
 ## Env vars
 Application configuration is stored in environment variables. These are stored in the `env.dev` and `env.prod` files.
 
-`dev.sh` decrypts env vars in `env.dev` and then runs our containers. These env vars are sourced by `docker-compose.yml` and our containers.
+`dev.sh` decrypts env vars in `env.dev` then runs our containers. These env vars are sourced by `docker-compose.yml` and our containers.
 
 
 ### Editing env vars
@@ -147,7 +153,7 @@ rm ngrok-stable-linux-amd64.zip
 
 
 ## Kobo Forms
-Forms admin [here](https://kobo.humanitarianresponse.info/#/forms). Online form [here](https://ee.humanitarianresponse.info/x/#Yhgh). Shorter, prettier URL using [Rebrandly](https://www.rebrandly.com/links): <http://encuesta.719s.mx/org>.
+Forms admin [here](https://kobo.humanitarianresponse.info/#/forms). Online form [here](https://ee.humanitarianresponse.info/x/#Yhgh). Shorter, prettier URL using [Rebrandly](https://www.rebrandly.com/links): <http://e.ensintonia.org/e>.
 
 We have a periodic job that syncs images from Kobo's backend to [this S3 bucket](https://s3.console.aws.amazon.com/s3/buckets/719s/?region=us-west-2).
 

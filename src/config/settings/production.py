@@ -33,7 +33,7 @@ CACHES = {
     },
 }
 
-CORS_ORIGIN_WHITELIST = ['app.719s.mx']
-CSRF_TRUSTED_ORIGINS = ['api.719s.mx']
+CORS_ORIGIN_WHITELIST = ['app.ensintonia.org']
+CSRF_TRUSTED_ORIGINS = ['api.ensintonia.org']
 
 ALLOWED_HOSTS = ['*']
