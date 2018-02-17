@@ -75,11 +75,14 @@ class StaffUser(CustomAbstractBaseUser, PermissionsMixin):
 
 
 class OrganizationUser(CustomAbstractBaseUser):
+    password = models.CharField(max_length=128, blank=True)
     organization = models.ForeignKey('map.Organization')
     set_password_token = models.TextField(db_index=True, default='', blank=True)
 
     def save(self, *args, **kwargs):
         if self.pk is None:
+            if not self.password:
+                self.set_unusable_password()
             super().save(*args, **kwargs)
             self.send_set_password_email()
         else:

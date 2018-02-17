@@ -11,13 +11,8 @@ class StaffUserAdmin(admin.ModelAdmin):
 
 
 class OrganizationUserAdmin(admin.ModelAdmin):
-    exclude = ('set_password_token',)
-    readonly_fields = ('set_password_token',)
-
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        form.base_fields['password'].initial = '_'
-        return form
+    exclude = ('set_password_token', 'password')
+    readonly_fields = ('set_password_token', 'password')
 
 
 admin.site.register(StaffUser, StaffUserAdmin)
