@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from db.map.models import Organization
 from db.users.models import OrganizationUser
 
 
@@ -26,3 +27,22 @@ class OrganizationUserTokenSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
+
+
+class SendSetPasswordEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class PasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(min_length=8, max_length=None, allow_blank=False, trim_whitespace=True)
+
+
+class PasswordTokenSerializer(serializers.Serializer):
+    password = serializers.CharField(min_length=8, max_length=None, allow_blank=False, trim_whitespace=True)
+    token = serializers.CharField(min_length=20, max_length=None, allow_blank=False, trim_whitespace=True)
+
+
+class OrganizationUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organization
+        fields = ('sector', 'name', 'desc', 'year_established', 'contact',)

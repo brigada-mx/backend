@@ -32,7 +32,7 @@ urlpatterns = [
 
     url(r'^account/organization/$', views.AccountOrganization.as_view(), name='account-organization'),
     # url(r'^account/actions/$', views.AccountActionListCreate.as_view(), name='account-action-list-create'),
-    # url(r'^account/actions/(?P<pk>[0-9]+)$', views.AccountActionDetail.as_view(), name='account-action-detail'),
+    # url(r'^account/actions/(?P<pk>[0-9]+)/$', views.AccountActionDetail.as_view(), name='account-action-detail'),
     # url(r'^account/submissions/(?P<pk>[0-9]+)/$',
     #     views.AccountSubmissionDetail.as_view(), name='account-submission-detail'),
     # url(r'^account/reset_key/$', views.AccountResetKey.as_view(), name='account-reset-key'),

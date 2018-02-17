@@ -1,9 +1,9 @@
-from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.mixins import UpdateModelMixin
 from rest_framework import permissions
 
 from db.map.models import Action, Organization, Submission
@@ -11,7 +11,7 @@ from db.users.models import OrganizationUser, OrganizationUserToken
 from api.backends import OrganizationUserAuthentication
 from api.serializers import PasswordSerializer, PasswordTokenSerializer
 from api.serializers import SendSetPasswordEmailSerializer, OrganizationUserTokenSerializer
-from api.serializers import ActionDetailSerializer, SubmissionSerializer, OrganizationMiniSerializer, OrganizationDetailSerializer
+from api.serializers import ActionDetailSerializer, SubmissionSerializer, OrganizationMiniSerializer, OrganizationDetailSerializer, OrganizationUpdateSerializer
 
 
 class AccountSendSetPasswordEmail(APIView):
@@ -76,11 +76,18 @@ class AccountSetPassword(APIView):
         return Response({'id': request.user.pk})
 
 
-class AccountOrganization(APIView):
+class AccountOrganization(generics.GenericAPIView, UpdateModelMixin):
     authentication_classes = (OrganizationUserAuthentication,)
+    serializer_class = OrganizationUpdateSerializer
+
+    def get_object(self):
+        self.request.user.organization
 
     def get(self, request, *args, **kwargs):
         return Response(OrganizationMiniSerializer(self.request.user.organization).data)
+
+    def put(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
 
 class AccountActionListCreate(generics.ListCreateAPIView):
