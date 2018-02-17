@@ -15,13 +15,11 @@ REST_FRAMEWORK = {
         # applies to all authenticated users, including w/ token auth, except admins
         'burst': '30/min',
         'search_burst': '80/min',
+        'authentication': '3/min',  # for users submitting username/email/password tuples to obtain token
     },
 }
 
-# This setting is IMPORTANT: without it, rest_framework.reverse.reverse, which is
-# also used in related fields, and which invokes request.build_absolute_uri, will
-# never be able to set the correct protocol/scheme for the absolute URLs that it
-# generates. If the django server receives requests via a load balancer, make sure
-# the balancer forwards the protocol, e.g.
-# proxy_set_header X-Forwarded-Proto $scheme;
+# This setting is IMPORTANT: without it, rest_framework.reverse.reverse, can't
+# correct protocol/scheme for absolute URLs it generates. If the server receives
+# requests via load balancer, make sure the balancer forwards the protocol
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

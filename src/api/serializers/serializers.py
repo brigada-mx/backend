@@ -10,9 +10,14 @@ class LocationSerializer(serializers.Serializer):
     location = LatLngField()
 
 
+class SendSetPasswordEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
 class PasswordSerializer(serializers.Serializer):
     password = serializers.CharField(min_length=8, max_length=None, allow_blank=False, trim_whitespace=True)
 
 
-class TokenSerializer(serializers.Serializer):
-    token = serializers.CharField(min_length=10, max_length=None, allow_blank=False, trim_whitespace=True)
+class PasswordTokenSerializer(serializers.Serializer):
+    password = serializers.CharField(min_length=8, max_length=None, allow_blank=False, trim_whitespace=True)
+    token = serializers.CharField(min_length=20, max_length=None, allow_blank=False, trim_whitespace=True)
