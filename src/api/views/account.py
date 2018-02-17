@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 
 from rest_framework import generics
@@ -6,22 +7,21 @@ from rest_framework.response import Response
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework import permissions
 
-from db.map.models import Action, Organization, Submission
+from db.map.models import Action, Submission
 from db.users.models import OrganizationUser, OrganizationUserToken
 from api.backends import OrganizationUserAuthentication
 from api.serializers import PasswordSerializer, PasswordTokenSerializer
 from api.serializers import SendSetPasswordEmailSerializer, OrganizationUserTokenSerializer
-from api.serializers import ActionDetailSerializer, SubmissionSerializer, OrganizationMiniSerializer, OrganizationDetailSerializer, OrganizationUpdateSerializer
+from api.serializers import ActionDetailSerializer, SubmissionSerializer, OrganizationUpdateSerializer, OrganizationReadSerializer, AccountActionListCreateSerializer
 
 
 class AccountSendSetPasswordEmail(APIView):
     """View for obtaining an auth token by posting a valid email/password tuple.
     """
     throttle_scope = 'authentication'
-    serializer_class = SendSetPasswordEmailSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
+        serializer = SendSetPasswordEmailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         email = serializer.validated_data['email']
         user = OrganizationUser.objects.filter(email=email).first()
@@ -34,7 +34,6 @@ class AccountSetPasswordWithToken(APIView):
     """Set org user's password, authenticating with token.
     """
     throttle_scope = 'authentication'
-    serializer_class = SendSetPasswordEmailSerializer
 
     def post(self, request, *args, **kwargs):
         serializer = PasswordTokenSerializer(data=request.data)
@@ -50,14 +49,30 @@ class AccountToken(APIView):
     """View for obtaining an auth token by posting a valid email/password tuple.
     """
     throttle_scope = 'authentication'
-    serializer_class = OrganizationUserTokenSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
+        serializer = OrganizationUserTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         token, created = OrganizationUserToken.objects.get_or_create(user=user)
         return Response({'token': token.key, 'id': user.pk})
+
+
+class AccountDeleteToken(APIView):
+    """View for obtaining an auth token by posting a valid email/password tuple.
+    """
+    authentication_classes = (OrganizationUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+    throttle_scope = 'authentication'
+
+    def post(self, request, *args, **kwargs):
+        try:
+            token = self.request.user.auth_token
+        except ObjectDoesNotExist:
+            return Response({}, status=400)
+        else:
+            token.delete()
+            return Response({})
 
 
 class AccountSetPassword(APIView):
@@ -66,7 +81,6 @@ class AccountSetPassword(APIView):
     authentication_classes = (OrganizationUserAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
     throttle_scope = 'authentication'
-    serializer_class = PasswordSerializer
 
     def post(self, request, *args, **kwargs):
         serializer = PasswordSerializer(data=request.data)
@@ -76,15 +90,27 @@ class AccountSetPassword(APIView):
         return Response({'id': request.user.pk})
 
 
+class AccountOrganizationResetKey(APIView):
+    """View for obtaining an auth token by posting a valid email/password tuple.
+    """
+    authentication_classes = (OrganizationUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, *args, **kwargs):
+        self.request.user.organization.reset_secret_key()
+        return Response({'secret_key': self.request.user.organization.secret_key})
+
+
 class AccountOrganization(generics.GenericAPIView, UpdateModelMixin):
     authentication_classes = (OrganizationUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = OrganizationUpdateSerializer
 
     def get_object(self):
-        self.request.user.organization
+        return self.request.user.organization
 
     def get(self, request, *args, **kwargs):
-        return Response(OrganizationMiniSerializer(self.request.user.organization).data)
+        return Response(OrganizationReadSerializer(self.get_object()).data)
 
     def put(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
@@ -92,6 +118,21 @@ class AccountOrganization(generics.GenericAPIView, UpdateModelMixin):
 
 class AccountActionListCreate(generics.ListCreateAPIView):
     authentication_classes = (OrganizationUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = AccountActionListCreateSerializer
+
+    def get_queryset(self):
+        return self.get_serializer_class().setup_eager_loading(
+            Action.objects.filter(organization=self.request.user.organization)
+        )
+
+    def perform_create(self, serializer):
+        serializer.save(organization=self.request.user.organization)
+
+
+class AccountActionRetrieveUpdate(generics.RetrieveUpdateAPIView):
+    authentication_classes = (OrganizationUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = ActionDetailSerializer
 
     def get_queryset(self):
@@ -101,23 +142,7 @@ class AccountActionListCreate(generics.ListCreateAPIView):
         return queryset
 
 
-class AccountActionDetail(generics.RetrieveUpdateAPIView):
+class AccountSubmissionUpdate(generics.UpdateAPIView):
     authentication_classes = (OrganizationUserAuthentication,)
-    serializer_class = ActionDetailSerializer
-
-    def get_queryset(self):
-        queryset = self.get_serializer_class().setup_eager_loading(
-            Action.objects.filter(published=True)
-        )
-        return queryset
-
-
-class AccountSubmissionDetail(generics.RetrieveUpdateAPIView):
-    authentication_classes = (OrganizationUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = SubmissionSerializer
-
-    def get_queryset(self):
-        queryset = self.get_serializer_class().setup_eager_loading(
-            Submission.objects.filter(action__published=True)
-        )
-        return queryset

@@ -181,7 +181,7 @@ class AbstractAction(models.Model):
     """
     locality = models.ForeignKey('Locality')
     action_type = models.TextField()
-    desc = models.TextField(blank=True)
+    desc = models.TextField()
     target = models.FloatField(null=True, blank=True, help_text='How many units does action intend to deliver')
     unit_of_measurement = models.TextField(blank=True)
     progress = models.FloatField(null=True, blank=True, help_text='How many units have been delivered?')

@@ -119,4 +119,4 @@ class TokenBaseModel(models.Model):
 
 
 class OrganizationUserToken(TokenBaseModel):
-    user = models.OneToOneField('OrganizationUser', on_delete=models.CASCADE)
+    user = models.OneToOneField('OrganizationUser', related_name='auth_token', on_delete=models.CASCADE)
