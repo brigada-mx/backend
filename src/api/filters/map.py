@@ -34,8 +34,9 @@ class EstablishmentFilter(filters.FilterSet):
 
 class SubmissionFilter(filters.FilterSet):
     action_id = django_filters.NumberFilter(name='action')
+    organization_id = BooleanFilter(name='organization')
     published = BooleanFilter(name='published')
 
     class Meta:
         model = Submission
-        fields = ['action_id', 'published']
+        fields = ['action_id', 'organization_id', 'published']

@@ -1,12 +1,12 @@
 from django.conf.urls import url
 from django.views.decorators.cache import cache_page
-from rest_framework.urlpatterns import format_suffix_patterns
 
 from api import views
 
 
 # `cache_page` also sets `Cache-Control: max-age=<seconds>` in response headers
 urlpatterns = [
+    # public endpoints
     url(r'^webhooks/kobo_submission/$', views.KoboSubmissionWebhook.as_view(), name='kobo-submission-webhook'),
 
     url(r'^$', views.api_root),
@@ -30,6 +30,7 @@ urlpatterns = [
 
     url(r'^establishments/$', cache_page(60 * 30)(views.EstablishmentList.as_view()), name='establishment-list'),
 
+    # organization account endpoints
     url(r'^account/organization/$', views.AccountOrganization.as_view(), name='account-organization'),
     url(r'^account/organization/reset_key/$',
         views.AccountOrganizationResetKey.as_view(), name='account-organization-reset-key'),
@@ -48,6 +49,3 @@ urlpatterns = [
     url(r'^account/send_set_password_email/$',
         views.AccountSendSetPasswordEmail.as_view(), name='account-send-set-password-email'),
 ]
-
-# allow API to parse and return many different formats, not just default JSON
-urlpatterns = format_suffix_patterns(urlpatterns)

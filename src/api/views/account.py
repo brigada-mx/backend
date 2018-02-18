@@ -167,4 +167,8 @@ class AccountSubmissionUpdate(generics.UpdateAPIView):
         return Submission.objects.filter(organization=self.request.user.organization)
 
     def put(self, request, *args, **kwargs):
+        action = request.data.get('action', None)
+        if action is not None:
+            if action not in self.request.user.organization.action_set.values_list('pk', flat=True):
+                return Response({'error': f'Action {action} does not belong to this organization'}, status=400)
         return self.partial_update(request, *args, **kwargs)
