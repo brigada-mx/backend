@@ -217,7 +217,7 @@ class Action(AbstractAction, BaseModel):
         if self.pk is not None:
             return super().save(*args, **kwargs)
         max_key = Action.objects.filter(organization=self.organization).aggregate(Max('key'))
-        self.key = self.key or (max_key.get('key__max') or 0) + 1
+        self.key = (max_key.get('key__max') or 0) + 1
         while True:
             try:
                 return super().save(*args, **kwargs)
