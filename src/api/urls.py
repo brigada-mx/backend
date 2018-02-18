@@ -34,9 +34,10 @@ urlpatterns = [
     url(r'^account/organization/reset_key/$',
         views.AccountOrganizationResetKey.as_view(), name='account-organization-reset-key'),
     url(r'^account/actions/$', views.AccountActionListCreate.as_view(), name='account-action-list-create'),
-    # url(r'^account/actions/(?P<pk>[0-9]+)/$', views.AccountActionRetrieveUpdate.as_view(), name='account-retrieve-update'),
-    # url(r'^account/submissions/(?P<pk>[0-9]+)/$',
-    #     views.AccountSubmissionUpdate.as_view(), name='account-submission-update'),
+    url(r'^account/actions/(?P<pk>[0-9]+)/$',
+        views.AccountActionRetrieveUpdate.as_view(), name='account-retrieve-update'),
+    url(r'^account/submissions/(?P<pk>[0-9]+)/$',
+        views.AccountSubmissionUpdate.as_view(), name='account-submission-update'),
 
     url(r'^account/delete_token/$', views.AccountDeleteToken.as_view(), name='account-delete-token'),
     url(r'^account/token/$', views.AccountToken.as_view(), name='account-token'),

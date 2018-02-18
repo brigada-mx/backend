@@ -1,9 +1,10 @@
 from rest_framework import serializers
 
-from db.map.models import Organization, Action
+from db.map.models import Organization, Action, Submission
 from db.users.models import OrganizationUser
 from api.mixins import EagerLoadingMixin
 from api.serializers.map import LocalityMediumSerializer, SubmissionMiniSerializer
+from api.serializers.map import OrganizationMiniSerializer, SubmissionSerializer
 
 
 def authenticate(model, email, password):
@@ -60,10 +61,29 @@ class AccountActionListCreateSerializer(serializers.ModelSerializer, EagerLoadin
     _SELECT_RELATED_FIELDS = ['locality']
     _PREFETCH_RELATED_FIELDS = ['submission_set']
 
-    action_locality = LocalityMediumSerializer(source='locality', required=False)
+    action_locality = LocalityMediumSerializer(source='locality', required=False, read_only=True)
     submissions = SubmissionMiniSerializer(source='submission_set', many=True, read_only=True)
 
     class Meta:
         model = Action
         fields = '__all__'
-        read_only_fields = ('key', 'organization', 'action_locality')
+        read_only_fields = ('key', 'organization')
+
+
+class AccountActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _SELECT_RELATED_FIELDS = ['organization']
+    _PREFETCH_RELATED_FIELDS = ['submission_set']
+
+    organization = OrganizationMiniSerializer(read_only=True)
+    submissions = SubmissionSerializer(source='submission_set', many=True, read_only=True)
+
+    class Meta:
+        model = Action
+        fields = '__all__'
+        read_only_fields = ('key',)
+
+
+class SubmissionUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Submission
+        fields = ('action', 'desc')

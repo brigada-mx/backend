@@ -18,20 +18,18 @@ class StateList(generics.ListAPIView):
     serializer_class = StateSerializer
 
     def get_queryset(self):
-        queryset = self.get_serializer_class().setup_eager_loading(
+        return self.get_serializer_class().setup_eager_loading(
             State.objects.all()
         )
-        return queryset
 
 
 class MunicipalityList(generics.ListAPIView):
     serializer_class = MunicipalitySerializer
 
     def get_queryset(self):
-        queryset = self.get_serializer_class().setup_eager_loading(
+        return self.get_serializer_class().setup_eager_loading(
             Municipality.objects.all()
         )
-        return queryset
 
 
 locality_list_raw_query = """
@@ -59,20 +57,18 @@ class LocalityList(generics.ListAPIView):
     filter_fields = ('has_data',)
 
     def get_queryset(self):
-        queryset = self.get_serializer_class().setup_eager_loading(
+        return self.get_serializer_class().setup_eager_loading(
             Locality.objects.all()
         )
-        return queryset
 
 
 class LocalityDetail(generics.RetrieveAPIView):
     serializer_class = LocalitySerializer
 
     def get_queryset(self):
-        queryset = self.get_serializer_class().setup_eager_loading(
+        return self.get_serializer_class().setup_eager_loading(
             Locality.objects.all().order_by('-modified')
         )
-        return queryset
 
 
 class EstablishmentList(generics.ListAPIView):
@@ -80,10 +76,9 @@ class EstablishmentList(generics.ListAPIView):
     filter_class = EstablishmentFilter
 
     def get_queryset(self):
-        queryset = self.get_serializer_class().setup_eager_loading(
+        return self.get_serializer_class().setup_eager_loading(
             Establishment.objects.all()
         )
-        return queryset
 
 
 class ActionList(generics.ListAPIView):
@@ -91,20 +86,18 @@ class ActionList(generics.ListAPIView):
     filter_class = ActionFilter
 
     def get_queryset(self):
-        queryset = self.get_serializer_class().setup_eager_loading(
+        return self.get_serializer_class().setup_eager_loading(
             Action.objects.filter(published=True)
         )
-        return queryset
 
 
 class ActionDetail(generics.RetrieveAPIView):
     serializer_class = ActionDetailSerializer
 
     def get_queryset(self):
-        queryset = self.get_serializer_class().setup_eager_loading(
+        return self.get_serializer_class().setup_eager_loading(
             Action.objects.filter(published=True)
         )
-        return queryset
 
 
 class ActionLogList(generics.ListAPIView):
@@ -112,34 +105,31 @@ class ActionLogList(generics.ListAPIView):
 
     def get_queryset(self):
         action = get_object_or_404(Action, pk=self.kwargs['pk'], published=True)
-        queryset = self.get_serializer_class().setup_eager_loading(
+        return self.get_serializer_class().setup_eager_loading(
             action.actionlog_set.all().order_by('-modified')
         )
-        return queryset
 
 
 class OrganizationList(generics.ListAPIView):
     serializer_class = OrganizationSerializer
 
     def get_queryset(self):
-        queryset = self.get_serializer_class().setup_eager_loading(
+        return self.get_serializer_class().setup_eager_loading(
             Organization.objects.prefetch_related(
                 Prefetch('action_set', queryset=Action.public_objects.all())
             ).all().order_by('-modified')
         )
-        return queryset
 
 
 class OrganizationDetail(generics.RetrieveAPIView):
     serializer_class = OrganizationDetailSerializer
 
     def get_queryset(self):
-        queryset = self.get_serializer_class().setup_eager_loading(
+        return self.get_serializer_class().setup_eager_loading(
             Organization.objects.prefetch_related(
                 Prefetch('action_set', queryset=Action.public_objects.all())
             ).all().order_by('-modified')
         )
-        return queryset
 
 
 class SubmissionList(generics.ListAPIView):
@@ -147,10 +137,9 @@ class SubmissionList(generics.ListAPIView):
     filter_class = SubmissionFilter
 
     def get_queryset(self):
-        queryset = self.get_serializer_class().setup_eager_loading(
+        return self.get_serializer_class().setup_eager_loading(
             Submission.objects.filter(action__published=True)
         )
-        return queryset
 
 
 locality_list_search_query = """

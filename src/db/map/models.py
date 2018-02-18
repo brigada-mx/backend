@@ -238,6 +238,7 @@ class Submission(BaseModel):
     location = models.PointField(null=True, blank=True)
     organization = models.ForeignKey('Organization')
     action = models.ForeignKey('Action', null=True, blank=True)
+    desc = models.TextField(blank=True, help_text='Can complement description inside of `data`')
     data = JSONField(help_text='Submission data and metadata, such as description, type, file URLs')
     source_id = models.IntegerField()
     source = models.TextField(choices=SUBMISSION_SOURCE_CHOICES)

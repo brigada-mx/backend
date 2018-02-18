@@ -1,5 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
+from django.http import Http404
 
 from rest_framework import generics
 from rest_framework.views import APIView
@@ -12,7 +13,7 @@ from db.users.models import OrganizationUser, OrganizationUserToken
 from api.backends import OrganizationUserAuthentication
 from api.serializers import PasswordSerializer, PasswordTokenSerializer
 from api.serializers import SendSetPasswordEmailSerializer, OrganizationUserTokenSerializer
-from api.serializers import ActionDetailSerializer, SubmissionSerializer, OrganizationUpdateSerializer, OrganizationReadSerializer, AccountActionListCreateSerializer
+from api.serializers import ActionDetailSerializer, SubmissionSerializer, OrganizationUpdateSerializer, AccountActionListCreateSerializer, AccountActionDetailSerializer, SubmissionUpdateSerializer
 
 
 class AccountSendSetPasswordEmail(APIView):
@@ -133,16 +134,24 @@ class AccountActionListCreate(generics.ListCreateAPIView):
 class AccountActionRetrieveUpdate(generics.RetrieveUpdateAPIView):
     authentication_classes = (OrganizationUserAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = ActionDetailSerializer
+    serializer_class = AccountActionDetailSerializer
 
     def get_queryset(self):
-        queryset = self.get_serializer_class().setup_eager_loading(
-            Action.objects.filter(published=True)
+        return self.get_serializer_class().setup_eager_loading(
+            Action.objects.filter(organization=self.request.user.organization)
         )
-        return queryset
+
+    def put(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
 
 class AccountSubmissionUpdate(generics.UpdateAPIView):
     authentication_classes = (OrganizationUserAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = SubmissionSerializer
+    serializer_class = SubmissionUpdateSerializer
+
+    def get_object(self):
+        obj = super().get_object()
+        if self.request.user.organization != obj.action.organization:
+            raise Http404()
+        return obj
