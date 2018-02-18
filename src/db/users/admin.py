@@ -4,10 +4,8 @@ from db.users.models import StaffUser, OrganizationUser
 
 
 class StaffUserAdmin(admin.ModelAdmin):
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        form.base_fields['password'].initial = '_'
-        return form
+    exclude = ('password',)
+    readonly_fields = ('password',)
 
 
 class OrganizationUserAdmin(admin.ModelAdmin):

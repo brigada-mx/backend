@@ -65,7 +65,14 @@ class CustomAbstractBaseUser(AbstractBaseUser, BaseModel):
 
 
 class StaffUser(CustomAbstractBaseUser, PermissionsMixin):
+    password = models.CharField(max_length=128, blank=True)
     objects = UserManager()
+
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            if not self.password:
+                self.set_unusable_password()
+        return super().save(*args, **kwargs)
 
     @property
     def is_staff(self):
@@ -83,10 +90,8 @@ class OrganizationUser(CustomAbstractBaseUser):
         if self.pk is None:
             if not self.password:
                 self.set_unusable_password()
-            super().save(*args, **kwargs)
             self.send_set_password_email()
-        else:
-            return super().save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     @property
     def is_organization_user(self):
@@ -94,7 +99,6 @@ class OrganizationUser(CustomAbstractBaseUser):
 
     def send_set_password_email(self):
         self.set_password_token = binascii.hexlify(os.urandom(30)).decode()
-        self.save()
 
 
 class TokenBaseModel(models.Model):

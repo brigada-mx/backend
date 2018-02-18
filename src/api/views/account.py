@@ -29,6 +29,7 @@ class AccountSendSetPasswordEmail(APIView):
         user = OrganizationUser.objects.filter(email=email).first()
         if user is not None:
             user.send_set_password_email()
+            user.save()
         return Response({'email': email})
 
 
