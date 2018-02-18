@@ -36,6 +36,7 @@ urlpatterns = [
     url(r'^account/actions/$', views.AccountActionListCreate.as_view(), name='account-action-list-create'),
     url(r'^account/actions/(?P<pk>[0-9]+)/$',
         views.AccountActionRetrieveUpdate.as_view(), name='account-retrieve-update'),
+    url(r'^account/submissions/$', views.AccountSubmissionList.as_view(), name='account-submission-list'),
     url(r'^account/submissions/(?P<pk>[0-9]+)/$',
         views.AccountSubmissionUpdate.as_view(), name='account-submission-update'),
 

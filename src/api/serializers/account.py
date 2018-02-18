@@ -86,4 +86,4 @@ class AccountActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMix
 class SubmissionUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission
-        fields = ('action', 'desc')
+        fields = ('action', 'desc', 'published')

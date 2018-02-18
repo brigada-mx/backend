@@ -1,6 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
-from django.http import Http404
 
 from rest_framework import generics
 from rest_framework.views import APIView
@@ -11,9 +10,11 @@ from rest_framework import permissions
 from db.map.models import Action, Submission
 from db.users.models import OrganizationUser, OrganizationUserToken
 from api.backends import OrganizationUserAuthentication
-from api.serializers import PasswordSerializer, PasswordTokenSerializer
-from api.serializers import SendSetPasswordEmailSerializer, OrganizationUserTokenSerializer
-from api.serializers import ActionDetailSerializer, SubmissionSerializer, OrganizationUpdateSerializer, AccountActionListCreateSerializer, AccountActionDetailSerializer, SubmissionUpdateSerializer
+from api.serializers import SubmissionSerializer
+from api.serializers import PasswordSerializer, PasswordTokenSerializer, SendSetPasswordEmailSerializer
+from api.serializers import OrganizationUserTokenSerializer, OrganizationReadSerializer, OrganizationUpdateSerializer
+from api.serializers import SubmissionUpdateSerializer, AccountActionDetailSerializer, AccountActionListCreateSerializer
+from api.filters import SubmissionFilter
 
 
 class AccountSendSetPasswordEmail(APIView):
@@ -145,13 +146,25 @@ class AccountActionRetrieveUpdate(generics.RetrieveUpdateAPIView):
         return self.partial_update(request, *args, **kwargs)
 
 
+class AccountSubmissionList(generics.ListAPIView):
+    authentication_classes = (OrganizationUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = SubmissionSerializer
+    filter_class = SubmissionFilter
+
+    def get_queryset(self):
+        return self.get_serializer_class().setup_eager_loading(
+            Submission.objects.filter(organization=self.request.user.organization)
+        )
+
+
 class AccountSubmissionUpdate(generics.UpdateAPIView):
     authentication_classes = (OrganizationUserAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = SubmissionUpdateSerializer
 
-    def get_object(self):
-        obj = super().get_object()
-        if self.request.user.organization != obj.action.organization:
-            raise Http404()
-        return obj
+    def get_queryset(self):
+        return Submission.objects.filter(organization=self.request.user.organization)
+
+    def put(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)

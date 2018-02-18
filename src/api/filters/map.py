@@ -2,7 +2,7 @@ import django_filters
 from django_filters import rest_framework as filters
 
 from db.map.models import Action, Establishment, Submission
-from api.filters import parse_boolean
+from api.filters import parse_boolean, BooleanFilter
 
 
 def scian_category_filter(queryset, name, value):
@@ -34,7 +34,8 @@ class EstablishmentFilter(filters.FilterSet):
 
 class SubmissionFilter(filters.FilterSet):
     action_id = django_filters.NumberFilter(name='action')
+    published = BooleanFilter(name='published')
 
     class Meta:
         model = Submission
-        fields = ['action_id']
+        fields = ['action_id', 'published']

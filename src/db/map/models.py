@@ -244,6 +244,7 @@ class Submission(BaseModel):
     source = models.TextField(choices=SUBMISSION_SOURCE_CHOICES)
     submitted = models.DateTimeField(default=timezone.now, blank=True)
     image_urls = JSONField(default=[], blank=True)
+    published = models.BooleanField(blank=True, default=True, db_index=True)
 
     REPR_FIELDS = ['organization_id', 'action_id', 'submitted']
 
