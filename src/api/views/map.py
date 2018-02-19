@@ -5,9 +5,9 @@ from rest_framework import generics
 
 from db.map.models import State, Municipality, Locality, Action, Organization, Establishment, Submission
 from api.serializers import StateSerializer, MunicipalitySerializer
-from api.serializers import LocalitySerializer, LocalityRawSerializer, LocalitySearchSerializer, EstablishmentSerializer
+from api.serializers import LocalityDetailSerializer, LocalityRawSerializer, LocalitySearchSerializer
+from api.serializers import EstablishmentSerializer, SubmissionSerializer
 from api.serializers import ActionSubmissionsSerializer, ActionLogSerializer, ActionDetailSerializer
-from api.serializers import SubmissionSerializer
 from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
 from api.paginators import LargeNoCountPagination
 from api.throttles import SearchBurstRateScopedThrottle
@@ -44,7 +44,7 @@ FROM map_locality
 WHERE map_locality.has_data = true"""
 
 
-class LocalityListRaw(generics.ListAPIView):
+class LocalityList(generics.ListAPIView):
     serializer_class = LocalityRawSerializer
     pagination_class = LargeNoCountPagination
 
@@ -52,18 +52,8 @@ class LocalityListRaw(generics.ListAPIView):
         return Locality.objects.raw(locality_list_raw_query)
 
 
-class LocalityList(generics.ListAPIView):
-    serializer_class = LocalitySerializer
-    filter_fields = ('has_data',)
-
-    def get_queryset(self):
-        return self.get_serializer_class().setup_eager_loading(
-            Locality.objects.all()
-        )
-
-
 class LocalityDetail(generics.RetrieveAPIView):
-    serializer_class = LocalitySerializer
+    serializer_class = LocalityDetailSerializer
 
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
@@ -120,7 +110,9 @@ class OrganizationList(generics.ListAPIView):
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
             Organization.objects.prefetch_related(
-                Prefetch('action_set', queryset=Action.objects.filter(published=True))
+                Prefetch('action_set', queryset=Action.objects.select_related('locality').prefetch_related(
+                    Prefetch('submission_set', queryset=Submission.objects.filter(published=True))
+                ).filter(published=True))
             ).all().order_by('-modified')
         )
 
@@ -131,7 +123,8 @@ class OrganizationDetail(generics.RetrieveAPIView):
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
             Organization.objects.prefetch_related(
-                Prefetch('action_set', queryset=Action.objects.prefetch_related(
+                Prefetch('action_set', queryset=Action.objects.select_related(
+                        'locality', 'organization').prefetch_related(
                     Prefetch('submission_set', queryset=Submission.objects.filter(published=True))
                 ).filter(published=True))
             ).all().order_by('-modified')

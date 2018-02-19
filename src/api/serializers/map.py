@@ -64,7 +64,7 @@ class LocalityRawSerializer(serializers.ModelSerializer):
         return obj.action_count
 
 
-class LocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class LocalityDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_RELATED_FIELDS = ['action_set']
 
     meta = serializers.JSONField()
@@ -150,8 +150,6 @@ class OrganizationMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin)
 
 
 class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    _PREFETCH_RELATED_FIELDS = ['action_set__locality', 'action_set__submission_set']
-
     url = serializers.HyperlinkedIdentityField(view_name='api:organization-detail')
     actions = ActionLocalitySerializer(source='action_set', many=True, read_only=True)
     action_count = serializers.SerializerMethodField()
@@ -162,12 +160,12 @@ class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         exclude = ('secret_key',)
 
     def get_action_count(self, obj):
-        return obj.action_set.filter(published=True).count()
+        return obj.action_set.all().count()
 
     def get_image_count(self, obj):
-        actions = obj.action_set.filter(published=True)
+        actions = obj.action_set.all()
         return sum(
-            sum(len(s.synced_image_urls()) for s in a.submission_set.all() if s.published) for a in actions
+            sum(len(s.synced_image_urls()) for s in a.submission_set.all()) for a in actions
         )
 
 
@@ -213,8 +211,6 @@ class ActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin
 
 
 class OrganizationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    _PREFETCH_RELATED_FIELDS = ['action_set__submission_set', 'action_set__locality', 'action_set__organization']
-
     actions = ActionSubmissionsSerializer(source='action_set', many=True, read_only=True)
     action_count = serializers.SerializerMethodField()
 
@@ -223,7 +219,7 @@ class OrganizationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixi
         exclude = ('secret_key',)
 
     def get_action_count(self, obj):
-        return obj.action_set.filter(published=True).count()
+        return obj.action_set.all().count()
 
 
 class ActionLogSerializer(serializers.ModelSerializer, EagerLoadingMixin):

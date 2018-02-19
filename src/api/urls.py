@@ -15,7 +15,6 @@ urlpatterns = [
     url(r'^municipalities/$', cache_page(60 * 5)(views.MunicipalityList.as_view()), name='municipality-list'),
 
     url(r'^localities/$', cache_page(60 * 20)(views.LocalityList.as_view()), name='locality-list'),
-    url(r'^localities_raw/$', cache_page(60 * 20)(views.LocalityListRaw.as_view()), name='locality-list-raw'),
     url(r'^localities_search/$', views.LocalitySearch.as_view(), name='locality-list-search'),
     url(r'^localities/(?P<pk>[0-9]+)/$', views.LocalityDetail.as_view(), name='locality-detail'),
 
