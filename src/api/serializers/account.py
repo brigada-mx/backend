@@ -4,7 +4,7 @@ from db.map.models import Organization, Action, Submission
 from db.users.models import OrganizationUser
 from api.mixins import EagerLoadingMixin
 from api.serializers.map import LocalityMediumSerializer, SubmissionMiniSerializer
-from api.serializers.map import OrganizationMiniSerializer, SubmissionSerializer
+from api.serializers.map import OrganizationMiniSerializer, SubmissionMediumSerializer
 
 
 def authenticate(model, email, password):
@@ -75,7 +75,7 @@ class AccountActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMix
     _PREFETCH_RELATED_FIELDS = ['submission_set']
 
     organization = OrganizationMiniSerializer(read_only=True)
-    submissions = SubmissionSerializer(source='submission_set', many=True, read_only=True)
+    submissions = SubmissionMediumSerializer(source='submission_set', many=True, read_only=True)
 
     class Meta:
         model = Action

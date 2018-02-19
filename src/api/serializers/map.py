@@ -89,15 +89,12 @@ class ActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = '__all__'
 
 
-class SubmissionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    _SELECT_RELATED_FIELDS = ['action']
-
+class SubmissionMediumSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     data = serializers.SerializerMethodField()
     image_urls = serializers.SerializerMethodField()
     thumbnails_small = serializers.SerializerMethodField()
     thumbnails_medium = serializers.SerializerMethodField()
     location = LatLngField()
-    action = ActionSerializer(read_only=True)
 
     class Meta:
         model = Submission
@@ -116,6 +113,12 @@ class SubmissionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
     def get_thumbnails_medium(self, obj):
         return obj.thumbnails(1280, 1280)
+
+
+class SubmissionSerializer(SubmissionMediumSerializer):
+    _SELECT_RELATED_FIELDS = ['action']
+
+    action = ActionSerializer(read_only=True)
 
 
 class SubmissionMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):

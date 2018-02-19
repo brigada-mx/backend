@@ -1,4 +1,4 @@
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.shortcuts import get_object_or_404
 
 from rest_framework import generics
@@ -138,7 +138,7 @@ class SubmissionList(generics.ListAPIView):
 
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
-            Submission.objects.filter(action__published=True)
+            Submission.objects.filter(Q(action__isnull=True) | Q(action__published=True), published=True)
         )
 
 
