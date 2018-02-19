@@ -268,3 +268,25 @@ def upload_submission_images_signal(sender, instance, created, **kwargs):
     if not created:
         return
     upload_submission_images.delay(instance.pk)
+
+
+action_fields = [
+    'locality', 'action_type', 'desc', 'target', 'unit_of_measurement',
+    'progress', 'budget', 'start_date', 'end_date', 'published',
+]
+
+
+@receiver(models.signals.pre_save, sender=Action)
+def create_action_log_record(sender, instance, **kwargs):
+    if instance.pk is None:
+        return
+    previous = Action.objects.get(pk=instance.pk)
+    if any(getattr(previous, f) != getattr(instance, f) for f in action_fields):
+        ActionLog.objects.create(action=instance, **{f: getattr(instance, f) for f in action_fields})
+
+
+@receiver(models.signals.post_save, sender=Action)
+def create_first_action_log_record(sender, instance, created, **kwargs):
+    if not created:
+        return
+    ActionLog.objects.create(action=instance, **{f: getattr(instance, f) for f in action_fields})
