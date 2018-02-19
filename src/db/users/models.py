@@ -2,8 +2,8 @@ import binascii
 import os
 
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
-from django.contrib.auth.models import BaseUserManager
+from django.utils import timezone
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
 from db.config import BaseModel
 
@@ -85,6 +85,7 @@ class OrganizationUser(CustomAbstractBaseUser):
     password = models.CharField(max_length=128, blank=True)
     organization = models.ForeignKey('map.Organization')
     set_password_token = models.TextField(db_index=True, default='', blank=True)
+    set_password_token_created = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self.pk is None:
@@ -98,6 +99,7 @@ class OrganizationUser(CustomAbstractBaseUser):
         return True
 
     def send_set_password_email(self):
+        self.set_password_token_created = timezone.now()
         self.set_password_token = binascii.hexlify(os.urandom(30)).decode()
 
 

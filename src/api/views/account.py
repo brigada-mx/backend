@@ -1,5 +1,8 @@
+from datetime import timedelta
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
 from rest_framework import generics
 from rest_framework.views import APIView
@@ -42,6 +45,8 @@ class AccountSetPasswordWithToken(APIView):
         serializer = PasswordTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = get_object_or_404(OrganizationUser, set_password_token=serializer.validated_data['token'])
+        if not user.set_password_token_created or user.set_password_token_created < timezone.now() - timedelta(days=3):
+            return Response({'error': 'This token has expired'}, status=403)
         user.set_password(serializer.validated_data['password'])
         user.set_password_token = ''
         user.save()
