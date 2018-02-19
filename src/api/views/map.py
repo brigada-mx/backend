@@ -87,7 +87,9 @@ class ActionList(generics.ListAPIView):
 
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
-            Action.objects.filter(published=True)
+            Action.objects.prefetch_related(
+                Prefetch('submission_set', queryset=Submission.objects.filter(published=True))
+            ).filter(published=True)
         )
 
 
@@ -96,7 +98,9 @@ class ActionDetail(generics.RetrieveAPIView):
 
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
-            Action.objects.filter(published=True)
+            Action.objects.prefetch_related(
+                Prefetch('submission_set', queryset=Submission.objects.filter(published=True))
+            ).filter(published=True)
         )
 
 
@@ -127,7 +131,9 @@ class OrganizationDetail(generics.RetrieveAPIView):
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
             Organization.objects.prefetch_related(
-                Prefetch('action_set', queryset=Action.objects.filter(published=True))
+                Prefetch('action_set', queryset=Action.objects.prefetch_related(
+                    Prefetch('submission_set', queryset=Submission.objects.filter(published=True))
+                ).filter(published=True))
             ).all().order_by('-modified')
         )
 

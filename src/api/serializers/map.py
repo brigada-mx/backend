@@ -183,11 +183,10 @@ class EstablishmentSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
 class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['locality', 'organization']
-    _PREFETCH_RELATED_FIELDS = ['submission_set']
 
     locality = LocalityMediumSerializer(read_only=True)
     organization = OrganizationMiniSerializer(read_only=True)
-    submissions = SubmissionSerializer(source='submission_set', many=True, read_only=True)
+    submissions = SubmissionMediumSerializer(source='submission_set', many=True, read_only=True)
 
     class Meta:
         model = Action
@@ -196,7 +195,6 @@ class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
 class ActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['locality', 'organization']
-    _PREFETCH_RELATED_FIELDS = ['submission_set']
 
     locality = LocalityMediumSerializer(read_only=True)
     organization = OrganizationMiniSerializer(read_only=True)

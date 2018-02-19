@@ -9,6 +9,22 @@ To decrypt env vars in `env.dev` and run dev, execute `./dev.sh`. To see which c
 To blow containers away and build them from scratch, use `docker-compose rm` then `./dev.sh`.
 
 
+### Logs
+__PostgreSQL__: open `/var/lib/postgresql/data/postgresql.conf` in the __db__ container, also at `dbdata/postgresql.conf`, and add the following:
+
+~~~sh
+logging_collector = 'on'
+log_statement = 'all'
+log_line_prefix = '%t'
+~~~
+
+Then restart the db container, `docker-compose restart db`. Tail logs like this:
+
+~~~sh
+less +F "dbdata/pg_log/`ls dbdata/pg_log | sort -n -t _ -k 2 | tail -1`"
+~~~
+
+
 ## Deploy
 For devs only. Run `./build.sh`. This will decrypt production env vars and build the `backend_base` and `nginx` images. Tag and push these images to [ECR](https://us-west-2.console.aws.amazon.com/ecs/home?region=us-west-2#/repositories/), then deploy from the AWS Elastic Beanstalk console.
 
