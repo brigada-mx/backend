@@ -97,6 +97,8 @@ class SubmissionMediumSerializer(serializers.ModelSerializer, EagerLoadingMixin)
     thumbnails_small = serializers.SerializerMethodField()
     thumbnails_medium = serializers.SerializerMethodField()
     location = LatLngField()
+    description = serializers.ReadOnlyField()
+    address = serializers.ReadOnlyField()
 
     class Meta:
         model = Submission

@@ -232,6 +232,7 @@ class Submission(BaseModel):
     organization = models.ForeignKey('Organization')
     action = models.ForeignKey('Action', null=True, blank=True)
     desc = models.TextField(blank=True, help_text='Can complement description inside of `data`')
+    addr = models.TextField(blank=True, help_text='Can complement address inside of `data`')
     data = JSONField(help_text='Submission data and metadata, such as description, type, file URLs')
     source_id = models.IntegerField()
     source = models.TextField(choices=SUBMISSION_SOURCE_CHOICES)
@@ -248,6 +249,24 @@ class Submission(BaseModel):
             models.Index(fields=['location']),
             models.Index(fields=['submitted']),
         ]
+
+    @property
+    def description(self):
+        if self.desc:
+            return self.desc
+        try:
+            return self.data['description']
+        except:
+            return ''
+
+    @property
+    def address(self):
+        if self.desc:
+            return self.addr
+        try:
+            return self.data['address']
+        except:
+            return ''
 
     def save(self, *args, **kwargs):
         if self.action and self.action.organization != self.organization:
