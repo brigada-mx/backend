@@ -77,9 +77,7 @@ class ActionList(generics.ListAPIView):
 
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
-            Action.objects.prefetch_related(
-                Prefetch('submission_set', queryset=Submission.objects.filter(published=True))
-            ).filter(published=True)
+            Action.objects.filter(published=True)
         )
 
 
@@ -88,9 +86,7 @@ class ActionDetail(generics.RetrieveAPIView):
 
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
-            Action.objects.prefetch_related(
-                Prefetch('submission_set', queryset=Submission.objects.filter(published=True))
-            ).filter(published=True)
+            Action.objects.filter(published=True)
         )
 
 
@@ -109,11 +105,7 @@ class OrganizationList(generics.ListAPIView):
 
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
-            Organization.objects.prefetch_related(
-                Prefetch('action_set', queryset=Action.objects.select_related('locality').prefetch_related(
-                    Prefetch('submission_set', queryset=Submission.objects.filter(published=True))
-                ).filter(published=True))
-            ).all().order_by('-modified')
+            Organization.objects.all().order_by('-modified')
         )
 
 
@@ -122,12 +114,7 @@ class OrganizationDetail(generics.RetrieveAPIView):
 
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
-            Organization.objects.prefetch_related(
-                Prefetch('action_set', queryset=Action.objects.select_related(
-                        'locality', 'organization').prefetch_related(
-                    Prefetch('submission_set', queryset=Submission.objects.filter(published=True))
-                ).filter(published=True))
-            ).all().order_by('-modified')
+            Organization.objects.all().order_by('-modified')
         )
 
 

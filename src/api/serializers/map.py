@@ -1,3 +1,5 @@
+from django.db.models import Prefetch
+
 from rest_framework import serializers
 
 from db.map.models import State, Municipality, Locality, Establishment
@@ -150,6 +152,12 @@ class OrganizationMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin)
 
 
 class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _PREFETCH_FUNCTIONS = [
+        lambda: Prefetch('action_set', queryset=Action.objects.select_related('locality').prefetch_related(
+            Prefetch('submission_set', queryset=Submission.objects.filter(published=True))
+        ).filter(published=True))
+    ]
+
     url = serializers.HyperlinkedIdentityField(view_name='api:organization-detail')
     actions = ActionLocalitySerializer(source='action_set', many=True, read_only=True)
     action_count = serializers.SerializerMethodField()
@@ -180,6 +188,7 @@ class EstablishmentSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
 
 class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _PREFETCH_FUNCTIONS = [lambda: Prefetch('submission_set', queryset=Submission.objects.filter(published=True))]
     _SELECT_RELATED_FIELDS = ['locality', 'organization']
 
     locality = LocalityMediumSerializer(read_only=True)
@@ -192,6 +201,7 @@ class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
 
 class ActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _PREFETCH_FUNCTIONS = [lambda: Prefetch('submission_set', queryset=Submission.objects.filter(published=True))]
     _SELECT_RELATED_FIELDS = ['locality', 'organization']
 
     locality = LocalityMediumSerializer(read_only=True)
@@ -211,6 +221,14 @@ class ActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin
 
 
 class OrganizationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _PREFETCH_FUNCTIONS = [
+        lambda: Prefetch('action_set', queryset=Action.objects.select_related(
+            'locality', 'organization'
+        ).prefetch_related(
+            Prefetch('submission_set', queryset=Submission.objects.filter(published=True))
+        ).filter(published=True))
+    ]
+
     actions = ActionSubmissionsSerializer(source='action_set', many=True, read_only=True)
     action_count = serializers.SerializerMethodField()
 
