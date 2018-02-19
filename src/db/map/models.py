@@ -194,18 +194,11 @@ class AbstractAction(models.Model):
         abstract = True
 
 
-class PublicActionManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(published=True)
-
-
 class Action(AbstractAction, BaseModel):
     """Action related to reconstruction.
     """
     key = models.IntegerField(blank=True, help_text="Auto-incremented number for actions in organization")
     organization = models.ForeignKey('Organization', help_text='Frozen after first read')
-    objects = models.Manager()
-    public_objects = PublicActionManager()
 
     STR_FIELDS = ['locality_id', 'organization_id', 'action_type']
 

@@ -76,7 +76,7 @@ class LocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = '__all__'
 
     def get_action_count(self, obj):
-        return obj.action_set(manager='public_objects').count()
+        return obj.action_set.filter(published=True).count()
 
 
 class ActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
@@ -162,12 +162,12 @@ class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         exclude = ('secret_key',)
 
     def get_action_count(self, obj):
-        return obj.action_set(manager='public_objects').count()
+        return obj.action_set.filter(published=True).count()
 
     def get_image_count(self, obj):
-        actions = obj.action_set(manager='public_objects').all()
+        actions = obj.action_set.filter(published=True)
         return sum(
-            sum(len(s.synced_image_urls()) for s in a.submission_set.all()) for a in actions
+            sum(len(s.synced_image_urls()) for s in a.submission_set.all() if s.published) for a in actions
         )
 
 
@@ -225,7 +225,7 @@ class OrganizationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixi
         exclude = ('secret_key',)
 
     def get_action_count(self, obj):
-        return obj.action_set(manager='public_objects').count()
+        return obj.action_set.filter(published=True).count()
 
 
 class ActionLogSerializer(serializers.ModelSerializer, EagerLoadingMixin):

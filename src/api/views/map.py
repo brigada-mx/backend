@@ -116,7 +116,7 @@ class OrganizationList(generics.ListAPIView):
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
             Organization.objects.prefetch_related(
-                Prefetch('action_set', queryset=Action.public_objects.all())
+                Prefetch('action_set', queryset=Action.objects.filter(published=True))
             ).all().order_by('-modified')
         )
 
@@ -127,7 +127,7 @@ class OrganizationDetail(generics.RetrieveAPIView):
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
             Organization.objects.prefetch_related(
-                Prefetch('action_set', queryset=Action.public_objects.all())
+                Prefetch('action_set', queryset=Action.objects.filter(published=True))
             ).all().order_by('-modified')
         )
 
