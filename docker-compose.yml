@@ -65,4 +65,4 @@ services:
       - celery_worker
     ports:
       - "5555:5555"
-    command: ./celery_flower.sh
+    command: ./celery_flower.dev.sh

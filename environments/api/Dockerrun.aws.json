@@ -20,7 +20,7 @@
       "name": "celery_flower",
       "image": "306439459454.dkr.ecr.us-west-2.amazonaws.com/backend_base",
       "command": [
-        "./celery_flower.sh"
+        "./celery_flower.prod.sh"
       ],
       "essential": true,
       "memory": 100,

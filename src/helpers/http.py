@@ -31,6 +31,15 @@ def get_s3_client():
     )
 
 
+def get_ses_client():
+    return boto3.client(
+        'ses',
+        aws_access_key_id=os.getenv('CUSTOM_AWS_ACCESS_KEY'),
+        aws_secret_access_key=os.getenv('CUSTOM_AWS_SECRET_KEY'),
+        region_name='us-west-2',
+    )
+
+
 def s3_thumbnail_url(url, width=0, height=0, crop=False):
     base_url = os.getenv('CUSTOM_THUMBOR_SERVER')
     path = urlparse(url).path

@@ -1,17 +1,9 @@
-import os
+from celery import shared_task
 
-import boto3
-
-
-def get_ses_client():
-    return boto3.client(
-        'ses',
-        aws_access_key_id=os.getenv('CUSTOM_AWS_ACCESS_KEY'),
-        aws_secret_access_key=os.getenv('CUSTOM_AWS_SECRET_KEY'),
-        region_name='us-west-2',
-    )
+from helpers.http import get_ses_client
 
 
+@shared_task(name='notify', default_retry_delay=30, max_retries=3)
 def send_email(recipients, subject, body, source='accounts@ensintonia.org', reply_to=None):
     return get_ses_client().send_email(
         Source=source,

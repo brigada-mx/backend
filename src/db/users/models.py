@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
 from db.config import BaseModel
-from helpers.email import send_email
+from jobs.messages import send_email
 
 
 class UserManager(BaseUserManager):
@@ -108,7 +108,7 @@ class OrganizationUser(CustomAbstractBaseUser):
         <a href="https://app.ensintonia.org/set_password?token={}" target="_blank">Activar Tu Cuenta</a>
         """.format(self.set_password_token)
 
-        send_email([self.email], 'Activa tu cuenta Sintonía', body)
+        send_email.delay([self.email], 'Activa tu cuenta Sintonía', body)
 
 
 class TokenBaseModel(models.Model):
