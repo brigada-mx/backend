@@ -152,6 +152,15 @@ class AccountActionRetrieveUpdate(generics.RetrieveUpdateAPIView):
         return self.partial_update(request, *args, **kwargs)
 
 
+class AccountActionRetrieveByKey(APIView):
+    authentication_classes = (OrganizationUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        action = get_object_or_404(Action, organization=self.request.user.organization, key=kwargs['key'])
+        return Response(AccountActionDetailSerializer(action).data)
+
+
 class AccountSubmissionList(generics.ListAPIView):
     authentication_classes = (OrganizationUserAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
