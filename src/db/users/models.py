@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
 from db.config import BaseModel
+from helpers.email import send_email
 
 
 class UserManager(BaseUserManager):
@@ -101,6 +102,13 @@ class OrganizationUser(CustomAbstractBaseUser):
     def send_set_password_email(self):
         self.set_password_token_created = timezone.now()
         self.set_password_token = binascii.hexlify(os.urandom(30)).decode()
+
+        body = """¡Gracias por crear tu cuenta con Sintonía!<br><br>
+        Para activarla y usar la plataforma, dale clic en la liga y define tu contraseña.<br><br>
+        <a href="https://app.ensintonia.org/set_password?token={}" target="_blank">Activar Tu Cuenta</a>
+        """.format(self.set_password_token)
+
+        send_email([self.email], 'Activa tu cuenta Sintonía', body)
 
 
 class TokenBaseModel(models.Model):
