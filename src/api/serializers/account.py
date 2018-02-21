@@ -45,6 +45,13 @@ class PasswordTokenSerializer(serializers.Serializer):
     token = serializers.CharField(min_length=20, max_length=None, allow_blank=False, trim_whitespace=True)
 
 
+class OrganizationUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrganizationUser
+        fields = ('email', 'full_name', 'is_active',)
+        read_only_fields = ('email', 'is_active',)
+
+
 class OrganizationUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organization

@@ -37,6 +37,7 @@ urlpatterns = [
         views.AccountSetPasswordWithToken.as_view(), name='account-set-password-with-token'),
     url(r'^account/send_set_password_email/$',
         views.AccountSendSetPasswordEmail.as_view(), name='account-send-set-password-email'),
+    url(r'^account/me/$', views.AccountMe.as_view(), name='account-me'),
 
     url(r'^account/organization/$', views.AccountOrganization.as_view(), name='account-organization'),
     url(r'^account/organization/reset_key/$',

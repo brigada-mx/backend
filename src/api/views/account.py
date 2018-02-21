@@ -13,7 +13,7 @@ from rest_framework import permissions
 from db.map.models import Action, Submission
 from db.users.models import OrganizationUser, OrganizationUserToken
 from api.backends import OrganizationUserAuthentication
-from api.serializers import SubmissionSerializer
+from api.serializers import SubmissionSerializer, OrganizationUserSerializer
 from api.serializers import PasswordSerializer, PasswordTokenSerializer, SendSetPasswordEmailSerializer
 from api.serializers import OrganizationUserTokenSerializer, OrganizationReadSerializer, OrganizationUpdateSerializer
 from api.serializers import SubmissionUpdateSerializer, AccountActionDetailSerializer, AccountActionListCreateSerializer
@@ -95,6 +95,20 @@ class AccountSetPassword(APIView):
         request.user.set_password(serializer.validated_data['password'])
         request.user.save()
         return Response({'id': request.user.pk})
+
+
+class AccountMe(generics.RetrieveUpdateAPIView):
+    """Update org user's password.
+    """
+    authentication_classes = (OrganizationUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = OrganizationUserSerializer
+
+    def get_object(self):
+        return self.request.user
+
+    def put(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
 
 class AccountOrganizationResetKey(APIView):
