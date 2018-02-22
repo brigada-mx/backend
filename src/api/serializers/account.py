@@ -37,6 +37,7 @@ class SendSetPasswordEmailSerializer(serializers.Serializer):
 
 
 class PasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(allow_blank=False, trim_whitespace=True)
     password = serializers.CharField(min_length=8, max_length=None, allow_blank=False, trim_whitespace=True)
 
 

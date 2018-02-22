@@ -83,7 +83,7 @@ class AccountDeleteToken(APIView):
 
 
 class AccountSetPassword(APIView):
-    """Set org user's password.
+    """Set org user's password. Requires passing old password for security.
     """
     authentication_classes = (OrganizationUserAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
@@ -92,6 +92,8 @@ class AccountSetPassword(APIView):
     def post(self, request, *args, **kwargs):
         serializer = PasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        if not request.user.check_password(serializer.validated_data['old_password']):
+            return Response({}, status=400)
         request.user.set_password(serializer.validated_data['password'])
         request.user.save()
         return Response({'id': request.user.pk})
@@ -122,7 +124,7 @@ class AccountOrganizationResetKey(APIView):
         return Response({'secret_key': self.request.user.organization.secret_key})
 
 
-class AccountOrganization(generics.GenericAPIView, UpdateModelMixin):
+class AccountOrganizationRetrieveUpdate(generics.GenericAPIView, UpdateModelMixin):
     authentication_classes = (OrganizationUserAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = OrganizationUpdateSerializer
