@@ -1,4 +1,4 @@
-from django.db.models import Prefetch, Q
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 
 from rest_framework import generics
@@ -131,8 +131,8 @@ class SubmissionList(generics.ListAPIView):
 locality_list_search_query = """
 SELECT id, cvegeo, location, name, municipality_name, state_name
 FROM locality_search_index
-WHERE document @@ to_tsquery('spanish', '{tokens}')
-ORDER BY ts_rank(document, to_tsquery('spanish', '{tokens}')) DESC
+WHERE document @@ to_tsquery('spanish', %s)
+ORDER BY ts_rank(document, to_tsquery('spanish', %s)) DESC
 LIMIT 30"""
 
 
@@ -145,4 +145,5 @@ class LocalitySearch(generics.ListAPIView):
     def get_queryset(self):
         search = self.request.query_params.get('search', '')
         tokens = ' & '.join(search.split())
-        return Locality.objects.raw(locality_list_search_query.format(tokens=tokens))
+        tokens = ''.join(ch for ch in tokens if ch.isalnum() or ch in (' ', '&'))
+        return Locality.objects.raw(locality_list_search_query, [tokens, tokens])
