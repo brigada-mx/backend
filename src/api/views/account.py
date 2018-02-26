@@ -16,7 +16,8 @@ from api.backends import OrganizationUserAuthentication
 from api.serializers import SubmissionSerializer, OrganizationUserSerializer
 from api.serializers import PasswordSerializer, PasswordTokenSerializer, SendSetPasswordEmailSerializer
 from api.serializers import OrganizationUserTokenSerializer, OrganizationReadSerializer, OrganizationUpdateSerializer
-from api.serializers import SubmissionUpdateSerializer, AccountActionDetailSerializer, AccountActionListCreateSerializer
+from api.serializers import SubmissionUpdateSerializer, AccountActionDetailSerializer
+from api.serializers import AccountActionListSerializer, AccountActionCreateSerializer
 from api.filters import SubmissionFilter
 
 
@@ -142,7 +143,12 @@ class AccountOrganizationRetrieveUpdate(generics.GenericAPIView, UpdateModelMixi
 class AccountActionListCreate(generics.ListCreateAPIView):
     authentication_classes = (OrganizationUserAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = AccountActionListCreateSerializer
+    serializer_class = AccountActionCreateSerializer
+
+    def get_serializer_class(self, *args, **kwargs):
+        if self.request.method == 'POST':
+            return AccountActionCreateSerializer
+        return AccountActionListSerializer
 
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
