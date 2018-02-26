@@ -131,7 +131,8 @@ class SubmissionList(generics.ListAPIView):
 locality_list_search_query = """
 SELECT id, cvegeo, location, name, municipality_name, state_name
 FROM locality_search_index
-WHERE document @@ to_tsquery('spanish', '{}')
+WHERE document @@ to_tsquery('spanish', '{tokens}')
+ORDER BY ts_rank(document, to_tsquery('spanish', '{tokens}')) DESC
 LIMIT 30"""
 
 
@@ -144,4 +145,4 @@ class LocalitySearch(generics.ListAPIView):
     def get_queryset(self):
         search = self.request.query_params.get('search', '')
         tokens = ' & '.join(search.split())
-        return Locality.objects.raw(locality_list_search_query.format(tokens))
+        return Locality.objects.raw(locality_list_search_query.format(tokens=tokens))
