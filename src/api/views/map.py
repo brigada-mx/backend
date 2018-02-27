@@ -11,7 +11,7 @@ from api.serializers import ActionSubmissionsSerializer, ActionLogSerializer, Ac
 from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
 from api.paginators import LargeNoCountPagination
 from api.throttles import SearchBurstRateScopedThrottle
-from api.filters import ActionFilter, EstablishmentFilter, SubmissionFilter
+from api.filters import parse_boolean, ActionFilter, EstablishmentFilter, SubmissionFilter
 
 
 class StateList(generics.ListAPIView):
@@ -129,21 +129,25 @@ class SubmissionList(generics.ListAPIView):
 
 
 locality_list_search_query = """
-SELECT id, cvegeo, location, name, municipality_name, state_name
+SELECT id, cvegeo, location, name, municipality_name, state_name, has_data
 FROM locality_search_index
 WHERE document @@ to_tsquery('spanish', %s)
 ORDER BY ts_rank(document, to_tsquery('spanish', %s)) DESC
-LIMIT 30"""
+LIMIT 50"""
 
 
 class LocalitySearch(generics.ListAPIView):
     search_burst_throttle_scope = 'search_burst'
     throttle_classes = (SearchBurstRateScopedThrottle,)
-
     serializer_class = LocalitySearchSerializer
 
     def get_queryset(self):
         search = self.request.query_params.get('search', '')
         tokens = ' & '.join(search.split())
         tokens = ''.join(ch for ch in tokens if ch.isalnum() or ch in (' ', '&'))
-        return Locality.objects.raw(locality_list_search_query, [tokens, tokens])
+        queryset = Locality.objects.raw(locality_list_search_query, [tokens, tokens])
+
+        has_data = parse_boolean(self.request.query_params.get('has_data'))
+        if has_data is None:
+            return queryset
+        return [l for l in queryset if l.has_data is has_data]

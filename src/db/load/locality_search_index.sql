@@ -7,6 +7,7 @@ SELECT id,
        name,
        municipality_name,
        state_name,
+       has_data,
        setweight(to_tsvector('spanish', unaccent(name)), 'A') ||
        setweight(to_tsvector('spanish', unaccent(municipality_name)), 'B') ||
        setweight(to_tsvector('spanish', unaccent(state_name)), 'A') as document

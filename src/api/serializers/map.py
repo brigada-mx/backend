@@ -45,7 +45,7 @@ class LocalitySearchSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
     class Meta:
         model = Locality
-        fields = ('id', 'cvegeo', 'location', 'name', 'municipality_name', 'state_name')
+        fields = ('id', 'cvegeo', 'location', 'name', 'municipality_name', 'state_name', 'has_data')
 
 
 class LocalityRawSerializer(serializers.ModelSerializer):
