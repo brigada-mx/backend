@@ -104,6 +104,12 @@ class AccountActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMix
         read_only_fields = ('key',)
 
 
+class AccountActionDetailReadSerializer(AccountActionDetailSerializer):
+    _SELECT_RELATED_FIELDS = ['organization', 'locality']
+
+    locality = LocalityMediumSerializer(read_only=True)
+
+
 class SubmissionUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission

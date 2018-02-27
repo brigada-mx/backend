@@ -16,7 +16,7 @@ from api.backends import OrganizationUserAuthentication
 from api.serializers import SubmissionSerializer, OrganizationUserSerializer
 from api.serializers import PasswordSerializer, PasswordTokenSerializer, SendSetPasswordEmailSerializer
 from api.serializers import OrganizationUserTokenSerializer, OrganizationReadSerializer, OrganizationUpdateSerializer
-from api.serializers import SubmissionUpdateSerializer, AccountActionDetailSerializer
+from api.serializers import SubmissionUpdateSerializer, AccountActionDetailSerializer, AccountActionDetailReadSerializer
 from api.serializers import AccountActionListSerializer, AccountActionCreateSerializer
 from api.filters import SubmissionFilter
 
@@ -143,7 +143,6 @@ class AccountOrganizationRetrieveUpdate(generics.GenericAPIView, UpdateModelMixi
 class AccountActionListCreate(generics.ListCreateAPIView):
     authentication_classes = (OrganizationUserAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = AccountActionCreateSerializer
 
     def get_serializer_class(self, *args, **kwargs):
         if self.request.method == 'POST':
@@ -162,7 +161,11 @@ class AccountActionListCreate(generics.ListCreateAPIView):
 class AccountActionRetrieveUpdate(generics.RetrieveUpdateAPIView):
     authentication_classes = (OrganizationUserAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = AccountActionDetailSerializer
+
+    def get_serializer_class(self, *args, **kwargs):
+        if self.request.method == 'PUT':
+            return AccountActionDetailSerializer
+        return AccountActionDetailReadSerializer
 
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
@@ -179,7 +182,7 @@ class AccountActionRetrieveByKey(APIView):
 
     def get(self, request, *args, **kwargs):
         action = get_object_or_404(Action, organization=self.request.user.organization, key=kwargs['key'])
-        return Response(AccountActionDetailSerializer(action).data)
+        return Response(AccountActionDetailReadSerializer(action).data)
 
 
 class AccountSubmissionList(generics.ListAPIView):
