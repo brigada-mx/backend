@@ -91,6 +91,12 @@ class AccountActionCreateSerializer(serializers.ModelSerializer):
         read_only_fields = ('key', 'organization')
 
 
+class AccountActionListMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Action
+        fields = ('action_type', 'desc', 'key')
+
+
 class AccountActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['organization']
     _PREFETCH_RELATED_FIELDS = ['submission_set']

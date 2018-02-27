@@ -43,6 +43,7 @@ urlpatterns = [
         name='account-organization-retrieve-update'),
     url(r'^account/organization/reset_key/$',
         views.AccountOrganizationResetKey.as_view(), name='account-organization-reset-key'),
+    url(r'^account/actions/minimal/$', views.AccountActionListMinimal.as_view(), name='account-action-list-minimal'),
     url(r'^account/actions/$', views.AccountActionListCreate.as_view(), name='account-action-list-create'),
     url(r'^account/actions/(?P<pk>[0-9]+)/$',
         views.AccountActionRetrieveUpdate.as_view(), name='account-action-retrieve-update'),

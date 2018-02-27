@@ -17,7 +17,7 @@ from api.serializers import SubmissionSerializer, OrganizationUserSerializer
 from api.serializers import PasswordSerializer, PasswordTokenSerializer, SendSetPasswordEmailSerializer
 from api.serializers import OrganizationUserTokenSerializer, OrganizationReadSerializer, OrganizationUpdateSerializer
 from api.serializers import SubmissionUpdateSerializer, AccountActionDetailSerializer, AccountActionDetailReadSerializer
-from api.serializers import AccountActionListSerializer, AccountActionCreateSerializer
+from api.serializers import AccountActionListSerializer, AccountActionCreateSerializer, AccountActionListMiniSerializer
 from api.filters import SubmissionFilter
 
 
@@ -156,6 +156,15 @@ class AccountActionListCreate(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(organization=self.request.user.organization)
+
+
+class AccountActionListMinimal(generics.ListAPIView):
+    authentication_classes = (OrganizationUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = AccountActionListMiniSerializer
+
+    def get_queryset(self):
+        return Action.objects.filter(organization=self.request.user.organization)
 
 
 class AccountActionRetrieveUpdate(generics.RetrieveUpdateAPIView):
