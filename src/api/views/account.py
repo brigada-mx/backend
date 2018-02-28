@@ -63,7 +63,7 @@ class AccountToken(APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         token, created = OrganizationUserToken.objects.get_or_create(user=user)
-        return Response({'token': token.key, 'id': user.pk})
+        return Response({'token': token.key, 'id': user.pk, 'organization_id': user.organization.id})
 
 
 class AccountDeleteToken(APIView):

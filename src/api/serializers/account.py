@@ -3,7 +3,7 @@ from rest_framework import serializers
 from db.map.models import Organization, Action, Submission
 from db.users.models import OrganizationUser
 from api.mixins import EagerLoadingMixin
-from api.serializers.map import LocalityMediumSerializer, SubmissionMiniSerializer
+from api.serializers.map import LocalityMediumSerializer
 from api.serializers.map import OrganizationMiniSerializer, SubmissionMediumSerializer
 
 

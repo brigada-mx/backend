@@ -184,3 +184,15 @@ Manage this stack [here](https://console.aws.amazon.com/cloudformation/home?regi
 ~~~
 openssl rand -base64 40
 ~~~
+
+
+## Create StaffUser
+~~~sh
+# ssh into ec2 instance
+
+# ssh into docker container
+sudo docker exec -it <container_id> /bin/ash
+
+source .env
+python manage.py staffuser --email <email> --password <password> --full_name <full_name>
+~~~
