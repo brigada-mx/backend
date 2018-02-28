@@ -67,21 +67,12 @@ class OrganizationReadSerializer(serializers.ModelSerializer):
 
 class AccountActionListSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['locality']
-    _PREFETCH_RELATED_FIELDS = ['submission_set']
 
     locality = LocalityMediumSerializer(read_only=True)
-    submissions = SubmissionMiniSerializer(source='submission_set', many=True, read_only=True)
-    first_thumbnail_medium = serializers.SerializerMethodField()
 
     class Meta:
         model = Action
         fields = '__all__'
-
-    def get_first_thumbnail_medium(self, obj):
-        try:
-            return obj.submission_set.first().thumbnails(1280, 240, crop=True)[0]
-        except:
-            return None
 
 
 class AccountActionCreateSerializer(serializers.ModelSerializer):
