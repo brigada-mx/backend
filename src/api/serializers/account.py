@@ -85,7 +85,7 @@ class AccountActionCreateSerializer(serializers.ModelSerializer):
 class AccountActionListMiniSerializer(serializers.ModelSerializer):
     class Meta:
         model = Action
-        fields = ('action_type', 'desc', 'key')
+        fields = ('id', 'action_type', 'desc', 'key')
 
 
 class AccountActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
