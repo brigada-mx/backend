@@ -206,10 +206,14 @@ class AccountSubmissionList(generics.ListAPIView):
         )
 
 
-class AccountSubmissionUpdate(generics.UpdateAPIView):
+class AccountSubmissionRetrieveUpdate(generics.RetrieveUpdateAPIView):
     authentication_classes = (OrganizationUserAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = SubmissionUpdateSerializer
+
+    def get_serializer_class(self, *args, **kwargs):
+        if self.request.method == 'PUT':
+            return SubmissionUpdateSerializer
+        return SubmissionSerializer
 
     def get_queryset(self):
         return Submission.objects.filter(organization=self.request.user.organization)
