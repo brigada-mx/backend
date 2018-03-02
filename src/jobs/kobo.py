@@ -68,7 +68,7 @@ def sync_submission(s):
         data=s,
         source='kobo',
         source_id=source_id,
-        submitted=s['_submission_time'],
+        submitted=s.get('end') or s['_submission_time'] or '',
     )
     lat, lng = s['_geolocation']
     if lat and lng:
