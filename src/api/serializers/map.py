@@ -22,6 +22,14 @@ class DonationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     class Meta:
         model = Donation
         fields = '__all__'
+        read_only_fields = ('action',)
+
+
+class DonationUpdateSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    class Meta:
+        model = Donation
+        fields = '__all__'
+        read_only_fields = ('action',)
 
 
 class StateSerializer(serializers.ModelSerializer, EagerLoadingMixin):
@@ -108,7 +116,6 @@ class ActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
 
 class SubmissionMediumSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    data = serializers.SerializerMethodField()
     image_urls = serializers.SerializerMethodField()
     location = LatLngField()
     description = serializers.ReadOnlyField()
@@ -116,12 +123,7 @@ class SubmissionMediumSerializer(serializers.ModelSerializer, EagerLoadingMixin)
 
     class Meta:
         model = Submission
-        fields = '__all__'
-
-    def get_data(self, obj):
-        data = obj.data
-        data.pop('org_key', None)
-        return data
+        exclude = ('data',)
 
     def get_image_urls(self, obj):
         return obj.synced_image_urls()

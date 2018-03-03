@@ -115,3 +115,12 @@ class SubmissionUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission
         fields = ('action', 'desc', 'addr', 'published')
+
+
+class AccountDonationCreateSerializer(serializers.ModelSerializer):
+    donor_id = serializers.IntegerField(required=False)
+    donor_name = serializers.CharField(required=False)
+
+    class Meta:
+        model = Donation
+        exclude = ('donor',)

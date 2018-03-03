@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework import permissions
 
-from db.map.models import Action, Submission
+from db.map.models import Action, Submission, Donor, Donation
 from db.users.models import OrganizationUser, OrganizationUserToken
 from api.backends import OrganizationUserAuthentication
 from api.serializers import SubmissionSerializer, OrganizationUserSerializer
@@ -18,6 +18,7 @@ from api.serializers import PasswordSerializer, PasswordTokenSerializer, SendSet
 from api.serializers import OrganizationUserTokenSerializer, OrganizationReadSerializer, OrganizationUpdateSerializer
 from api.serializers import SubmissionUpdateSerializer, AccountActionDetailSerializer, AccountActionDetailReadSerializer
 from api.serializers import AccountActionListSerializer, AccountActionCreateSerializer, AccountActionListMiniSerializer
+from api.serializers import DonationSerializer, DonationUpdateSerializer, AccountDonationCreateSerializer
 from api.filters import SubmissionFilter
 
 
@@ -223,4 +224,47 @@ class AccountSubmissionRetrieveUpdate(generics.RetrieveUpdateAPIView):
         if action is not None:
             if action not in self.request.user.organization.action_set.values_list('pk', flat=True):
                 return Response({'error': f'Action {action} does not belong to this organization'}, status=400)
+        return self.partial_update(request, *args, **kwargs)
+
+
+class AccountDonationCreate(APIView):
+    authentication_classes = (OrganizationUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, *args, **kwargs):
+        serializer = AccountDonationCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        donor_name = serializer.validated_data.pop('donor_name', None)
+        donor_id = serializer.validated_data.pop('donor_id', None)
+
+        if donor_id is not None:  # `donor_id` takes precedence if both are passed
+            donor = get_object_or_404(Donor, id=donor_id)
+        else:
+            donor = Donor.objects.filter(name=donor_name).first()
+            if donor is None:
+                donor = Donor.objects.create(name=donor_name)
+
+        action = serializer.validated_data.get('action')
+        if action not in self.request.user.organization.action_set.all():
+            return Response({'error': f'Action {action} does not belong to this organization'}, status=400)
+
+        serializer.save(donor=donor)
+        return Response(serializer.data, status=201)
+
+
+class AccountDonationRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+    authentication_classes = (OrganizationUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_serializer_class(self, *args, **kwargs):
+        if self.request.method == 'PUT':
+            return DonationUpdateSerializer
+        return DonationSerializer
+
+    def get_queryset(self):
+        return self.get_serializer_class().setup_eager_loading(
+            Donation.objects.filter(action__organization=self.request.user.organization)
+        )
+
+    def put(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)

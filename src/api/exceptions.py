@@ -2,7 +2,6 @@ from django.db.utils import IntegrityError
 
 from rest_framework.views import exception_handler
 from rest_framework.response import Response
-from rest_framework import status
 
 from api.helpers import error_response_json
 
@@ -18,5 +17,5 @@ def custom_exception_handler(exc, context):
                 'Algo salió mal. Es posible que ya tienes un objeto con el mismo nombre o el mismo valor.',
                 error_type='integrity_error',
                 dump_to_string=False),
-            status=status.HTTP_400_BAD_REQUEST)
+            status=400)
     return response

@@ -218,12 +218,6 @@ class Action(AbstractAction, BaseModel):
             except Exception as e:
                 self.key += 1
 
-    def add_donation(self, donor_name, **kwargs):
-        donor = Donor.objects.filter(name=donor_name).first()
-        if donor is None:
-            donor = Donor.objects.create(name=donor_name)
-        Donation.objects.create(action=self, donor=donor, **kwargs)
-
 
 class ActionLog(AbstractAction, BaseModel):
     """Log that tracks state of `Action`s. Each time we read a record from action
@@ -319,7 +313,7 @@ class Donation(BaseModel):
     action = models.ForeignKey('Action')
     donor = models.ForeignKey('Donor')
     amount = models.FloatField(null=True, blank=True)
-    start_date = models.DateField(null=True, blank=True, db_index=True)
+    received_date = models.DateField(null=True, blank=True, db_index=True)
 
 
 @receiver(models.signals.pre_save, sender=Action)

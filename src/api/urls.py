@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'^actions/(?P<pk>[0-9]+)/log/$', views.ActionLogList.as_view(), name='action-log'),
 
     url(r'^submissions/$', views.SubmissionList.as_view(), name='submission-list'),
+    url(r'^donors/$', views.DonorList.as_view(), name='donor-list'),
 
     url(r'^organizations/$', cache_page(60 * 3)(views.OrganizationList.as_view()), name='organization-list'),
     url(r'^organizations/(?P<pk>[0-9]+)/$',
@@ -44,13 +45,19 @@ urlpatterns = [
         name='account-organization-retrieve-update'),
     url(r'^account/organization/reset_key/$',
         views.AccountOrganizationResetKey.as_view(), name='account-organization-reset-key'),
+
     url(r'^account/actions/minimal/$', views.AccountActionListMinimal.as_view(), name='account-action-list-minimal'),
     url(r'^account/actions/$', views.AccountActionListCreate.as_view(), name='account-action-list-create'),
     url(r'^account/actions/(?P<pk>[0-9]+)/$',
         views.AccountActionRetrieveUpdate.as_view(), name='account-action-retrieve-update'),
     url(r'^account/actions_by_key/(?P<key>[0-9]+)/$',
         views.AccountActionRetrieveByKey.as_view(), name='account-action-retrieve-by-key'),
+
     url(r'^account/submissions/$', views.AccountSubmissionList.as_view(), name='account-submission-list'),
     url(r'^account/submissions/(?P<pk>[0-9]+)/$',
         views.AccountSubmissionRetrieveUpdate.as_view(), name='account-submission-update'),
+
+    url(r'^account/donations/$', views.AccountDonationCreate.as_view(), name='account-donation-create'),
+    url(r'^account/donations/(?P<pk>[0-9]+)/$',
+        views.AccountDonationRetrieveUpdateDestroy.as_view(), name='account-donation-retrieve-update-destroy'),
 ]

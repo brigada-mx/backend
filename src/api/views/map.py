@@ -3,12 +3,12 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import generics
 
-from db.map.models import State, Municipality, Locality, Action, Organization, Establishment, Submission
+from db.map.models import State, Municipality, Locality, Action, Organization, Establishment, Submission, Donor
 from api.serializers import StateSerializer, MunicipalitySerializer
 from api.serializers import LocalityDetailSerializer, LocalityRawSerializer, LocalitySearchSerializer
 from api.serializers import EstablishmentSerializer, SubmissionSerializer
 from api.serializers import ActionSubmissionsSerializer, ActionLogSerializer, ActionDetailSerializer
-from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
+from api.serializers import OrganizationSerializer, OrganizationDetailSerializer, DonorSerializer
 from api.paginators import LargeNoCountPagination
 from api.throttles import SearchBurstRateScopedThrottle
 from api.filters import parse_boolean, ActionFilter, EstablishmentFilter, SubmissionFilter
@@ -151,3 +151,10 @@ class LocalitySearch(generics.ListAPIView):
         if has_data is None:
             return queryset
         return [l for l in queryset if l.has_data is has_data]
+
+
+class DonorList(generics.ListAPIView):
+    serializer_class = DonorSerializer
+
+    def get_queryset(self):
+        return Donor.objects.all()
