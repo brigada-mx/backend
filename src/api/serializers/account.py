@@ -1,9 +1,11 @@
+from django.db.models import Prefetch
+
 from rest_framework import serializers
 
-from db.map.models import Organization, Action, Submission
+from db.map.models import Organization, Action, Submission, Donation
 from db.users.models import OrganizationUser
 from api.mixins import EagerLoadingMixin
-from api.serializers.map import LocalityMediumSerializer
+from api.serializers.map import LocalityMediumSerializer, DonationSerializer
 from api.serializers.map import OrganizationMiniSerializer, SubmissionMediumSerializer
 
 
@@ -89,11 +91,13 @@ class AccountActionListMiniSerializer(serializers.ModelSerializer):
 
 
 class AccountActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    _SELECT_RELATED_FIELDS = ['organization']
+    _PREFETCH_FUNCTIONS = [lambda: Prefetch('donation_set', queryset=Donation.objects.select_related('donor'))]
     _PREFETCH_RELATED_FIELDS = ['submission_set']
+    _SELECT_RELATED_FIELDS = ['organization']
 
     organization = OrganizationMiniSerializer(read_only=True)
     submissions = SubmissionMediumSerializer(source='submission_set', many=True, read_only=True)
+    donations = DonationSerializer(source='donation_set', many=True, read_only=True)
 
     class Meta:
         model = Action

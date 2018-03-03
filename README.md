@@ -21,7 +21,7 @@ log_line_prefix = '%t'
 Then restart the db container, `docker-compose restart db`. Tail logs like this:
 
 ~~~sh
-less +F "dbdata/pg_log/`ls dbdata/pg_log | sort -n -t _ -k 2 | tail -1`"
+less +F dbdata/pg_log/`ls -1 dbdata/pg_log/ | tail -1`
 ~~~
 
 

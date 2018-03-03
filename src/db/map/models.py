@@ -199,7 +199,6 @@ class Action(AbstractAction, BaseModel):
     """
     key = models.IntegerField(blank=True, help_text="Auto-incremented number for actions in organization")
     organization = models.ForeignKey('Organization', help_text='Frozen after first read')
-    donors = models.ManyToManyField('Donor', through='Donation', related_name='actions')
     image_count = models.IntegerField(default=0, blank=True)
 
     STR_FIELDS = ['locality_id', 'organization_id', 'action_type']
@@ -223,7 +222,7 @@ class Action(AbstractAction, BaseModel):
         donor = Donor.objects.filter(name=donor_name).first()
         if donor is None:
             donor = Donor.objects.create(name=donor_name)
-        Donation.objects.create(action=self, **kwargs)
+        Donation.objects.create(action=self, donor=donor, **kwargs)
 
 
 class ActionLog(AbstractAction, BaseModel):

@@ -193,12 +193,16 @@ class EstablishmentSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
 
 class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    _PREFETCH_FUNCTIONS = [lambda: Prefetch('submission_set', queryset=Submission.objects.filter(published=True))]
+    _PREFETCH_FUNCTIONS = [
+        lambda: Prefetch('submission_set', queryset=Submission.objects.filter(published=True)),
+        lambda: Prefetch('donation_set', queryset=Donation.objects.select_related('donor')),
+    ]
     _SELECT_RELATED_FIELDS = ['locality', 'organization']
 
     locality = LocalityMediumSerializer(read_only=True)
     organization = OrganizationMiniSerializer(read_only=True)
     submissions = SubmissionMediumSerializer(source='submission_set', many=True, read_only=True)
+    donations = DonationSerializer(source='donation_set', many=True, read_only=True)
 
     class Meta:
         model = Action
@@ -206,12 +210,16 @@ class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
 
 class ActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    _PREFETCH_FUNCTIONS = [lambda: Prefetch('submission_set', queryset=Submission.objects.filter(published=True))]
+    _PREFETCH_FUNCTIONS = [
+        lambda: Prefetch('submission_set', queryset=Submission.objects.filter(published=True)),
+        lambda: Prefetch('donation_set', queryset=Donation.objects.select_related('donor')),
+    ]
     _SELECT_RELATED_FIELDS = ['locality', 'organization']
 
     locality = LocalityMediumSerializer(read_only=True)
     organization = OrganizationMiniSerializer(read_only=True)
     submissions = SubmissionMiniSerializer(source='submission_set', many=True, read_only=True)
+    donations = DonationSerializer(source='donation_set', many=True, read_only=True)
 
     class Meta:
         model = Action
@@ -223,7 +231,8 @@ class OrganizationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixi
         lambda: Prefetch('action_set', queryset=Action.objects.select_related(
             'locality', 'organization'
         ).prefetch_related(
-            Prefetch('submission_set', queryset=Submission.objects.filter(published=True))
+            Prefetch('submission_set', queryset=Submission.objects.filter(published=True)),
+            Prefetch('donation_set', queryset=Donation.objects.select_related('donor')),
         ).filter(published=True))
     ]
 
