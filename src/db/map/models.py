@@ -199,6 +199,7 @@ class Action(AbstractAction, BaseModel):
     """
     key = models.IntegerField(blank=True, help_text="Auto-incremented number for actions in organization")
     organization = models.ForeignKey('Organization', help_text='Frozen after first read')
+    donors = models.ManyToManyField('Donor', through='Donation', related_name='actions')
 
     STR_FIELDS = ['locality_id', 'organization_id', 'action_type']
 
@@ -216,6 +217,12 @@ class Action(AbstractAction, BaseModel):
                 return super().save(*args, **kwargs)
             except Exception as e:
                 self.key += 1
+
+    def add_donation(self, donor_name, **kwargs):
+        donor = Donor.objects.filter(name=donor_name).first()
+        if donor is None:
+            donor = Donor.objects.create(name=donor_name)
+        Donation.objects.create(action=self, **kwargs)
 
 
 class ActionLog(AbstractAction, BaseModel):
@@ -293,6 +300,26 @@ action_fields = [
     'locality', 'action_type', 'desc', 'target', 'unit_of_measurement',
     'progress', 'budget', 'start_date', 'end_date', 'published',
 ]
+
+
+class Donor(BaseModel):
+    """A reconstruction donor.
+    """
+    name = models.TextField(unique=True)
+    desc = models.TextField(blank=True)
+    website = models.TextField(blank=True)
+
+    REPR_FIELDS = ['name', 'desc']
+    STR_FIELDS = ['id', 'name']
+
+
+class Donation(BaseModel):
+    """A reconstruction donation.
+    """
+    action = models.ForeignKey('Action')
+    donor = models.ForeignKey('Donor')
+    amount = models.FloatField(null=True, blank=True)
+    start_date = models.DateField(null=True, blank=True, db_index=True)
 
 
 @receiver(models.signals.pre_save, sender=Action)

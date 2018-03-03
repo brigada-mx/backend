@@ -3,9 +3,25 @@ from django.db.models import Prefetch
 from rest_framework import serializers
 
 from db.map.models import State, Municipality, Locality, Establishment
-from db.map.models import Organization, Action, ActionLog, Submission
+from db.map.models import Organization, Action, ActionLog, Submission, Donor, Donation
 from api.mixins import EagerLoadingMixin
 from api.fields import LatLngField
+
+
+class DonorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Donor
+        fields = '__all__'
+
+
+class DonationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _SELECT_RELATED_FIELDS = ['donor']
+
+    donor = DonorSerializer(read_only=True)
+
+    class Meta:
+        model = Donation
+        fields = '__all__'
 
 
 class StateSerializer(serializers.ModelSerializer, EagerLoadingMixin):
