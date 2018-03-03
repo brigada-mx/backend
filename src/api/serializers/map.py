@@ -110,8 +110,6 @@ class ActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 class SubmissionMediumSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     data = serializers.SerializerMethodField()
     image_urls = serializers.SerializerMethodField()
-    thumbnails_small = serializers.SerializerMethodField()
-    thumbnails_medium = serializers.SerializerMethodField()
     location = LatLngField()
     description = serializers.ReadOnlyField()
     address = serializers.ReadOnlyField()
@@ -128,12 +126,6 @@ class SubmissionMediumSerializer(serializers.ModelSerializer, EagerLoadingMixin)
     def get_image_urls(self, obj):
         return obj.synced_image_urls()
 
-    def get_thumbnails_small(self, obj):
-        return obj.thumbnails(240, 240, crop=True)
-
-    def get_thumbnails_medium(self, obj):
-        return obj.thumbnails(1280, 1280)
-
 
 class SubmissionSerializer(SubmissionMediumSerializer):
     _SELECT_RELATED_FIELDS = ['action']
@@ -142,15 +134,15 @@ class SubmissionSerializer(SubmissionMediumSerializer):
 
 
 class SubmissionMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    thumbnails_small = serializers.SerializerMethodField()
     location = LatLngField()
+    image_urls = serializers.SerializerMethodField()
 
     class Meta:
         model = Submission
-        fields = ('id', 'thumbnails_small', 'location')
+        fields = ('id', 'image_urls', 'location')
 
-    def get_thumbnails_small(self, obj):
-        return obj.thumbnails(240, 240, crop=True)
+    def get_image_urls(self, obj):
+        return obj.synced_image_urls()
 
 
 class ActionLocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
@@ -171,9 +163,7 @@ class OrganizationMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin)
 
 class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_FUNCTIONS = [
-        lambda: Prefetch('action_set', queryset=Action.objects.select_related('locality').prefetch_related(
-            Prefetch('submission_set', queryset=Submission.objects.filter(published=True))
-        ).filter(published=True))
+        lambda: Prefetch('action_set', queryset=Action.objects.select_related('locality').filter(published=True))
     ]
 
     url = serializers.HyperlinkedIdentityField(view_name='api:organization-detail')
@@ -189,10 +179,7 @@ class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         return obj.action_set.all().count()
 
     def get_image_count(self, obj):
-        actions = obj.action_set.all()
-        return sum(
-            sum(len(s.synced_image_urls()) for s in a.submission_set.all()) for a in actions
-        )
+        return sum(action.image_count for action in obj.action_set.all())
 
 
 class EstablishmentSerializer(serializers.ModelSerializer, EagerLoadingMixin):
@@ -225,17 +212,10 @@ class ActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin
     locality = LocalityMediumSerializer(read_only=True)
     organization = OrganizationMiniSerializer(read_only=True)
     submissions = SubmissionMiniSerializer(source='submission_set', many=True, read_only=True)
-    first_thumbnail_medium = serializers.SerializerMethodField()
 
     class Meta:
         model = Action
         fields = '__all__'
-
-    def get_first_thumbnail_medium(self, obj):
-        try:
-            return obj.submission_set.first().thumbnails(1280, 240, crop=True)[0]
-        except:
-            return None
 
 
 class OrganizationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
@@ -249,6 +229,7 @@ class OrganizationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixi
 
     actions = ActionSubmissionsSerializer(source='action_set', many=True, read_only=True)
     action_count = serializers.SerializerMethodField()
+    image_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Organization
@@ -256,6 +237,9 @@ class OrganizationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixi
 
     def get_action_count(self, obj):
         return obj.action_set.all().count()
+
+    def get_image_count(self, obj):
+        return sum(action.image_count for action in obj.action_set.all())
 
 
 class ActionLogSerializer(serializers.ModelSerializer, EagerLoadingMixin):

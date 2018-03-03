@@ -200,6 +200,7 @@ class Action(AbstractAction, BaseModel):
     key = models.IntegerField(blank=True, help_text="Auto-incremented number for actions in organization")
     organization = models.ForeignKey('Organization', help_text='Frozen after first read')
     donors = models.ManyToManyField('Donor', through='Donation', related_name='actions')
+    image_count = models.IntegerField(default=0, blank=True)
 
     STR_FIELDS = ['locality_id', 'organization_id', 'action_type']
 
@@ -336,3 +337,12 @@ def create_first_action_log_record(sender, instance, created, **kwargs):
     if not created:
         return
     ActionLog.objects.create(action=instance, **{f: getattr(instance, f) for f in action_fields})
+
+
+@receiver(models.signals.post_save, sender=Submission)
+def update_action_image_count(sender, instance, **kwargs):
+    action = instance.action
+    if not action:
+        return
+    action.image_count = sum(len(s.synced_image_urls()) for s in action.submission_set.filter(published=True))
+    action.save()
