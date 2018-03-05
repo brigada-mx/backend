@@ -1,4 +1,5 @@
 from db.map.models import Establishment
+from db.map.models import Donor
 
 
 _denue_load_count = 0
@@ -59,3 +60,17 @@ def load_denue(row):
     _denue_load_count += 1
     if _denue_load_count % 1000 == 0:
         print(_denue_load_count)
+
+
+def load_donors():
+    donors = [
+        'Fundación Azteca', 'Takeda', 'Banorte', 'Fundación Checo Pérez', 'ENGIE',
+        'Volkswagen ', 'Auto Traffic', 'TAG', 'Fundación GIN', 'SEDESO', 'FIBRA 1', 'IPADE',
+        'Fundación Gigante', 'Chiesi Farmaceútica', 'WeWork', 'Servicios Caritativos', 'Silvia Galvan'
+    ]
+
+    for donor in donors:
+        try:
+            Donor.objects.create(name=donor)
+        except:
+            pass

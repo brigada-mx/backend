@@ -9,7 +9,7 @@ class StaffUserAdmin(admin.ModelAdmin):
 
 
 class OrganizationUserAdmin(admin.ModelAdmin):
-    exclude = ('set_password_token', 'password')
+    exclude = ('set_password_token', 'password', 'is_active', 'last_login', 'set_password_token_created')
     readonly_fields = ('set_password_token', 'password')
 
 

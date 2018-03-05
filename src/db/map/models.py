@@ -306,6 +306,9 @@ class Donor(BaseModel):
     REPR_FIELDS = ['name', 'desc']
     STR_FIELDS = ['id', 'name']
 
+    class Meta:
+        ordering = ('name',)
+
 
 class Donation(BaseModel):
     """A reconstruction donation.
@@ -314,6 +317,9 @@ class Donation(BaseModel):
     donor = models.ForeignKey('Donor')
     amount = models.FloatField(null=True, blank=True)
     received_date = models.DateField(null=True, blank=True, db_index=True)
+
+    class Meta:
+        ordering = ('-id',)
 
 
 @receiver(models.signals.pre_save, sender=Action)
