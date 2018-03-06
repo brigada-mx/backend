@@ -1,5 +1,6 @@
-from db.map.models import Establishment
-from db.map.models import Donor
+import csv
+
+from db.map.models import Locality, Establishment, Donor
 
 
 _denue_load_count = 0
@@ -74,3 +75,38 @@ def load_donors():
             Donor.objects.create(name=donor)
         except:
             pass
+
+
+def load_marg_data(file):
+    """For loading CONEVAL "rezago social" data.
+    """
+    with open(file, 'r', encoding='utf-8') as f:
+        reader = csv.reader(f, delimiter=',', quotechar='"')
+        for i, row in enumerate(reader):
+            if i % 1000 == 0:
+                print(i)
+
+            clean = [e.strip() for e in row]
+            cvegeo = clean[1].rjust(9, '0')
+            analfabet = float(clean[7])
+            noPrimary = float(clean[9])
+            dirtFloor = float(clean[11])
+            noToilet = float(clean[12])
+            noPlumb = float(clean[13])
+            noElec = float(clean[15])
+            noFridge = float(clean[17])
+            margGrade = clean[20]
+
+            l = Locality.objects.filter(cvegeo=cvegeo).first()
+            if l is None:
+                continue
+            if 'margGrade' not in l.meta:
+                l.meta['analfabet'] = analfabet,
+                l.meta['noPrimary'] = noPrimary,
+                l.meta['dirtFloor'] = dirtFloor,
+                l.meta['noToilet'] = noToilet,
+                l.meta['noPlumb'] = noPlumb,
+                l.meta['noElec'] = noElec,
+                l.meta['noFridge'] = noFridge,
+                l.meta['margGrade'] = margGrade,
+                l.save()

@@ -7,6 +7,7 @@ python manage.py load --load_dir <dir>
 python manage.py load --denue_dir <dir>
 python manage.py load --denue_file <file>
 python manage.py load --locality_csv <file>
+python manage.py load --marg_csv <file>
 python manage.py load --donors
 """
 import os
@@ -16,7 +17,7 @@ from django.core.management.base import BaseCommand
 
 from helpers.location import geos_location_from_coordinates
 from db.map.models import Locality, Municipality, State
-from .loaders import load_denue, load_donors
+from .loaders import load_denue, load_donors, load_marg_data
 
 
 def load_locality(row):
@@ -130,6 +131,7 @@ class Command(BaseCommand):
         parser.add_argument('--load_dir', help='Directory to load loc, state and muni records')
         parser.add_argument('--denue_dir', help='Directory to load establishment records')
         parser.add_argument('--denue_file', help='File to load establishment records')
+        parser.add_argument('--marg_csv', help='File to load social marginalization info')
         parser.add_argument('--donors', action='store_true', help='Load default donors')
 
     def handle(self, *args, **options):
@@ -137,6 +139,7 @@ class Command(BaseCommand):
         load_dir = options.get('load_dir')
         denue_dir = options.get('denue_dir')
         denue_file = options.get('denue_file')
+        marg_csv = options.get('marg_csv')
         donors = options.get('donors')
 
         if donors:
@@ -162,3 +165,7 @@ class Command(BaseCommand):
         if denue_file is not None:
             print(f'syncing denue establishment data: {denue_file}')
             load_from_csv(denue_file, 'denue')
+
+        if marg_csv is not None:
+            print(f'syncing social marg data: {marg_csv}')
+            load_marg_data(marg_csv)
