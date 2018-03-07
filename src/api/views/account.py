@@ -4,16 +4,15 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from rest_framework import generics
+from rest_framework import permissions, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.mixins import UpdateModelMixin
-from rest_framework import permissions
 
 from db.map.models import Action, Submission, Donor, Donation
 from db.users.models import OrganizationUser, OrganizationUserToken
 from api.backends import OrganizationUserAuthentication
-from api.serializers import SubmissionSerializer, OrganizationUserSerializer
+from api.serializers import SubmissionSerializer, OrganizationUserSerializer, ArchiveSerializer
 from api.serializers import PasswordSerializer, PasswordTokenSerializer, SendSetPasswordEmailSerializer
 from api.serializers import OrganizationUserTokenSerializer, OrganizationReadSerializer, OrganizationUpdateSerializer
 from api.serializers import SubmissionUpdateSerializer, AccountActionDetailSerializer, AccountActionDetailReadSerializer
@@ -23,8 +22,6 @@ from api.filters import SubmissionFilter
 
 
 class AccountSendSetPasswordEmail(APIView):
-    """View for obtaining an auth token by posting a valid email/password tuple.
-    """
     throttle_scope = 'authentication'
 
     def post(self, request, *args, **kwargs):
@@ -268,3 +265,46 @@ class AccountDonationRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView
 
     def put(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
+
+
+class AccountActionArchive(APIView):
+    authentication_classes = (OrganizationUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, *args, **kwargs):
+        action = get_object_or_404(Action, organization=self.request.user.organization, pk=kwargs.get('pk', None))
+
+        serializer = ArchiveSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        archived = serializer.validated_data['archived']
+
+        if not archived:
+            action.archived = False
+        else:
+            action.archived = True
+            action.published = False
+        action.save()
+        return Response({'archived': archived})
+
+
+class AccountSubmissionArchive(APIView):
+    authentication_classes = (OrganizationUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, *args, **kwargs):
+        submission = get_object_or_404(
+            Submission, organization=self.request.user.organization, pk=kwargs.get('pk', None))
+
+        serializer = ArchiveSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        archived = serializer.validated_data['archived']
+
+        if not archived:
+            submission.archived = False
+            submission.published = True
+        else:
+            submission.archived = True
+            submission.published = False
+            submission.action = None
+        submission.save()
+        return Response({'archived': archived})

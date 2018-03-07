@@ -18,6 +18,10 @@ def authenticate(model, email, password):
     return user
 
 
+class ArchiveSerializer(serializers.Serializer):
+    archived = serializers.BooleanField()
+
+
 class OrganizationUserTokenSerializer(serializers.Serializer):
     email = serializers.CharField()
     password = serializers.CharField()
@@ -102,7 +106,7 @@ class AccountActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMix
     class Meta:
         model = Action
         fields = '__all__'
-        read_only_fields = ('key',)
+        read_only_fields = ('key', 'deleted')
 
 
 class AccountActionDetailReadSerializer(AccountActionDetailSerializer):

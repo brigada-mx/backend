@@ -60,4 +60,9 @@ urlpatterns = [
     url(r'^account/donations/$', views.AccountDonationCreate.as_view(), name='account-donation-create'),
     url(r'^account/donations/(?P<pk>[0-9]+)/$',
         views.AccountDonationRetrieveUpdateDestroy.as_view(), name='account-donation-retrieve-update-destroy'),
+
+    url(r'^account/actions/(?P<pk>[0-9]+)/archive/$',
+        views.AccountActionArchive.as_view(), name='account-action-archive'),
+    url(r'^account/submissions/(?P<pk>[0-9]+)/archive/$',
+        views.AccountSubmissionArchive.as_view(), name='account-submission-archive'),
 ]

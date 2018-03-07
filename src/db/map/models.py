@@ -158,7 +158,7 @@ class Organization(BaseModel):
     """
     secret_key = models.TextField(unique=True, blank=True)
     sector = models.TextField(choices=ORGANIZATION_SECTOR_CHOICES, db_index=True)
-    name = models.TextField()
+    name = models.TextField(unique=True)
     desc = models.TextField()
     year_established = models.IntegerField()
     contact = JSONField(default={}, blank=True, help_text='Contact data')
@@ -189,6 +189,7 @@ class AbstractAction(models.Model):
     start_date = models.DateField(null=True, blank=True, db_index=True)
     end_date = models.DateField(null=True, blank=True, db_index=True)
     published = models.BooleanField(blank=True, default=True, db_index=True)
+    archived = models.BooleanField(blank=True, default=False, db_index=True)
 
     class Meta:
         abstract = True
@@ -240,6 +241,7 @@ class Submission(BaseModel):
     submitted = models.DateTimeField(default=timezone.now, blank=True)
     image_urls = JSONField(default=[], blank=True)
     published = models.BooleanField(blank=True, default=True, db_index=True)
+    archived = models.BooleanField(blank=True, default=False, db_index=True)
 
     REPR_FIELDS = ['organization_id', 'action_id', 'submitted']
 
