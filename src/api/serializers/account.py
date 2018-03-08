@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from db.map.models import Organization, Action, Submission, Donation
 from db.users.models import OrganizationUser
-from api.mixins import EagerLoadingMixin
+from api.mixins import EagerLoadingMixin, DynamicFieldsMixin
 from api.serializers.map import LocalityMediumSerializer, DonationSerializer
 from api.serializers.map import OrganizationMiniSerializer, SubmissionMediumSerializer
 
@@ -71,7 +71,7 @@ class OrganizationReadSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class AccountActionListSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class AccountActionListSerializer(DynamicFieldsMixin, serializers.ModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['locality']
 
     locality = LocalityMediumSerializer(read_only=True)
@@ -86,12 +86,6 @@ class AccountActionCreateSerializer(serializers.ModelSerializer):
         model = Action
         fields = '__all__'
         read_only_fields = ('key', 'organization')
-
-
-class AccountActionListMiniSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Action
-        fields = ('id', 'action_type', 'desc', 'key')
 
 
 class AccountActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):

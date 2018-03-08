@@ -26,10 +26,11 @@ def has_action_filter(queryset, name, value):
 class ActionFilter(filters.FilterSet):
     locality_id = django_filters.NumberFilter(name='locality')
     organization_id = django_filters.NumberFilter(name='organization')
+    archived = BooleanFilter(name='archived')
 
     class Meta:
         model = Action
-        fields = ['locality_id', 'organization_id']
+        fields = ['locality_id', 'organization_id', 'archived']
 
 
 class EstablishmentFilter(filters.FilterSet):
@@ -45,8 +46,9 @@ class SubmissionFilter(filters.FilterSet):
     action_id = django_filters.NumberFilter(name='action')
     organization_id = BooleanFilter(name='organization')
     published = BooleanFilter(name='published')
+    archived = BooleanFilter(name='archived')
     has_action = django_filters.Filter(method=has_action_filter)
 
     class Meta:
         model = Submission
-        fields = ['action_id', 'organization_id', 'published']
+        fields = ['action_id', 'organization_id', 'published', 'archived']
