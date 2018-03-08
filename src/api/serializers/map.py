@@ -48,28 +48,15 @@ class MunicipalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = '__all__'
 
 
-class LocalityMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class LocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
     location = LatLngField()
 
     class Meta:
         model = Locality
-        fields = ('id', 'cvegeo', 'location')
-
-
-class LocalityMediumSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    location = LatLngField()
-
-    class Meta:
-        model = Locality
-        fields = ('id', 'cvegeo', 'location', 'name', 'municipality_name', 'state_name', 'meta')
-
-
-class LocalitySearchSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    location = LatLngField()
-
-    class Meta:
-        model = Locality
-        fields = ('id', 'cvegeo', 'location', 'name', 'municipality_name', 'state_name', 'has_data')
+        fields = (
+            'id', 'cvegeo', 'cvegeo_municipality', 'cvegeo_state', 'location',
+            'name', 'municipality_name', 'state_name', 'meta', 'has_data'
+        )
 
 
 class LocalityRawSerializer(serializers.ModelSerializer):
@@ -150,7 +137,7 @@ class SubmissionMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 class ActionLocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['locality']
 
-    locality = LocalityMiniSerializer(read_only=True)
+    locality = LocalitySerializer(read_only=True)
 
     class Meta:
         model = Action
@@ -201,7 +188,7 @@ class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     ]
     _SELECT_RELATED_FIELDS = ['locality', 'organization']
 
-    locality = LocalityMediumSerializer(read_only=True)
+    locality = LocalitySerializer(read_only=True)
     organization = OrganizationMiniSerializer(read_only=True)
     submissions = SubmissionMediumSerializer(source='submission_set', many=True, read_only=True)
     donations = DonationSerializer(source='donation_set', many=True, read_only=True)
@@ -218,7 +205,7 @@ class ActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin
     ]
     _SELECT_RELATED_FIELDS = ['locality', 'organization']
 
-    locality = LocalityMediumSerializer(read_only=True)
+    locality = LocalitySerializer(read_only=True)
     organization = OrganizationMiniSerializer(read_only=True)
     submissions = SubmissionMiniSerializer(source='submission_set', many=True, read_only=True)
     donations = DonationSerializer(source='donation_set', many=True, read_only=True)

@@ -5,7 +5,7 @@ from rest_framework import generics
 
 from db.map.models import State, Municipality, Locality, Action, Organization, Establishment, Submission, Donor
 from api.serializers import StateSerializer, MunicipalitySerializer
-from api.serializers import LocalityDetailSerializer, LocalityRawSerializer, LocalitySearchSerializer
+from api.serializers import LocalityDetailSerializer, LocalityRawSerializer, LocalitySerializer
 from api.serializers import EstablishmentSerializer, SubmissionSerializer
 from api.serializers import ActionSubmissionsSerializer, ActionLogSerializer, ActionDetailSerializer
 from api.serializers import OrganizationSerializer, OrganizationDetailSerializer, DonorSerializer
@@ -139,7 +139,7 @@ LIMIT 50"""
 class LocalitySearch(generics.ListAPIView):
     search_burst_throttle_scope = 'search_burst'
     throttle_classes = (SearchBurstRateScopedThrottle,)
-    serializer_class = LocalitySearchSerializer
+    serializer_class = LocalitySerializer
 
     def get_queryset(self):
         search = self.request.query_params.get('search', '')
