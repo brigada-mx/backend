@@ -219,6 +219,9 @@ class Action(AbstractAction, BaseModel):
             except Exception as e:
                 self.key += 1
 
+    def calculate_image_count(self):
+        return sum(len(s.synced_image_urls()) for s in self.submission_set.filter(published=True))
+
 
 class ActionLog(AbstractAction, BaseModel):
     """Log that tracks state of `Action`s. Each time we read a record from action
@@ -274,7 +277,20 @@ class Submission(BaseModel):
     def save(self, *args, **kwargs):
         if self.action and self.action.organization != self.organization:
             self.action = None
-        return super().save(*args, **kwargs)
+
+        old_action = None
+        if self.pk:
+            old = Submission.objects.get(pk=self.pk)
+            old_action = old.action
+        new_action = self.action
+
+        super().save(*args, **kwargs)
+        if old_action:
+            old_action.image_count = old_action.calculate_image_count()
+            old_action.save()
+        if new_action:
+            new_action.image_count = new_action.calculate_image_count()
+            new_action.save()
 
     def synced_image_urls(self):
         bucket = os.getenv('CUSTOM_AWS_STORAGE_BUCKET_NAME')
@@ -338,12 +354,3 @@ def create_first_action_log_record(sender, instance, created, **kwargs):
     if not created:
         return
     ActionLog.objects.create(action=instance, **{f: getattr(instance, f) for f in action_fields})
-
-
-@receiver(models.signals.post_save, sender=Submission)
-def update_action_image_count(sender, instance, **kwargs):
-    action = instance.action
-    if not action:
-        return
-    action.image_count = sum(len(s.synced_image_urls()) for s in action.submission_set.filter(published=True))
-    action.save()
