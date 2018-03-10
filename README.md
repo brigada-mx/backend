@@ -1,4 +1,4 @@
-# Sintonía
+# Brigada
 
 
 ## Dev
@@ -43,9 +43,9 @@ __Make sure Elastic Beanstalk IAM user has permissions to read from ECR__. If no
 ## Endpoints
 NGINX forces HTTPS for all requests to these endpoints. It also compresses responses.
 
-- API: <https://api.ensintonia.org/api/>
-- Celery flower: <https://api.ensintonia.org/flower/>
-- Django admin: <https://api.ensintonia.org/admin/>\
+- API: <https://api.brigada.mx/api/>
+- Celery flower: <https://api.brigada.mx/flower/>
+- Django admin: <https://api.brigada.mx/admin/>\
 
 
 ## AWS
@@ -169,7 +169,7 @@ rm ngrok-stable-linux-amd64.zip
 
 
 ## Kobo Forms
-Forms admin [here](https://kobo.humanitarianresponse.info/#/forms). Online form [here](https://ee.humanitarianresponse.info/x/#Yhgh). Shorter, prettier URL using [Rebrandly](https://www.rebrandly.com/links): <http://e.ensintonia.org/e>.
+Forms admin [here](https://kobo.humanitarianresponse.info/#/forms). Online form [here](https://ee.humanitarianresponse.info/x/#Yhgh).
 
 We have a periodic job that syncs images from Kobo's backend to [this S3 bucket](https://s3.console.aws.amazon.com/s3/buckets/719s/?region=us-west-2).
 

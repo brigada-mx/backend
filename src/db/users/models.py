@@ -106,18 +106,18 @@ class OrganizationUser(CustomAbstractBaseUser):
             self.save()
 
         if reset:
-            subject = 'Restablecer tu contraseña Sintonía'
+            subject = 'Restablecer tu contraseña Brigada'
             body = """Dale clic en la liga para restablecer tu contraseña.<br><br>
             Si no pediste restablecer tu contraseña puedes borrar este email.<br><br>
-            <a href="https://app.ensintonia.org/establecer?token={}&email={}" target="_blank">
+            <a href="https://app.brigada.mx/establecer?token={}&email={}" target="_blank">
                 Restablecer Tu Contraseña
             </a>
             """.format(self.set_password_token, self.email)
         else:
-            subject = 'Activa tu cuenta Sintonía'
-            body = """¡Gracias por crear tu cuenta con Sintonía!<br><br>
+            subject = 'Activa tu cuenta Brigada'
+            body = """¡Gracias por crear tu cuenta con Brigada!<br><br>
             Para activarla y usar la plataforma, dale clic en la liga y define tu contraseña.<br><br>
-            <a href="https://app.ensintonia.org/establecer?token={}&email={}" target="_blank">Activar Tu Cuenta</a>
+            <a href="https://app.brigada.mx/establecer?token={}&email={}" target="_blank">Activar Tu Cuenta</a>
             """.format(self.set_password_token, self.email)
 
         send_email.delay([self.email], subject, body)

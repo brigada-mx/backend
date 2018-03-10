@@ -33,7 +33,7 @@ CACHES = {
     },
 }
 
-CORS_ORIGIN_WHITELIST = ['app.ensintonia.org']
-CSRF_TRUSTED_ORIGINS = ['api.ensintonia.org']
+CORS_ORIGIN_WHITELIST = ['app.ensintonia.org', 'app.brigada.mx']
+CSRF_TRUSTED_ORIGINS = ['api.ensintonia.org', 'api.brigada.mx']
 
 ALLOWED_HOSTS = ['*']
