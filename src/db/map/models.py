@@ -288,7 +288,7 @@ class Submission(BaseModel):
         if old_action:
             old_action.image_count = old_action.calculate_image_count()
             old_action.save()
-        if new_action:
+        if new_action and new_action != old_action:
             new_action.image_count = new_action.calculate_image_count()
             new_action.save()
 
