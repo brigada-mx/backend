@@ -66,9 +66,14 @@ class OrganizationUpdateSerializer(serializers.ModelSerializer):
 
 
 class OrganizationReadSerializer(serializers.ModelSerializer):
+    score = serializers.SerializerMethodField()
+
     class Meta:
         model = Organization
         fields = '__all__'
+
+    def get_score(self, obj):
+        return obj.score()
 
 
 class AccountActionListSerializer(DynamicFieldsMixin, serializers.ModelSerializer, EagerLoadingMixin):

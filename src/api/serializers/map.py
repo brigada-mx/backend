@@ -159,6 +159,7 @@ class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     actions = ActionLocalitySerializer(source='action_set', many=True, read_only=True)
     action_count = serializers.SerializerMethodField()
     image_count = serializers.SerializerMethodField()
+    score = serializers.SerializerMethodField()
 
     class Meta:
         model = Organization
@@ -169,6 +170,9 @@ class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
     def get_image_count(self, obj):
         return sum(action.image_count for action in obj.action_set.all())
+
+    def get_score(self, obj):
+        return obj.score()
 
 
 class EstablishmentSerializer(serializers.ModelSerializer, EagerLoadingMixin):
@@ -228,6 +232,7 @@ class OrganizationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixi
     actions = ActionSubmissionsSerializer(source='action_set', many=True, read_only=True)
     action_count = serializers.SerializerMethodField()
     image_count = serializers.SerializerMethodField()
+    score = serializers.SerializerMethodField()
 
     class Meta:
         model = Organization
@@ -238,6 +243,9 @@ class OrganizationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixi
 
     def get_image_count(self, obj):
         return sum(action.image_count for action in obj.action_set.all())
+
+    def get_score(self, obj):
+        return obj.score()
 
 
 class ActionLogSerializer(serializers.ModelSerializer, EagerLoadingMixin):

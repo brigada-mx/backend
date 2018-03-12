@@ -175,6 +175,9 @@ class Organization(BaseModel):
         self.secret_key = generate_secret_key()
         self.save()
 
+    def score(self):
+        return sum(action.score() for action in self.action_set.all())
+
 
 class AbstractAction(models.Model):
     """For fields common to `Action` and `ActionLog` tables.
@@ -221,6 +224,16 @@ class Action(AbstractAction, BaseModel):
 
     def calculate_image_count(self):
         return sum(len(s.synced_image_urls()) for s in self.submission_set.filter(published=True))
+
+    def score(self):
+        if not self.published:
+            return 0
+        score = self.image_count * (1 + (
+            4 if self.budget is not None else 0 +
+            2 if self.target is not None else 0 +
+            2 if self.progress is not None else 0
+        ) / 8)
+        return pow(score, 0.75)
 
 
 class ActionLog(AbstractAction, BaseModel):
