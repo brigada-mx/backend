@@ -59,9 +59,7 @@ def sync_submission(s):
         return
 
     organization = Organization.objects.filter(secret_key=diceware_transform(s.get('org_key'))).first()
-    if organization is None:
-        return
-    action = organization.action_set.all().filter(key=int(s.get('action_key'))).first()
+    action = organization and organization.action_set.all().filter(key=int(s.get('action_key'))).first()
     submission = Submission(
         organization=organization,
         action=action,
@@ -83,6 +81,8 @@ def sync_submission(s):
 def upload_submission_images(submission_id):
     submission = Submission.objects.get(id=submission_id)
     org_id = submission.organization_id
+    if org_id is None:
+        org_id = 'null'
     s3 = get_s3_client()
     bucket = os.getenv('CUSTOM_AWS_STORAGE_BUCKET_NAME')
 

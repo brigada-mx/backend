@@ -247,7 +247,7 @@ class Submission(BaseModel):
     """Submitted platform via mobile app.
     """
     location = models.PointField(null=True, blank=True)
-    organization = models.ForeignKey('Organization')
+    organization = models.ForeignKey('Organization', null=True, blank=True)
     action = models.ForeignKey('Action', null=True, blank=True)
     desc = models.TextField(blank=True, help_text='Can complement description inside of `data`')
     addr = models.TextField(blank=True, help_text='Can complement address inside of `data`')

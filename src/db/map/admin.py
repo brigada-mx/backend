@@ -22,6 +22,15 @@ class OrganizationAdmin(admin.ModelAdmin):
         return form
 
 
+class SubmissionAdmin(admin.ModelAdmin):
+    exclude = ('action', 'published', 'archived', 'desc', 'addr', 'location')
+    readonly_fields = ('source', 'source_id', 'submitted', 'image_urls', 'data')
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.filter(organization=None)
+
+
 admin.site.register(Locality)
-admin.site.register(Submission)
+admin.site.register(Submission, SubmissionAdmin)
 admin.site.register(Organization, OrganizationAdmin)
