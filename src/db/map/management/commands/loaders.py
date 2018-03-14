@@ -89,12 +89,17 @@ def load_marg_data(file):
             clean = [e.strip() for e in row]
             cvegeo = clean[1].rjust(9, '0')
             analfabet = float(clean[7])
+            dropout = float(clean[8])
             noPrimary = float(clean[9])
+            noHealth = float(clean[10])
             dirtFloor = float(clean[11])
             noToilet = float(clean[12])
             noPlumb = float(clean[13])
+            noDrain = float(clean[14])
             noElec = float(clean[15])
+            noWasher = float(clean[16])
             noFridge = float(clean[17])
+            margIndex = float(clean[19])
             margGrade = clean[20]
 
             l = Locality.objects.filter(cvegeo=cvegeo).first()
@@ -102,11 +107,16 @@ def load_marg_data(file):
                 continue
             if 'margGrade' not in l.meta:
                 l.meta['analfabet'] = analfabet,
+                l.meta['dropout'] = dropout,
                 l.meta['noPrimary'] = noPrimary,
+                l.meta['noHealth'] = noHealth,
                 l.meta['dirtFloor'] = dirtFloor,
                 l.meta['noToilet'] = noToilet,
                 l.meta['noPlumb'] = noPlumb,
+                l.meta['noDrain'] = noDrain,
                 l.meta['noElec'] = noElec,
+                l.meta['noWasher'] = noWasher,
                 l.meta['noFridge'] = noFridge,
+                l.meta['margIndex'] = margIndex,
                 l.meta['margGrade'] = margGrade,
                 l.save()
