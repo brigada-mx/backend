@@ -105,18 +105,40 @@ def load_marg_data(file):
             l = Locality.objects.filter(cvegeo=cvegeo).first()
             if l is None:
                 continue
-            if 'margGrade' not in l.meta:
-                l.meta['analfabet'] = analfabet,
-                l.meta['dropout'] = dropout,
-                l.meta['noPrimary'] = noPrimary,
-                l.meta['noHealth'] = noHealth,
-                l.meta['dirtFloor'] = dirtFloor,
-                l.meta['noToilet'] = noToilet,
-                l.meta['noPlumb'] = noPlumb,
-                l.meta['noDrain'] = noDrain,
-                l.meta['noElec'] = noElec,
-                l.meta['noWasher'] = noWasher,
-                l.meta['noFridge'] = noFridge,
-                l.meta['margIndex'] = margIndex,
-                l.meta['margGrade'] = margGrade,
-                l.save()
+            meta = {
+                **l.meta,
+                'analfabet': analfabet,
+                'dropout': dropout,
+                'noPrimary': noPrimary,
+                'noHealth': noHealth,
+                'dirtFloor': dirtFloor,
+                'noToilet': noToilet,
+                'noPlumb': noPlumb,
+                'noDrain': noDrain,
+                'noElec': noElec,
+                'noWasher': noWasher,
+                'noFridge': noFridge,
+                'margIndex': margIndex,
+                'margGrade': margGrade,
+            }
+            l.meta = meta
+            l.save()
+
+
+def reset_marg_data():
+    i = 0
+    for l in Locality.objects.all():
+        i += 1
+        if i % 1000 == 0:
+            print(i)
+
+        if not l.meta:
+            continue
+
+        meta = {}
+        attributes = ['destroyed', 'habit', 'notHabit', 'total']
+        for a in attributes:
+            if a in l.meta:
+                meta[a] = l.meta[a]
+        l.meta = meta
+        l.save()

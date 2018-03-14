@@ -9,6 +9,7 @@ python manage.py load --denue_file <file>
 python manage.py load --locality_csv <file>
 python manage.py load --marg_csv <file>
 python manage.py load --donors
+python manage.py load --reset_marg
 """
 import os
 import csv
@@ -17,7 +18,7 @@ from django.core.management.base import BaseCommand
 
 from helpers.location import geos_location_from_coordinates
 from db.map.models import Locality, Municipality, State
-from .loaders import load_denue, load_donors, load_marg_data
+from .loaders import load_denue, load_donors, load_marg_data, reset_marg_data
 
 
 def load_locality(row):
@@ -133,6 +134,8 @@ class Command(BaseCommand):
         parser.add_argument('--denue_file', help='File to load establishment records')
         parser.add_argument('--marg_csv', help='File to load social marginalization info')
         parser.add_argument('--donors', action='store_true', help='Load default donors')
+        parser.add_argument('--reset_marg', action='store_true',
+                            help='Reset marg data, but not damage data, for all localities')
 
     def handle(self, *args, **options):
         locality_csv = options.get('locality_csv')
@@ -141,6 +144,10 @@ class Command(BaseCommand):
         denue_file = options.get('denue_file')
         marg_csv = options.get('marg_csv')
         donors = options.get('donors')
+        reset_marg = options.get('reset_marg')
+
+        if reset_marg:
+            reset_marg_data()
 
         if donors:
             load_donors()
