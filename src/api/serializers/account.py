@@ -4,8 +4,9 @@ from rest_framework import serializers
 
 from db.map.models import Organization, Action, Submission, Donation
 from db.users.models import OrganizationUser
+from api.fields import LatLngField
 from api.mixins import EagerLoadingMixin, DynamicFieldsMixin
-from api.serializers.map import LocalitySerializer, DonationSerializer
+from api.serializers.map import LocalitySerializer, DonationSerializer, ActionSerializer
 from api.serializers.map import OrganizationMiniSerializer, SubmissionMediumSerializer
 
 
@@ -127,3 +128,21 @@ class AccountDonationCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Donation
         exclude = ('donor',)
+
+
+class AccountSubmissionSerializer(SubmissionMediumSerializer):
+    _SELECT_RELATED_FIELDS = ['action']
+
+    action = ActionSerializer(read_only=True)
+
+    images = serializers.SerializerMethodField()
+    location = LatLngField()
+    description = serializers.ReadOnlyField()
+    address = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Submission
+        exclude = ('data', 'image_urls')
+
+    def get_images(self, obj):
+        return obj.synced_images()

@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 
 from celery import shared_task
+import piexif
 import requests
 
 from db.map.models import Organization, Submission
@@ -72,9 +73,26 @@ def sync_submission(s):
     if lat and lng:
         submission.location = geos_location_from_coordinates(lat, lng)
     if '_attachments' in s:
-        submission.image_urls = [a['download_url'] for a in (s.get('_attachments') or [])]
+        submission.image_urls = [{'url': a['download_url']} for a in (s.get('_attachments') or [])]
     submission.save()
     return repr(submission)
+
+
+def exif_extract_datetime(image_path):
+    data = piexif.load(image_path)
+    date = ''
+
+    try:
+        date = data['0th'][306]
+    except:
+        try:
+            date = data['1st'][306]
+        except:
+            try:
+                date = data['Exif'][36867]  # also 36868
+            except:
+                pass
+    return date and datetime.strptime(date.decode('utf-8'), '%Y:%m:%d %H:%M:%S').isoformat()
 
 
 @shared_task(name='upload_submission_images')
@@ -86,8 +104,9 @@ def upload_submission_images(submission_id):
     s3 = get_s3_client()
     bucket = os.getenv('CUSTOM_AWS_STORAGE_BUCKET_NAME')
 
-    urls = list(submission.image_urls)
-    for i, url in enumerate(submission.image_urls):
+    images = list(submission.image_urls)
+    for i, image in enumerate(submission.image_urls):
+        url = image['url']
         if url.startswith(f'https://{bucket}.s3.amazonaws.com'):
             continue
         filename = f'{uuid.uuid4()}-{url.split("/")[-1].split("?")[0]}'
@@ -97,15 +116,23 @@ def upload_submission_images(submission_id):
 
         bucket_key = f'kobo/{org_id}/{filename}'  # this will get URL encoded when it's uploaded to S3
         encoded_bucket_key = f'kobo/{org_id}/{quote_plus(filename)}'
+
         try:
             with open(path, 'rb') as data:
                 s3.upload_fileobj(data, bucket, bucket_key, ExtraArgs={'ACL': 'public-read'})
         except:
             continue
         else:
-            urls[i] = f'https://{bucket}.s3.amazonaws.com/{encoded_bucket_key}'
-    if urls != submission.image_urls:
-        submission.image_urls = urls
+            try:
+                dt = exif_extract_datetime(path)
+            except:
+                dt = ''  # TODO: sentry
+            images[i] = {
+                'url': f'https://{bucket}.s3.amazonaws.com/{encoded_bucket_key}',
+                'datetime': dt,
+            }
+    if images != submission.image_urls:
+        submission.image_urls = images
         submission.save()
 
 

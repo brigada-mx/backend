@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from db.map.models import State, Municipality, Locality, Establishment
 from db.map.models import Organization, Action, ActionLog, Submission, Donor, Donation
-from api.mixins import EagerLoadingMixin
+from api.mixins import EagerLoadingMixin, DynamicFieldsMixin
 from api.fields import LatLngField
 
 
@@ -102,18 +102,18 @@ class ActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = '__all__'
 
 
-class SubmissionMediumSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    image_urls = serializers.SerializerMethodField()
+class SubmissionMediumSerializer(DynamicFieldsMixin, serializers.ModelSerializer, EagerLoadingMixin):
+    images = serializers.SerializerMethodField()
     location = LatLngField()
     description = serializers.ReadOnlyField()
     address = serializers.ReadOnlyField()
 
     class Meta:
         model = Submission
-        exclude = ('data',)
+        exclude = ('data', 'image_urls')
 
-    def get_image_urls(self, obj):
-        return obj.synced_image_urls()
+    def get_images(self, obj):
+        return obj.synced_images(published=True)
 
 
 class SubmissionSerializer(SubmissionMediumSerializer):
@@ -124,14 +124,14 @@ class SubmissionSerializer(SubmissionMediumSerializer):
 
 class SubmissionMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     location = LatLngField()
-    image_urls = serializers.SerializerMethodField()
+    images = serializers.SerializerMethodField()
 
     class Meta:
         model = Submission
-        fields = ('id', 'image_urls', 'location')
+        fields = ('id', 'images', 'location')
 
-    def get_image_urls(self, obj):
-        return obj.synced_image_urls()
+    def get_images(self, obj):
+        return obj.synced_images(published=True)
 
 
 class ActionLocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):

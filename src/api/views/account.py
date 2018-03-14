@@ -12,7 +12,7 @@ from rest_framework.mixins import UpdateModelMixin
 from db.map.models import Action, Submission, Donor, Donation
 from db.users.models import OrganizationUser, OrganizationUserToken
 from api.backends import OrganizationUserAuthentication
-from api.serializers import SubmissionSerializer, OrganizationUserSerializer, ArchiveSerializer
+from api.serializers import AccountSubmissionSerializer, OrganizationUserSerializer, ArchiveSerializer
 from api.serializers import PasswordSerializer, PasswordTokenSerializer, SendSetPasswordEmailSerializer
 from api.serializers import OrganizationUserTokenSerializer, OrganizationReadSerializer, OrganizationUpdateSerializer
 from api.serializers import SubmissionUpdateSerializer, AccountActionDetailSerializer, AccountActionDetailReadSerializer
@@ -187,7 +187,7 @@ class AccountActionRetrieveByKey(APIView):
 class AccountSubmissionList(generics.ListAPIView):
     authentication_classes = (OrganizationUserAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = SubmissionSerializer
+    serializer_class = AccountSubmissionSerializer
     filter_class = SubmissionFilter
 
     def get_queryset(self):
@@ -203,7 +203,7 @@ class AccountSubmissionRetrieveUpdate(generics.RetrieveUpdateAPIView):
     def get_serializer_class(self, *args, **kwargs):
         if self.request.method == 'PUT':
             return SubmissionUpdateSerializer
-        return SubmissionSerializer
+        return AccountSubmissionSerializer
 
     def get_queryset(self):
         return Submission.objects.filter(organization=self.request.user.organization)
