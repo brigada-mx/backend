@@ -124,12 +124,12 @@ def upload_submission_images(submission_id):
             continue
         else:
             try:
-                dt = exif_extract_datetime(path)
+                exif_datetime = exif_extract_datetime(path)
             except:
-                dt = ''  # TODO: sentry
+                exif_datetime = ''  # TODO: sentry
             images[i] = {
                 'url': f'https://{bucket}.s3.amazonaws.com/{encoded_bucket_key}',
-                'datetime': dt,
+                'exif_datetime': exif_datetime,
             }
     if images != submission.image_urls:
         submission.image_urls = images

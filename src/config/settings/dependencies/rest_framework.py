@@ -13,9 +13,9 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_THROTTLE_RATES': {
         # applies to all authenticated users, including w/ token auth, except admins
-        'burst': '30/min',
-        'search_burst': '80/min',
-        'authentication': '3/min',  # for users submitting username/email/password tuples to obtain token
+        'burst': '75/min',
+        'search_burst': '120/min',
+        'authentication': '4/min',  # for users submitting username/email/password tuples to obtain token
     },
 }
 

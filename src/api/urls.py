@@ -64,4 +64,6 @@ urlpatterns = [
         views.AccountActionArchive.as_view(), name='account-action-archive'),
     url(r'^account/submissions/(?P<pk>[0-9]+)/archive/$',
         views.AccountSubmissionArchive.as_view(), name='account-submission-archive'),
+    url(r'^account/submissions/(?P<pk>[0-9]+)/image/$',
+        views.AccountSubmissionImageUpdate.as_view(), name='account-submission-image'),
 ]

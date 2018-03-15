@@ -18,6 +18,7 @@ from api.serializers import OrganizationUserTokenSerializer, OrganizationReadSer
 from api.serializers import SubmissionUpdateSerializer, AccountActionDetailSerializer, AccountActionDetailReadSerializer
 from api.serializers import AccountActionListSerializer, AccountActionCreateSerializer
 from api.serializers import DonationSerializer, DonationUpdateSerializer, AccountDonationCreateSerializer
+from api.serializers import AccountSubmissionImageUpdateSerializer
 from api.filters import ActionFilter, SubmissionFilter
 
 
@@ -214,6 +215,42 @@ class AccountSubmissionRetrieveUpdate(generics.RetrieveUpdateAPIView):
             if action not in self.request.user.organization.action_set.values_list('pk', flat=True):
                 return Response({'error': f'Action {action} does not belong to this organization'}, status=400)
         return self.partial_update(request, *args, **kwargs)
+
+
+class AccountSubmissionImageUpdate(APIView):
+    authentication_classes = (OrganizationUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def put(self, request, *args, **kwargs):
+        submission = get_object_or_404(Submission, organization=self.request.user.organization, pk=kwargs['pk'])
+        serializer = AccountSubmissionImageUpdateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        url = serializer.validated_data.pop('url', None)
+        rotate = serializer.validated_data.pop('rotate', None)
+        published = serializer.validated_data.pop('published', None)
+
+        index, image = None, None
+        for i, img in enumerate(submission.synced_images()):
+            if img['url'] == url:
+                index = i
+                image = img
+                break
+        if image is None:
+            return Response({'error': f'No image with this URL: {url}'}, status=404)
+
+        if published is not None:
+            image['hidden'] = not published
+        if rotate is not None:
+            if rotate == 'left':
+                image['rotate'] = image.get('rotate', 0) - 1
+            elif rotate == 'right':
+                image['rotate'] = image.get('rotate', 0) + 1
+            image['rotate'] = image['rotate'] % 4
+
+        submission.image_urls[index] = image
+        submission.save()
+        return Response({'image': image})
 
 
 class AccountDonationCreate(APIView):

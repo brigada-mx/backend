@@ -223,7 +223,7 @@ class Action(AbstractAction, BaseModel):
                 self.key += 1
 
     def calculate_image_count(self):
-        return sum(len(s.synced_images()) for s in self.submission_set.filter(published=True))
+        return sum(len(s.synced_images(published=True)) for s in self.submission_set.filter(published=True))
 
     def score(self):
         if not self.published:
@@ -305,7 +305,7 @@ class Submission(BaseModel):
             new_action.image_count = new_action.calculate_image_count()
             new_action.save()
 
-    def synced_images(self, published=False):
+    def synced_images(self, published=False):  # would be more accurate to call this arg `only_published`
         bucket = os.getenv('CUSTOM_AWS_STORAGE_BUCKET_NAME')
         images = [i for i in self.image_urls if i.get('hidden') is not True] if published else self.image_urls
         return [i for i in images if i['url'].startswith(f'https://{bucket}.s3.amazonaws.com')]

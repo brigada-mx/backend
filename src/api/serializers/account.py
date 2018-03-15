@@ -146,3 +146,9 @@ class AccountSubmissionSerializer(SubmissionMediumSerializer):
 
     def get_images(self, obj):
         return obj.synced_images()
+
+
+class AccountSubmissionImageUpdateSerializer(serializers.Serializer):
+    url = serializers.URLField()
+    published = serializers.BooleanField(required=False)
+    rotate = serializers.RegexField(regex=r'^left|right$', required=False)
