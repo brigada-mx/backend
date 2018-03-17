@@ -228,12 +228,24 @@ class Action(AbstractAction, BaseModel):
     def score(self):
         if not self.published:
             return 0
-        score = self.image_count * (1 + (
-            4 if self.budget is not None else 0 +
-            2 if self.target is not None else 0 +
-            2 if self.progress is not None else 0
-        ) / 8)
-        return pow(score, 0.75)
+
+        base_score = 4
+
+        def budget_multiplier():
+            if self.budget is None:
+                return 0
+            levels = [30000, 100000, 300000, 1000000, 3000000, 10000000, 30000000, 100000000]
+            for i, l in enumerate(levels):
+                if self.budget < l:
+                    return i
+            return len(levels)
+
+        photo_score = pow(self.image_count, 0.6) * (1 + (
+            budget_multiplier() +
+            1 if self.target is not None else 0 +
+            1 if self.progress is not None else 0
+        ) / 3)
+        return pow(base_score + photo_score, 0.75)
 
 
 class ActionLog(AbstractAction, BaseModel):
