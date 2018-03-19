@@ -1,6 +1,8 @@
 # flake8: noqa
 from config.settings.base import *
 
+RAVEN_CONFIG['environment'] = 'production'
+
 REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ('rest_framework.renderers.JSONRenderer',)
 
 DEBUG = False

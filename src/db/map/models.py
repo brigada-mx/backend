@@ -11,7 +11,6 @@ from db.choices import SCIAN_GROUP_ID_BY_CODE, ORGANIZATION_SECTOR_CHOICES
 from db.choices import SUBMISSION_SOURCE_CHOICES
 from helpers.location import geos_location_from_coordinates
 from helpers.diceware import diceware
-from helpers.http import s3_thumbnail_url
 
 
 class Locality(BaseModel):

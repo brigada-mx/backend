@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'api',
 
     # third-party apps
+    'raven.contrib.django.raven_compat',
     'rest_framework',
     'corsheaders',
     'django_filters',
@@ -81,6 +82,14 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 CORS_ALLOW_METHODS = ('GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS')
+
+RAVEN_CONFIG = {
+    'dsn': os.getenv('CUSTOM_RAVEN_DSN'),
+    'ignore_exceptions': [
+        'Http404',
+        'django.exceptions.http.Http404',
+    ],
+}
 
 # settings for dependencies (keep at the end of file)
 from config.settings.dependencies.celery import *

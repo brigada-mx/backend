@@ -10,6 +10,7 @@ from django.utils import timezone
 from celery import shared_task
 import piexif
 import requests
+from raven.contrib.django.raven_compat.models import client
 
 from db.map.models import Organization, Submission
 from helpers.http import TokenAuth, download_file, get_s3_client
@@ -91,7 +92,7 @@ def exif_extract_datetime(image_path):
             try:
                 date = data['Exif'][36867]  # also 36868
             except:
-                pass
+                client.captureException()
     return date and datetime.strptime(date.decode('utf-8'), '%Y:%m:%d %H:%M:%S').isoformat()
 
 
@@ -126,7 +127,8 @@ def upload_submission_images(submission_id):
             try:
                 exif_datetime = exif_extract_datetime(path)
             except:
-                exif_datetime = ''  # TODO: sentry
+                client.captureException()
+                exif_datetime = ''
             images[i] = {
                 'url': f'https://{bucket}.s3.amazonaws.com/{encoded_bucket_key}',
                 'exif_datetime': exif_datetime,
