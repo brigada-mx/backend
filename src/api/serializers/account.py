@@ -56,8 +56,8 @@ class PasswordTokenSerializer(serializers.Serializer):
 class OrganizationUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrganizationUser
-        fields = ('email', 'full_name', 'is_active',)
-        read_only_fields = ('email', 'is_active',)
+        fields = ('email', 'full_name', 'first_name', 'surnames', 'is_active',)
+        read_only_fields = ('email', 'is_active', 'full_name',)
 
 
 class OrganizationUpdateSerializer(serializers.ModelSerializer):

@@ -40,12 +40,13 @@ class UserManager(BaseUserManager):
 
 
 class CustomAbstractBaseUser(AbstractBaseUser, BaseModel):
+    first_name = models.TextField(max_length=100, db_index=True)
+    surnames = models.TextField(max_length=100, db_index=True)
     email = models.EmailField(unique=True, db_index=True)
-    full_name = models.TextField(max_length=100, db_index=True)
     is_active = models.BooleanField(default=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['full_name']
+    REQUIRED_FIELDS = ['first_name', 'surnames']
 
     class Meta:
         abstract = True
@@ -58,8 +59,12 @@ class CustomAbstractBaseUser(AbstractBaseUser, BaseModel):
     def is_organization_user(self):
         return False
 
+    @property
+    def full_name(self):
+        return ' '.join(f'{self.first_name} {self.surnames}'.split())
+
     def get_short_name(self):  # required for subclasses of `AbstractBaseUser`
-        return self.full_name
+        return self.first_name
 
     def __str__(self):
         return self.email
