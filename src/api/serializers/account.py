@@ -54,9 +54,13 @@ class PasswordTokenSerializer(serializers.Serializer):
 
 
 class OrganizationUserSerializer(serializers.ModelSerializer):
+    _SELECT_RELATED_FIELDS = ['organization']
+
+    organization = OrganizationMiniSerializer(read_only=True)
+
     class Meta:
         model = OrganizationUser
-        fields = ('email', 'full_name', 'first_name', 'surnames', 'is_active',)
+        fields = ('email', 'full_name', 'first_name', 'surnames', 'is_active', 'organization')
         read_only_fields = ('email', 'is_active', 'full_name',)
 
 
