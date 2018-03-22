@@ -6,6 +6,10 @@ from api import views
 
 # `cache_page` also sets `Cache-Control: max-age=<seconds>` in response headers
 urlpatterns = [
+    # internal endpoints
+    url(r'^internal/organization_users/$',
+        views.InternalOrganizationUserList.as_view(), name='internal-organization-user-list'),
+
     # public endpoints
     url(r'^webhooks/kobo_submission/$', views.KoboSubmissionWebhook.as_view(), name='kobo-submission-webhook'),
 

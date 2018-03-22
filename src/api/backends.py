@@ -29,6 +29,12 @@ class InternalAuthentication(authentication.BaseAuthentication):
     """Allows processes that run on our servers to authenticate with our API.
     """
     def authenticate(self, request):
-        if not settings.SECRET_KEY == request.META.get('HTTP_AUTHORIZATION'):
+        auth = request.META.get('HTTP_AUTHORIZATION', '')
+        try:
+            _, token = auth.split()
+        except:
+            return None
+
+        if not settings.SECRET_KEY == token:
             return None
         return (User(), 'InternalUser')

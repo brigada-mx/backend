@@ -3,6 +3,7 @@ __pycache__/
 # env
 .env
 .vault-password
+.secret-key
 requirements.txt
 
 # os x
@@ -23,10 +24,10 @@ dbdata/
 
 sandbox/
 
-# Elastic Beanstalk Files
+# elastic beanstalk files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
 
-# google sheets, DELETE THIS
-client_secret.json
+# google contacts
+org_user_google_contacts.csv
