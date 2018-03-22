@@ -196,3 +196,9 @@ sudo docker exec -it <container_id> /bin/ash
 source .env
 python manage.py staffuser --email <email> --password <password> --full_name <full_name>
 ~~~
+
+
+## Email our Users
+From the root of the repo, run `python3 tools/org_users_to_contacts.py --outfile ~/Desktop/contacts.csv`. If this fails, make sure you have Python 3.6 or greater installed. The easiest way to do this is run `brew install python`.
+
+This script will create a CSV with all of our organization users that can be imported to Google Contacts.

@@ -16,7 +16,7 @@ class TokenAuth:
 
 
 def download_file(url, dest):
-    r = requests.get(url, allow_redirects=True)
+    r = requests.get(url, allow_redirects=True, timeout=15)
     if r.status_code >= 400:
         return None
     open(dest, 'wb').write(r.content)

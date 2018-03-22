@@ -29,7 +29,7 @@ class TokenAuth:
 
 def get_contact_lines(token):
     BASE_URL = 'https://api.brigada.mx/api/'
-    r = requests.get(f'{BASE_URL}internal/organization_users/', auth=TokenAuth('Bearer', token))
+    r = requests.get(f'{BASE_URL}internal/organization_users/', auth=TokenAuth('Bearer', token), timeout=15)
     r.raise_for_status()
     lines = [LINE_TEMPLATE.format(
         u['full_name'], u['first_name'], u['surnames'], u['email'], u['organization']['name']
