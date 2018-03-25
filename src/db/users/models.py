@@ -122,7 +122,10 @@ class OrganizationUser(CustomAbstractBaseUser):
             subject = 'Activa tu cuenta Brigada'
             body = """¡Gracias por crear tu cuenta con Brigada!<br><br>
             Para activarla y usar la plataforma, dale clic en la liga y define tu contraseña.<br><br>
-            <a href="https://app.brigada.mx/establecer?token={}&email={}" target="_blank">Activar Tu Cuenta</a>
+            <a href="https://app.brigada.mx/establecer?token={}&email={}" target="_blank">Activar Tu Cuenta</a><br><br>
+            Y para empezar a documentar tus proyectos de reconstrucción, deberías de tomar una capacitación de 30 minutos via video-chat.<br><br>
+            Por favor escoge el horario que más te convenga.<br><br>
+            <a href="https://calendly.com/brigada/capacitacion" target="_blank">Agendar Video-Chat</a>
             """.format(self.set_password_token, self.email)
 
         send_email.delay([self.email], subject, body)

@@ -158,8 +158,8 @@ class Organization(BaseModel):
     secret_key = models.TextField(unique=True, blank=True)
     sector = models.TextField(choices=ORGANIZATION_SECTOR_CHOICES, db_index=True)
     name = models.TextField(unique=True)
-    desc = models.TextField()
-    year_established = models.IntegerField()
+    desc = models.TextField(blank=True)
+    year_established = models.IntegerField(null=True, blank=True)
     contact = JSONField(default={}, blank=True, help_text='Contact data')
 
     REPR_FIELDS = ['name', 'desc']

@@ -45,6 +45,7 @@ urlpatterns = [
         views.AccountSendSetPasswordEmail.as_view(), name='account-send-set-password-email'),
     url(r'^account/me/$', views.AccountMe.as_view(), name='account-me'),
 
+    url(r'^account/organizations/$', views.AccountOrganizationCreate.as_view(), name='account-organization-create'),
     url(r'^account/organization/$', views.AccountOrganizationRetrieveUpdate.as_view(),
         name='account-organization-retrieve-update'),
     url(r'^account/organization/reset_key/$',

@@ -3,18 +3,20 @@ from datetime import timedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.db import transaction
 
 from rest_framework import permissions, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.mixins import UpdateModelMixin
 
-from db.map.models import Action, Submission, Donor, Donation
+from db.map.models import Action, Submission, Donor, Donation, Organization
 from db.users.models import OrganizationUser, OrganizationUserToken
 from api.backends import OrganizationUserAuthentication
 from api.serializers import AccountSubmissionSerializer, OrganizationUserSerializer, ArchiveSerializer
 from api.serializers import PasswordSerializer, PasswordTokenSerializer, SendSetPasswordEmailSerializer
-from api.serializers import OrganizationUserTokenSerializer, OrganizationReadSerializer, OrganizationUpdateSerializer
+from api.serializers import OrganizationUserTokenSerializer, OrganizationReadSerializer
+from api.serializers import OrganizationUpdateSerializer, OrganizationCreateSerializer
 from api.serializers import SubmissionUpdateSerializer, AccountActionDetailSerializer, AccountActionDetailReadSerializer
 from api.serializers import AccountActionListSerializer, AccountActionCreateSerializer
 from api.serializers import DonationSerializer, DonationUpdateSerializer, AccountDonationCreateSerializer
@@ -137,6 +139,26 @@ class AccountOrganizationRetrieveUpdate(generics.GenericAPIView, UpdateModelMixi
 
     def put(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
+
+
+class AccountOrganizationCreate(APIView):
+    throttle_scope = 'authentication'
+
+    def post(self, request, *args, **kwargs):
+        serializer = OrganizationCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        name = serializer.validated_data['name']
+        sector = serializer.validated_data['sector']
+        email = serializer.validated_data['email']
+        first_name = serializer.validated_data['first_name']
+        surnames = serializer.validated_data['surnames']
+
+        with transaction.atomic():
+            organization = Organization.objects.create(name=name, sector=sector)
+            OrganizationUser.objects.create(
+                organization=organization, email=email, first_name=first_name, surnames=surnames
+            )
+        return Response({})
 
 
 class AccountActionListCreate(generics.ListCreateAPIView):

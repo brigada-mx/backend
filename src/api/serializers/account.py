@@ -53,6 +53,15 @@ class PasswordTokenSerializer(serializers.Serializer):
     token = serializers.CharField(min_length=20, max_length=None, allow_blank=False, trim_whitespace=True)
 
 
+class OrganizationCreateSerializer(serializers.Serializer):
+    sector = serializers.CharField(allow_blank=False)
+    name = serializers.CharField(allow_blank=False, trim_whitespace=True)
+
+    email = serializers.EmailField(allow_blank=False)
+    first_name = serializers.CharField(max_length=100, allow_blank=False, trim_whitespace=True)
+    surnames = serializers.CharField(max_length=100, allow_blank=False, trim_whitespace=True)
+
+
 class OrganizationUserSerializer(serializers.ModelSerializer):
     _SELECT_RELATED_FIELDS = ['organization']
 
