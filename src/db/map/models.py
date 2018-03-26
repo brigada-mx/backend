@@ -161,6 +161,7 @@ class Organization(BaseModel):
     desc = models.TextField(blank=True)
     year_established = models.IntegerField(null=True, blank=True)
     contact = JSONField(default={}, blank=True, help_text='Contact data')
+    accepting_help = models.BooleanField(blank=True, default=False, db_index=True)
 
     REPR_FIELDS = ['name', 'desc']
     STR_FIELDS = ['id', 'name']

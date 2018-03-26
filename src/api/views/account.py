@@ -153,11 +153,14 @@ class AccountOrganizationCreate(APIView):
         first_name = serializer.validated_data['first_name']
         surnames = serializer.validated_data['surnames']
 
-        with transaction.atomic():
-            organization = Organization.objects.create(name=name, sector=sector)
-            OrganizationUser.objects.create(
-                organization=organization, email=email, first_name=first_name, surnames=surnames
-            )
+        try:
+            with transaction.atomic():
+                organization = Organization.objects.create(name=name, sector=sector)
+                OrganizationUser.objects.create(
+                    organization=organization, email=email, first_name=first_name, surnames=surnames
+                )
+        except Exception as e:
+            return Response({'error': str(e)}, status=400)
         return Response({})
 
 

@@ -97,7 +97,7 @@ class OrganizationUser(CustomAbstractBaseUser):
         if self.pk is None:
             if not self.password:
                 self.set_unusable_password()
-            self.send_set_password_email(save=False, reset=False)
+            return self.send_set_password_email(save=True, reset=False)
         return super().save(*args, **kwargs)
 
     @property
@@ -108,25 +108,25 @@ class OrganizationUser(CustomAbstractBaseUser):
         self.set_password_token_created = timezone.now()
         self.set_password_token = binascii.hexlify(os.urandom(30)).decode()
         if save:
-            self.save()
+            super().save()
 
         if reset:
             subject = 'Restablecer tu contraseña Brigada'
             body = """Dale clic en la liga para restablecer tu contraseña.<br><br>
             Si no pediste restablecer tu contraseña puedes borrar este email.<br><br>
-            <a href="https://app.brigada.mx/establecer?token={}&email={}" target="_blank">
+            <a href="{}/establecer?token={}&email={}" target="_blank">
                 Restablecer Tu Contraseña
             </a>
-            """.format(self.set_password_token, self.email)
+            """.format(os.getenv('CUSTOM_SITE_URL'), self.set_password_token, self.email)
         else:
             subject = 'Activa tu cuenta Brigada'
             body = """¡Gracias por crear tu cuenta con Brigada!<br><br>
             Para activarla y usar la plataforma, dale clic en la liga y define tu contraseña.<br><br>
-            <a href="https://app.brigada.mx/establecer?token={}&email={}" target="_blank">Activar Tu Cuenta</a><br><br>
+            <a href="{}/establecer?token={}&email={}" target="_blank">Activar Tu Cuenta</a><br><br>
             Y para empezar a documentar tus proyectos de reconstrucción, deberías de tomar una capacitación de 30 minutos via video-chat.<br><br>
             Por favor escoge el horario que más te convenga.<br><br>
             <a href="https://calendly.com/brigada/capacitacion" target="_blank">Agendar Video-Chat</a>
-            """.format(self.set_password_token, self.email)
+            """.format(os.getenv('CUSTOM_SITE_URL'), self.set_password_token, self.email)
 
         send_email.delay([self.email], subject, body)
 

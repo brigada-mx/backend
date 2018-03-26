@@ -1,6 +1,7 @@
 # flake8: noqa
 from config.settings.base import *
 
+ENVIRONMENT = 'development'
 RAVEN_CONFIG['environment'] = 'development'
 
 # https://github.com/tomchristie/django-pdb

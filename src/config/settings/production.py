@@ -1,6 +1,7 @@
 # flake8: noqa
 from config.settings.base import *
 
+ENVIRONMENT = 'production'
 RAVEN_CONFIG['environment'] = 'production'
 
 REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ('rest_framework.renderers.JSONRenderer',)
@@ -35,7 +36,7 @@ CACHES = {
     },
 }
 
-CORS_ORIGIN_WHITELIST = ['app.ensintonia.org', 'app.brigada.mx']
-CSRF_TRUSTED_ORIGINS = ['api.ensintonia.org', 'api.brigada.mx']
+CORS_ORIGIN_WHITELIST = ['app.brigada.mx']
+CSRF_TRUSTED_ORIGINS = ['api.brigada.mx']
 
 ALLOWED_HOSTS = ['*']
