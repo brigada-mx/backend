@@ -76,7 +76,7 @@ class OrganizationUserSerializer(serializers.ModelSerializer):
 class OrganizationUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organization
-        fields = ('sector', 'name', 'desc', 'year_established', 'contact', 'accepting_help')
+        fields = ('sector', 'name', 'desc', 'year_established', 'contact', 'accepting_help', 'help_desc')
 
 
 class OrganizationReadSerializer(serializers.ModelSerializer):
