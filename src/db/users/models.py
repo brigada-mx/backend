@@ -111,21 +111,21 @@ class OrganizationUser(CustomAbstractBaseUser):
             super().save()
 
         if reset:
-            subject = 'Restablecer tu contraseña Brigada'
-            body = """Dale clic en la liga para restablecer tu contraseña.<br><br>
-            Si no pediste restablecer tu contraseña puedes borrar este email.<br><br>
-            <a href="{}/establecer?token={}&email={}" target="_blank">
-                Restablecer Tu Contraseña
-            </a>
+            subject = 'Restablecer tu contraseña en Brigada'
+            body = """
+            <a href="{}/establecer?token={}&email={}" target="_blank">Haz clic aquí para restablecer tu contraseña</a><br><br>
+            Si no pediste restablecer tu contraseña puedes borrar este mail.<br><br>
             """.format(os.getenv('CUSTOM_SITE_URL'), self.set_password_token, self.email)
         else:
             subject = 'Activa tu cuenta Brigada'
             body = """¡Gracias por crear tu cuenta con Brigada!<br><br>
-            Para activarla y usar la plataforma, dale clic en la liga y define tu contraseña.<br><br>
-            <a href="{}/establecer?token={}&email={}" target="_blank">Activar Tu Cuenta</a><br><br>
-            Y para empezar a documentar tus proyectos de reconstrucción, deberías de tomar una capacitación de 30 minutos via video-chat.<br><br>
-            Por favor escoge el horario que más te convenga.<br><br>
-            <a href="https://calendly.com/brigada/capacitacion" target="_blank">Agendar Video-Chat</a>
+            Te faltan dos pasos para activar tu cuenta y convertirte en un usuario experto:<br><br>
+            1. <a href="{}/establecer?token={}&email={}" target="_blank">Activar tu cuenta</a><br><br>
+            2. <a href="https://calendly.com/brigada/capacitacion" target="_blank">Agendar tu capacitación</a><br><br>
+            Saludos,<br><br>
+            Eduardo Mancera<br>
+            Director de Brigada<br>
+            <a href="mailto:eduardo@fortana.co">eduardo@fortana.co</a>
             """.format(os.getenv('CUSTOM_SITE_URL'), self.set_password_token, self.email)
 
         send_email.delay([self.email], subject, body)
