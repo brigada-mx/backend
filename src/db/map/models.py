@@ -165,7 +165,10 @@ class Organization(BaseModel):
     help_desc = models.TextField(blank=True)
 
     REPR_FIELDS = ['name', 'desc']
-    STR_FIELDS = ['id', 'name']
+    STR_FIELDS = ['name', 'id', 'secret_key']
+
+    class Meta:
+        ordering = ('name',)
 
     def save(self, *args, **kwargs):
         if not self.secret_key:
