@@ -351,7 +351,7 @@ class Donor(BaseModel):
                                         help_text='Is donor also an organization?')
 
     REPR_FIELDS = ['name', 'desc']
-    STR_FIELDS = ['id', 'name']
+    STR_FIELDS = ['name', 'id']
 
     class Meta:
         ordering = ('name',)
