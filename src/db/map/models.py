@@ -24,7 +24,7 @@ class Locality(BaseModel):
     state_name = models.TextField()
     location = models.PointField()
     elevation = models.FloatField(null=True, blank=True)
-    has_data = models.BooleanField(default=False, db_index=True, help_text='Has additional data')
+    has_data = models.BooleanField(blank=True, default=False, db_index=True, help_text='Has additional data')
     meta = JSONField(default={}, blank=True, help_text='Metrics, file URLs, etc')
 
     REPR_FIELDS = ['cvegeo', 'name', 'municipality_name', 'state_name']
@@ -347,6 +347,8 @@ class Donor(BaseModel):
     name = models.TextField(unique=True)
     desc = models.TextField(blank=True)
     website = models.TextField(blank=True)
+    organization = models.OneToOneField('Organization', related_name='donor', blank=True, null=True,
+                                        help_text='Is donor also an organization?')
 
     REPR_FIELDS = ['name', 'desc']
     STR_FIELDS = ['id', 'name']
@@ -362,6 +364,9 @@ class Donation(BaseModel):
     donor = models.ForeignKey('Donor')
     amount = models.FloatField(null=True, blank=True)
     received_date = models.DateField(null=True, blank=True, db_index=True)
+    desc = models.TextField(blank=True)
+    approved_by_donor = models.BooleanField(blank=True, default=False, db_index=True)
+    approved_by_org = models.BooleanField(blank=True, default=False, db_index=True)
 
     class Meta:
         ordering = ('-id',)

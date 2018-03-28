@@ -60,6 +60,10 @@ class CustomAbstractBaseUser(AbstractBaseUser, BaseModel):
         return False
 
     @property
+    def is_donor_user(self):
+        return False
+
+    @property
     def full_name(self):
         return ' '.join(f'{self.first_name} {self.surnames}'.split())
 
@@ -87,11 +91,13 @@ class StaffUser(CustomAbstractBaseUser, PermissionsMixin):
         return True
 
 
-class OrganizationUser(CustomAbstractBaseUser):
+class CustomAbstractPublicUser(CustomAbstractBaseUser):
     password = models.CharField(max_length=128, blank=True)
-    organization = models.ForeignKey('map.Organization')
     set_password_token = models.TextField(db_index=True, default='', blank=True)
     set_password_token_created = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        abstract = True
 
     def save(self, *args, **kwargs):
         if self.pk is None:
@@ -100,10 +106,6 @@ class OrganizationUser(CustomAbstractBaseUser):
             return self.send_set_password_email(save=True, reset=False)
         return super().save(*args, **kwargs)
 
-    @property
-    def is_organization_user(self):
-        return True
-
     def send_set_password_email(self, save=True, reset=True):
         self.set_password_token_created = timezone.now()
         self.set_password_token = binascii.hexlify(os.urandom(30)).decode()
@@ -111,23 +113,78 @@ class OrganizationUser(CustomAbstractBaseUser):
             super().save()
 
         if reset:
-            subject = 'Restablecer tu contraseña en Brigada'
-            body = """
-            <a href="{}/establecer?token={}&email={}" target="_blank">Haz clic aquí para restablecer tu contraseña</a><br><br>
-            Si no pediste restablecer tu contraseña puedes borrar este mail.<br><br>
-            """.format(os.getenv('CUSTOM_SITE_URL'), self.set_password_token, self.email)
+            self.reset_password_email()
         else:
-            subject = 'Activa tu cuenta Brigada'
-            body = """¡Gracias por crear tu cuenta con Brigada!<br><br>
-            Te faltan dos pasos para activar tu cuenta y convertirte en un usuario experto:<br><br>
-            1. <a href="{}/establecer?token={}&email={}" target="_blank">Activar tu cuenta</a><br><br>
-            2. <a href="https://calendly.com/brigada/capacitacion" target="_blank">Agendar tu capacitación</a><br><br>
-            Saludos,<br><br>
-            Eduardo Mancera<br>
-            Director de Brigada<br>
-            <a href="mailto:eduardo@fortana.co">eduardo@fortana.co</a>
-            """.format(os.getenv('CUSTOM_SITE_URL'), self.set_password_token, self.email)
+            self.activate_account_email()
 
+
+class OrganizationUser(CustomAbstractPublicUser):
+    organization = models.ForeignKey('map.Organization')
+
+    @property
+    def is_organization_user(self):
+        return True
+
+    def reset_password_email(self):
+        self.set_password_token_created = timezone.now()
+        self.set_password_token = binascii.hexlify(os.urandom(30)).decode()
+
+        subject = 'Restablecer tu contraseña en Brigada'
+        body = """
+        <a href="{}/establecer?token={}&email={}" target="_blank">
+            Haz clic aquí para restablecer tu contraseña
+        </a><br><br>
+        Si no pediste restablecer tu contraseña puedes borrar este mail.<br><br>
+        """.format(os.getenv('CUSTOM_SITE_URL'), self.set_password_token, self.email)
+        send_email.delay([self.email], subject, body)
+
+    def activate_account_email(self):
+        subject = 'Activa tu cuenta Brigada'
+        body = """¡Gracias por crear tu cuenta con Brigada!<br><br>
+        Te faltan dos pasos para activar tu cuenta y convertirte en un usuario experto:<br><br>
+        1. <a href="{}/establecer?token={}&email={}" target="_blank">Activar tu cuenta</a><br><br>
+        2. <a href="https://calendly.com/brigada/capacitacion" target="_blank">Agendar tu capacitación</a><br><br>
+        Saludos,<br><br>
+        Eduardo Mancera<br>
+        Director de Brigada<br>
+        <a href="mailto:eduardo@fortana.co">eduardo@fortana.co</a>
+        """.format(os.getenv('CUSTOM_SITE_URL'), self.set_password_token, self.email)
+        send_email.delay([self.email], subject, body)
+
+
+class DonorUser(CustomAbstractPublicUser):
+    donor = models.ForeignKey('map.Donor')
+
+    @property
+    def is_donor_user(self):
+        return True
+
+    def reset_password_email(self):
+        self.set_password_token_created = timezone.now()
+        self.set_password_token = binascii.hexlify(os.urandom(30)).decode()
+
+        subject = 'Restablecer tu contraseña en Brigada'
+        body = """
+        <a href="{}/establecer?token={}&email={}&type=donor" target="_blank">
+            Haz clic aquí para restablecer tu contraseña
+        </a><br><br>
+        Si no pediste restablecer tu contraseña puedes borrar este mail.<br><br>
+        """.format(os.getenv('CUSTOM_SITE_URL'), self.set_password_token, self.email)
+        send_email.delay([self.email], subject, body)
+
+    def activate_account_email(self):
+        subject = 'Activa tu cuenta Brigada'
+        body = """¡Gracias por crear tu cuenta con Brigada!<br><br>
+        Te faltan dos pasos para activar tu cuenta y convertirte en un usuario experto:<br><br>
+        1. <a href="{}/establecer?token={}&email={}&type=donor" target="_blank">Activar tu cuenta</a><br><br>
+        2. <a href="https://calendly.com/brigada/capacitacion-donador" target="_blank">
+            Agendar tu capacitación
+        </a><br><br>
+        Saludos,<br><br>
+        Eduardo Mancera<br>
+        Director de Brigada<br>
+        <a href="mailto:eduardo@fortana.co">eduardo@fortana.co</a>
+        """.format(os.getenv('CUSTOM_SITE_URL'), self.set_password_token, self.email)
         send_email.delay([self.email], subject, body)
 
 
@@ -154,3 +211,7 @@ class TokenBaseModel(models.Model):
 
 class OrganizationUserToken(TokenBaseModel):
     user = models.OneToOneField('OrganizationUser', related_name='auth_token', on_delete=models.CASCADE)
+
+
+class DonorUserToken(TokenBaseModel):
+    user = models.OneToOneField('DonorUser', related_name='auth_token', on_delete=models.CASCADE)
