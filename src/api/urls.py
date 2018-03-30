@@ -27,7 +27,10 @@ urlpatterns = [
     url(r'^actions/(?P<pk>[0-9]+)/log/$', views.ActionLogList.as_view(), name='action-log'),
 
     url(r'^submissions/$', views.SubmissionList.as_view(), name='submission-list'),
-    url(r'^donors/$', views.DonorList.as_view(), name='donor-list'),
+
+    url(r'^donors_mini/$', views.DonorMiniList.as_view(), name='donor-mini-list'),
+    url(r'^donors/$', cache_page(60 * 3)(views.DonorList.as_view()), name='donor-list'),
+    url(r'^donors/(?P<pk>[0-9]+)/$', cache_page(60 * 0.5)(views.DonorDetail.as_view()), name='donor-detail'),
 
     url(r'^organizations/$', cache_page(60 * 3)(views.OrganizationList.as_view()), name='organization-list'),
     url(r'^organizations/(?P<pk>[0-9]+)/$',

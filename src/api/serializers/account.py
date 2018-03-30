@@ -6,17 +6,9 @@ from db.map.models import Organization, Action, Submission, Donation
 from db.users.models import OrganizationUser
 from api.fields import LatLngField
 from api.mixins import EagerLoadingMixin, DynamicFieldsMixin
+from api.serializers.serializers import authenticate
 from api.serializers.map import LocalitySerializer, DonationSerializer, ActionSerializer
 from api.serializers.map import OrganizationMiniSerializer, SubmissionMediumSerializer
-
-
-def authenticate(model, email, password):
-    if not email or not password:
-        return None
-    user = model.objects.filter(email=email).first()
-    if not user or not user.check_password(password):
-        return None
-    return user
 
 
 class ArchiveSerializer(serializers.Serializer):
@@ -140,7 +132,7 @@ class AccountDonationCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Donation
-        exclude = ('donor',)
+        exclude = ('donor', 'approved_by_donor')
 
 
 class AccountSubmissionSerializer(SubmissionMediumSerializer):
@@ -165,3 +157,10 @@ class AccountSubmissionImageUpdateSerializer(serializers.Serializer):
     url = serializers.URLField()
     published = serializers.BooleanField(required=False)
     rotate = serializers.RegexField(regex=r'^left|right$', required=False)
+
+
+class AccountDonationUpdateSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    class Meta:
+        model = Donation
+        fields = '__all__'
+        read_only_fields = ('action', 'approved_by_donor')

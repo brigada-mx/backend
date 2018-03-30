@@ -13,6 +13,16 @@ from helpers.location import geos_location_from_coordinates
 from helpers.diceware import diceware
 
 
+action_fields = [
+    'locality', 'action_type', 'desc', 'target', 'unit_of_measurement',
+    'progress', 'budget', 'start_date', 'end_date', 'published',
+]
+
+donation_fields = [
+    'action', 'donor', 'amount', 'received_date', 'desc',
+]
+
+
 class Locality(BaseModel):
     """INEGI's "localidad". Loaded from external source.
     """
@@ -327,20 +337,6 @@ class Submission(BaseModel):
         return [i for i in images if i['url'].startswith(f'https://{bucket}.s3.amazonaws.com')]
 
 
-@receiver(models.signals.post_save, sender=Submission)
-def upload_submission_images_signal(sender, instance, created, **kwargs):
-    from jobs.kobo import upload_submission_images
-    if not created:
-        return
-    upload_submission_images.delay(instance.pk)
-
-
-action_fields = [
-    'locality', 'action_type', 'desc', 'target', 'unit_of_measurement',
-    'progress', 'budget', 'start_date', 'end_date', 'published',
-]
-
-
 class Donor(BaseModel):
     """A reconstruction donor.
     """
@@ -371,13 +367,36 @@ class Donation(BaseModel):
     class Meta:
         ordering = ('-id',)
 
+    def save(self, *args, **kwargs):
+        """Approves donations created by org user if no donor user exists yet.
+        Unpublishes donations updated by either org or donor if there are any
+        changes to donation.
+        """
+        if self.pk is None:
+            self.approved_by_donor = len(self.donor.donoruser_set.all()) == 0
+            return super().save(*args, **kwargs)
+
+        old = Donation.objects.get(pk=self.pk)
+        if any(getattr(old, f) != getattr(self, f) for f in donation_fields):
+            self.approved_by_donor = False
+            self.approved_by_org = False
+        return super().save(*args, **kwargs)
+
+
+@receiver(models.signals.post_save, sender=Submission)
+def upload_submission_images_signal(sender, instance, created, **kwargs):
+    from jobs.kobo import upload_submission_images
+    if not created:
+        return
+    upload_submission_images.delay(instance.pk)
+
 
 @receiver(models.signals.pre_save, sender=Action)
 def create_action_log_record(sender, instance, **kwargs):
     if instance.pk is None:
         return
-    previous = Action.objects.get(pk=instance.pk)
-    if any(getattr(previous, f) != getattr(instance, f) for f in action_fields):
+    old = Action.objects.get(pk=instance.pk)
+    if any(getattr(old, f) != getattr(instance, f) for f in action_fields):
         ActionLog.objects.create(action=instance, **{f: getattr(instance, f) for f in action_fields})
 
 

@@ -8,7 +8,7 @@ from api.mixins import EagerLoadingMixin, DynamicFieldsMixin
 from api.fields import LatLngField
 
 
-class DonorSerializer(serializers.ModelSerializer):
+class DonorMiniSerializer(serializers.ModelSerializer):
     class Meta:
         model = Donor
         fields = '__all__'
@@ -17,15 +17,8 @@ class DonorSerializer(serializers.ModelSerializer):
 class DonationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['donor']
 
-    donor = DonorSerializer(read_only=True)
+    donor = DonorMiniSerializer(read_only=True)
 
-    class Meta:
-        model = Donation
-        fields = '__all__'
-        read_only_fields = ('action',)
-
-
-class DonationUpdateSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     class Meta:
         model = Donation
         fields = '__all__'
@@ -93,10 +86,6 @@ class LocalityDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
 
 class ActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    url = serializers.HyperlinkedIdentityField(view_name='api:action-detail')
-    locality = serializers.HyperlinkedRelatedField(view_name='api:locality-detail', read_only=True)
-    locality_id = serializers.IntegerField(read_only=True)
-
     class Meta:
         model = Action
         fields = '__all__'
@@ -177,8 +166,6 @@ class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
 class EstablishmentSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     location = LatLngField()
-    locality = serializers.HyperlinkedRelatedField(view_name='api:locality-detail', read_only=True)
-    locality_id = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Establishment
@@ -188,7 +175,8 @@ class EstablishmentSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_FUNCTIONS = [
         lambda: Prefetch('submission_set', queryset=Submission.objects.filter(published=True)),
-        lambda: Prefetch('donation_set', queryset=Donation.objects.select_related('donor')),
+        lambda: Prefetch('donation_set', queryset=Donation.objects.select_related('donor').filter(
+            approved_by_donor=True, approved_by_org=True)),
     ]
     _SELECT_RELATED_FIELDS = ['locality', 'organization']
 
@@ -205,7 +193,8 @@ class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 class ActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_FUNCTIONS = [
         lambda: Prefetch('submission_set', queryset=Submission.objects.filter(published=True)),
-        lambda: Prefetch('donation_set', queryset=Donation.objects.select_related('donor')),
+        lambda: Prefetch('donation_set', queryset=Donation.objects.select_related('donor').filter(
+            approved_by_donor=True, approved_by_org=True)),
     ]
     _SELECT_RELATED_FIELDS = ['locality', 'organization']
 
@@ -225,7 +214,8 @@ class OrganizationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixi
             'locality', 'organization'
         ).prefetch_related(
             Prefetch('submission_set', queryset=Submission.objects.filter(published=True)),
-            Prefetch('donation_set', queryset=Donation.objects.select_related('donor')),
+            Prefetch('donation_set', queryset=Donation.objects.select_related('donor').filter(
+                approved_by_donor=True, approved_by_org=True)),
         ).filter(published=True))
     ]
 
@@ -252,3 +242,37 @@ class ActionLogSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     class Meta:
         model = ActionLog
         fields = '__all__'
+
+
+class DonationActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _SELECT_RELATED_FIELDS = ['action__locality']
+
+    action = ActionLocalitySerializer(read_only=True)
+
+    class Meta:
+        model = Donation
+        fields = '__all__'
+        read_only_fields = ('action',)
+
+
+class DonorSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _PREFETCH_FUNCTIONS = [
+        lambda: Prefetch('donation_set', queryset=Donation.objects.select_related('action__locality').filter(
+            approved_by_donor=True, approved_by_org=True)),
+    ]
+
+    donations = DonationActionSerializer(source='donation_set', many=True, read_only=True)
+    metrics = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Donor
+        fields = '__all__'
+
+    def get_metrics(self, obj):
+        actions, orgs = set(), set()
+        total_donated = 0
+        for donation in obj.donation_set.all():
+            total_donated += donation.amount or 0
+            actions.add(donation.action.id)
+            orgs.add(donation.action.organization_id)
+        return {'action_count': len(actions), 'org_count': len(orgs), 'total_donated': total_donated}

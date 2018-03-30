@@ -19,7 +19,7 @@ from api.serializers import OrganizationUserTokenSerializer, OrganizationReadSer
 from api.serializers import OrganizationUpdateSerializer, OrganizationCreateSerializer
 from api.serializers import SubmissionUpdateSerializer, AccountActionDetailSerializer, AccountActionDetailReadSerializer
 from api.serializers import AccountActionListSerializer, AccountActionCreateSerializer
-from api.serializers import DonationSerializer, DonationUpdateSerializer, AccountDonationCreateSerializer
+from api.serializers import DonationSerializer, AccountDonationUpdateSerializer, AccountDonationCreateSerializer
 from api.serializers import AccountSubmissionImageUpdateSerializer
 from api.filters import ActionFilter, SubmissionFilter
 
@@ -68,8 +68,6 @@ class AccountToken(APIView):
 
 
 class AccountDeleteToken(APIView):
-    """View for obtaining an auth token by posting a valid email/password tuple.
-    """
     authentication_classes = (OrganizationUserAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
     throttle_scope = 'authentication'
@@ -102,8 +100,6 @@ class AccountSetPassword(APIView):
 
 
 class AccountMe(generics.RetrieveUpdateAPIView):
-    """Update org user's password.
-    """
     authentication_classes = (OrganizationUserAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = OrganizationUserSerializer
@@ -188,7 +184,7 @@ class AccountActionRetrieveUpdate(generics.RetrieveUpdateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_serializer_class(self, *args, **kwargs):
-        if self.request.method == 'PUT':
+        if self.request.method in ('PUT', 'PATCH'):
             return AccountActionDetailSerializer
         return AccountActionDetailReadSerializer
 
@@ -227,7 +223,7 @@ class AccountSubmissionRetrieveUpdate(generics.RetrieveUpdateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_serializer_class(self, *args, **kwargs):
-        if self.request.method == 'PUT':
+        if self.request.method in ('PUT', 'PATCH'):
             return SubmissionUpdateSerializer
         return AccountSubmissionSerializer
 
@@ -308,8 +304,8 @@ class AccountDonationRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_serializer_class(self, *args, **kwargs):
-        if self.request.method == 'PUT':
-            return DonationUpdateSerializer
+        if self.request.method in ('PUT', 'PATCH'):
+            return AccountDonationUpdateSerializer
         return DonationSerializer
 
     def get_queryset(self):
@@ -318,7 +314,11 @@ class AccountDonationRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView
         )
 
     def put(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
+        instance = self.get_object()
+        response = self.partial_update(request, *args, **kwargs)
+        instance.approved_by_org = True
+        instance.save()
+        return response
 
 
 class AccountActionArchive(APIView):
