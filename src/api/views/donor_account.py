@@ -14,7 +14,8 @@ from db.users.models import DonorUser, DonorUserToken
 from api.backends import DonorUserAuthentication
 from api.serializers import PasswordSerializer, PasswordTokenSerializer, SendSetPasswordEmailSerializer
 from api.serializers import DonorUserTokenSerializer, DonationSerializer, DonorDonationUpdateSerializer
-from api.serializers import DonorUserSerializer, DonorUpdateSerializer, DonorReadSerializer
+from api.serializers import DonorUserSerializer, DonorUpdateSerializer, DonorReadSerializer, DonorDonationListSerializer
+from api.serializers import DonorDonationCreateSerializer
 
 
 class DonorSendSetPasswordEmail(APIView):
@@ -117,6 +118,24 @@ class DonorRetrieveUpdate(generics.GenericAPIView, UpdateModelMixin):
 
     def put(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
+
+
+class DonorDonationListCreate(generics.ListCreateAPIView):
+    authentication_classes = (DonorUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_serializer_class(self, *args, **kwargs):
+        if self.request.method == 'POST':
+            return DonorDonationCreateSerializer
+        return DonorDonationListSerializer
+
+    def get_queryset(self):
+        return self.get_serializer_class().setup_eager_loading(
+            Donation.objects.filter(donor=self.request.user.donor)
+        )
+
+    def perform_create(self, serializer):
+        serializer.save(donor=self.request.user.donor, approved_by_donor=True)
 
 
 class DonorDonationRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):

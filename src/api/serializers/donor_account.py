@@ -49,14 +49,13 @@ class DonorReadSerializer(serializers.ModelSerializer):
 
 
 class DonorDonationListSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    _SELECT_RELATED_FIELDS = ['action']
+    _SELECT_RELATED_FIELDS = ['action__locality']
 
     action = ActionLocalitySerializer(read_only=True)
 
     class Meta:
         model = Donation
         fields = '__all__'
-        read_only_fields = ('donor',)
 
 
 class DonorDonationCreateSerializer(serializers.ModelSerializer):

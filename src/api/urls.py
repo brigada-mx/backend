@@ -75,4 +75,18 @@ urlpatterns = [
         views.AccountSubmissionArchive.as_view(), name='account-submission-archive'),
     url(r'^account/submissions/(?P<pk>[0-9]+)/image/$',
         views.AccountSubmissionImageUpdate.as_view(), name='account-submission-image'),
+
+    # donor account endpoints
+    url(r'^donor_account/token/$', views.DonorToken.as_view(), name='donoraccount-token'),
+    url(r'^donor_account/delete_token/$', views.DonorDeleteToken.as_view(), name='donoraccount-delete-token'),
+    url(r'^donor_account/set_password/$', views.DonorSetPassword.as_view(), name='donoraccount-set-password'),
+    url(r'^donor_account/set_password_with_token/$',
+        views.DonorSetPasswordWithToken.as_view(), name='donoraccount-set-password-with-token'),
+    url(r'^donor_account/send_set_password_email/$',
+        views.DonorSendSetPasswordEmail.as_view(), name='donoraccount-send-set-password-email'),
+    url(r'^donor_account/me/$', views.DonorMe.as_view(), name='donoraccount-me'),
+    url(r'^donor_account/donor/$', views.DonorRetrieveUpdate.as_view(), name='donoraccount-donor-retrieve-update'),
+    url(r'^donor_account/donations/$', views.DonorDonationListCreate.as_view(), name='donoraccount-donation-create'),
+    url(r'^donor_account/donations/(?P<pk>[0-9]+)/$',
+        views.DonorDonationRetrieveUpdateDestroy.as_view(), name='donoraccount-donation-retrieve-update-destroy'),
 ]
