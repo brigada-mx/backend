@@ -6,7 +6,7 @@ from rest_framework import generics
 from db.map.models import State, Municipality, Locality, Action, Organization, Establishment, Submission, Donor
 from api.serializers import StateSerializer, MunicipalitySerializer
 from api.serializers import LocalityDetailSerializer, LocalityRawSerializer, LocalitySerializer
-from api.serializers import EstablishmentSerializer, SubmissionSerializer
+from api.serializers import EstablishmentSerializer, SubmissionSerializer, ActionLocalitySerializer
 from api.serializers import ActionSubmissionsSerializer, ActionLogSerializer, ActionDetailSerializer
 from api.serializers import OrganizationSerializer, OrganizationDetailSerializer, DonorMiniSerializer, DonorSerializer
 from api.paginators import LargeNoCountPagination
@@ -74,6 +74,15 @@ class EstablishmentList(generics.ListAPIView):
 class ActionList(generics.ListAPIView):
     serializer_class = ActionSubmissionsSerializer
     filter_class = ActionFilter
+
+    def get_queryset(self):
+        return self.get_serializer_class().setup_eager_loading(
+            Action.objects.filter(published=True)
+        )
+
+
+class ActionMiniList(generics.ListAPIView):
+    serializer_class = ActionLocalitySerializer
 
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(

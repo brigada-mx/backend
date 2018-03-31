@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'^localities/(?P<pk>[0-9]+)/$', views.LocalityDetail.as_view(), name='locality-detail'),
 
     url(r'^actions/$', views.ActionList.as_view(), name='action-list'),
+    url(r'^actions_mini/$', cache_page(60 * 5)(views.ActionMiniList.as_view()), name='action-mini-list'),
     url(r'^actions/(?P<pk>[0-9]+)/$', views.ActionDetail.as_view(), name='action-detail'),
     url(r'^actions/(?P<pk>[0-9]+)/log/$', views.ActionLogList.as_view(), name='action-log'),
 
