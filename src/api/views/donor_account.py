@@ -102,7 +102,7 @@ class DonorMe(generics.RetrieveUpdateAPIView):
         return self.request.user
 
     def put(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
+        return self.patch(request, *args, **kwargs)
 
 
 class DonorRetrieveUpdate(generics.GenericAPIView, UpdateModelMixin):
@@ -117,7 +117,7 @@ class DonorRetrieveUpdate(generics.GenericAPIView, UpdateModelMixin):
         return Response(DonorReadSerializer(self.get_object()).data)
 
     def put(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
+        return self.patch(request, *args, **kwargs)
 
 
 class DonorDonationListCreate(generics.ListCreateAPIView):
@@ -152,9 +152,12 @@ class DonorDonationRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
             Donation.objects.filter(donor=self.request.user.donor)
         )
 
-    def put(self, request, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
         instance = self.get_object()
-        response = self.partial_update(request, *args, **kwargs)
+        response = super().patch(request, *args, **kwargs)
         instance.approved_by_donor = True
         instance.save()
         return response
+
+    def put(self, request, *args, **kwargs):
+        return self.patch(request, *args, **kwargs)

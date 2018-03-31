@@ -108,7 +108,7 @@ class AccountMe(generics.RetrieveUpdateAPIView):
         return self.request.user
 
     def put(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
+        return self.patch(request, *args, **kwargs)
 
 
 class AccountOrganizationResetKey(APIView):
@@ -134,7 +134,7 @@ class AccountOrganizationRetrieveUpdate(generics.GenericAPIView, UpdateModelMixi
         return Response(OrganizationReadSerializer(self.get_object()).data)
 
     def put(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
+        return self.patch(request, *args, **kwargs)
 
 
 class AccountOrganizationCreate(APIView):
@@ -194,7 +194,7 @@ class AccountActionRetrieveUpdate(generics.RetrieveUpdateAPIView):
         )
 
     def put(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
+        return self.patch(request, *args, **kwargs)
 
 
 class AccountActionRetrieveByKey(APIView):
@@ -230,12 +230,15 @@ class AccountSubmissionRetrieveUpdate(generics.RetrieveUpdateAPIView):
     def get_queryset(self):
         return Submission.objects.filter(organization=self.request.user.organization)
 
-    def put(self, request, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
         action = request.data.get('action', None)
         if action is not None:
             if action not in self.request.user.organization.action_set.values_list('pk', flat=True):
                 return Response({'error': f'Action {action} does not belong to this organization'}, status=400)
-        return self.partial_update(request, *args, **kwargs)
+        return super().patch(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.patch(request, *args, **kwargs)
 
 
 class AccountSubmissionImageUpdate(APIView):
@@ -313,12 +316,15 @@ class AccountDonationRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView
             Donation.objects.filter(action__organization=self.request.user.organization)
         )
 
-    def put(self, request, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
         instance = self.get_object()
-        response = self.partial_update(request, *args, **kwargs)
+        response = super().patch(request, *args, **kwargs)
         instance.approved_by_org = True
         instance.save()
         return response
+
+    def put(self, request, *args, **kwargs):
+        return self.patch(request, *args, **kwargs)
 
 
 class AccountActionArchive(APIView):
