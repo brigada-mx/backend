@@ -8,7 +8,6 @@ from django.db import transaction
 from rest_framework import permissions, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.mixins import UpdateModelMixin
 
 from db.map.models import Action, Submission, Donor, Donation, Organization
 from db.users.models import OrganizationUser, OrganizationUserToken
@@ -122,16 +121,17 @@ class AccountOrganizationResetKey(APIView):
         return Response({'secret_key': self.request.user.organization.secret_key})
 
 
-class AccountOrganizationRetrieveUpdate(generics.GenericAPIView, UpdateModelMixin):
+class AccountOrganizationRetrieveUpdate(generics.RetrieveUpdateAPIView):
     authentication_classes = (OrganizationUserAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = OrganizationUpdateSerializer
+
+    def get_serializer_class(self, *args, **kwargs):
+        if self.request.method in ('PUT', 'PATCH'):
+            return OrganizationUpdateSerializer
+        return OrganizationReadSerializer
 
     def get_object(self):
         return self.request.user.organization
-
-    def get(self, request, *args, **kwargs):
-        return Response(OrganizationReadSerializer(self.get_object()).data)
 
     def put(self, request, *args, **kwargs):
         return self.patch(request, *args, **kwargs)
@@ -298,7 +298,7 @@ class AccountDonationCreate(APIView):
         if action not in self.request.user.organization.action_set.all():
             return Response({'error': f'Action {action} does not belong to this organization'}, status=400)
 
-        serializer.save(donor=donor, approved_by_org=True)
+        serializer.save(donor=donor, approved_by_org=True, saved_by='org')
         return Response(serializer.data, status=201)
 
 
@@ -316,12 +316,8 @@ class AccountDonationRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView
             Donation.objects.filter(action__organization=self.request.user.organization)
         )
 
-    def patch(self, request, *args, **kwargs):
-        instance = self.get_object()
-        response = super().patch(request, *args, **kwargs)
-        instance.approved_by_org = True
-        instance.save()
-        return response
+    def perform_update(self, serializer):
+        serializer.save(saved_by='org')
 
     def put(self, request, *args, **kwargs):
         return self.patch(request, *args, **kwargs)

@@ -7,7 +7,6 @@ from django.utils import timezone
 from rest_framework import permissions, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.mixins import UpdateModelMixin
 
 from db.map.models import Donation
 from db.users.models import DonorUser, DonorUserToken
@@ -105,16 +104,17 @@ class DonorMe(generics.RetrieveUpdateAPIView):
         return self.patch(request, *args, **kwargs)
 
 
-class DonorRetrieveUpdate(generics.GenericAPIView, UpdateModelMixin):
+class DonorRetrieveUpdate(generics.RetrieveUpdateAPIView):
     authentication_classes = (DonorUserAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = DonorUpdateSerializer
+
+    def get_serializer_class(self, *args, **kwargs):
+        if self.request.method in ('PUT', 'PATCH'):
+            return DonorUpdateSerializer
+        return DonorReadSerializer
 
     def get_object(self):
         return self.request.user.donor
-
-    def get(self, request, *args, **kwargs):
-        return Response(DonorReadSerializer(self.get_object()).data)
 
     def put(self, request, *args, **kwargs):
         return self.patch(request, *args, **kwargs)
@@ -135,7 +135,7 @@ class DonorDonationListCreate(generics.ListCreateAPIView):
         )
 
     def perform_create(self, serializer):
-        serializer.save(donor=self.request.user.donor, approved_by_donor=True)
+        serializer.save(donor=self.request.user.donor, approved_by_donor=True, saved_by='donor')
 
 
 class DonorDonationRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
@@ -152,12 +152,8 @@ class DonorDonationRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
             Donation.objects.filter(donor=self.request.user.donor)
         )
 
-    def patch(self, request, *args, **kwargs):
-        instance = self.get_object()
-        response = super().patch(request, *args, **kwargs)
-        instance.approved_by_donor = True
-        instance.save()
-        return response
+    def perform_update(self, serializer):
+        serializer.save(saved_by='donor')
 
     def put(self, request, *args, **kwargs):
         return self.patch(request, *args, **kwargs)

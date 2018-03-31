@@ -9,6 +9,7 @@ from django.dispatch import receiver
 from db.config import BaseModel
 from db.choices import SCIAN_GROUP_ID_BY_CODE, ORGANIZATION_SECTOR_CHOICES
 from db.choices import SUBMISSION_SOURCE_CHOICES
+from jobs.messages import send_email
 from helpers.location import geos_location_from_coordinates
 from helpers.diceware import diceware
 
@@ -372,15 +373,50 @@ class Donation(BaseModel):
         Unpublishes donations updated by either org or donor if there are any
         changes to donation.
         """
+        saved_by = kwargs.pop('saved_by', None)
+
         if self.pk is None:
-            self.approved_by_donor = len(self.donor.donoruser_set.all()) == 0
+            if saved_by == 'donor':
+                self.approved_by_org = False
+                self.notify_org(created=True)
+            if saved_by == 'org':
+                self.approved_by_donor = len(self.donor.donoruser_set.all()) == 0
+                self.notify_donor(created=True)
             return super().save(*args, **kwargs)
 
         old = Donation.objects.get(pk=self.pk)
         if any(getattr(old, f) != getattr(self, f) for f in donation_fields):
-            self.approved_by_donor = False
-            self.approved_by_org = False
+            if saved_by == 'donor':
+                self.approved_by_org = False
+                self.notify_org(created=False)
+            if saved_by == 'org':
+                self.approved_by_donor = False
+                self.notify_donor(created=False)
         return super().save(*args, **kwargs)
+
+    def notify_org(self, created=False):
+        donor = self.donor.name
+        created_subject = f'Donador {donor} te agregó una donación'
+        subject = created_subject if created else f'Donador {donor} modificó una de tus donaciones'
+        body = """
+        Para que aparezca la donación en tu perfil público, tienes que aprobarla aquí.<br><br>
+        <a href="{}/cuenta/proyectos/{}" target="_blank" /><br><br>
+        """.format(os.getenv('CUSTOM_SITE_URL'), self.action.key)
+
+        emails = list(self.action.organization.organizationuser_set.values_list('email', flat=True))
+        send_email.delay(emails, subject, body)
+
+    def notify_donor(self, created=False):
+        org = self.organization.name
+        created_subject = f'Organización {org} te agregó una donación'
+        subject = created_subject if created else f'Organización {org} modificó una de tus donaciones'
+        body = """
+        Para que aparezca la donación en tu perfil público, tienes que aprobarla aquí.<br><br>
+        <a href="{}/donador" target="_blank" /><br><br>
+        """.format(os.getenv('CUSTOM_SITE_URL'))
+
+        emails = list(self.donor.donoruser_set.values_list('email', flat=True))
+        send_email.delay(emails, subject, body)
 
 
 @receiver(models.signals.post_save, sender=Submission)

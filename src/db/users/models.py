@@ -126,14 +126,9 @@ class OrganizationUser(CustomAbstractPublicUser):
         return True
 
     def reset_password_email(self):
-        self.set_password_token_created = timezone.now()
-        self.set_password_token = binascii.hexlify(os.urandom(30)).decode()
-
-        subject = 'Restablecer tu contraseña en Brigada'
+        subject = 'Restablecer tu contraseña Brigada'
         body = """
-        <a href="{}/establecer?token={}&email={}" target="_blank">
-            Haz clic aquí para restablecer tu contraseña
-        </a><br><br>
+        <a href="{}/establecer?token={}&email={}" target="_blank">Haz clic aquí para restablecer tu contraseña</a>.<br><br>
         Si no pediste restablecer tu contraseña puedes borrar este mail.<br><br>
         """.format(os.getenv('CUSTOM_SITE_URL'), self.set_password_token, self.email)
         send_email.delay([self.email], subject, body)
@@ -160,26 +155,19 @@ class DonorUser(CustomAbstractPublicUser):
         return True
 
     def reset_password_email(self):
-        self.set_password_token_created = timezone.now()
-        self.set_password_token = binascii.hexlify(os.urandom(30)).decode()
-
-        subject = 'Restablecer tu contraseña en Brigada'
+        subject = 'Restablecer tu contraseña de donador Brigada'
         body = """
-        <a href="{}/establecer?token={}&email={}&type=donor" target="_blank">
-            Haz clic aquí para restablecer tu contraseña
-        </a><br><br>
+        <a href="{}/establecer?token={}&email={}&type=donor" target="_blank">Haz clic aquí para restablecer tu contraseña de donador</a>.<br><br>
         Si no pediste restablecer tu contraseña puedes borrar este mail.<br><br>
         """.format(os.getenv('CUSTOM_SITE_URL'), self.set_password_token, self.email)
         send_email.delay([self.email], subject, body)
 
     def activate_account_email(self):
         subject = 'Activa tu cuenta Brigada'
-        body = """¡Gracias por crear tu cuenta con Brigada!<br><br>
+        body = """¡Gracias por crear tu cuenta de donador con Brigada!<br><br>
         Te faltan dos pasos para activar tu cuenta y convertirte en un usuario experto:<br><br>
         1. <a href="{}/establecer?token={}&email={}&type=donor" target="_blank">Activar tu cuenta</a><br><br>
-        2. <a href="https://calendly.com/brigada/capacitacion-donador" target="_blank">
-            Agendar tu capacitación
-        </a><br><br>
+        2. <a href="https://calendly.com/brigada/capacitacion-donador" target="_blank">Agendar tu capacitación</a><br><br>
         Saludos,<br><br>
         Eduardo Mancera<br>
         Director de Brigada<br>

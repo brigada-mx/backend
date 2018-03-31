@@ -68,4 +68,4 @@ class DonorDonationUpdateSerializer(serializers.ModelSerializer, EagerLoadingMix
     class Meta:
         model = Donation
         fields = '__all__'
-        read_only_fields = ('action', 'approved_by_org')
+        read_only_fields = ('donor', 'approved_by_org')
