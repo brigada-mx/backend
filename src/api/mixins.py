@@ -19,21 +19,22 @@ class DynamicFieldsMixin:
     Usage:
         class MySerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 
-    Gotcha: a serializer can't inherit from this mixin if it also inherits from
-    a superclass that uses the mixin.
+    Gotcha: a serializer can't inherit from this mixin if it also inherits from a
+    class that uses the mixin.
 
     Taken from: https://gist.github.com/dbrgn/4e6fc1fe5922598592d6
     """
     def __init__(self, *args, **kwargs):
+        fields = kwargs.pop('_include_fields', None)
         super(DynamicFieldsMixin, self).__init__(*args, **kwargs)
-        if not self.context:
+        if self.context:
+            fields_string = self.context['request'].query_params.get('fields')
+            if fields_string:
+                fields = fields_string.split(',')
+        if not fields:
             return
-        fields = self.context['request'].query_params.get('fields')
-        if fields:
-            fields = fields.split(',')
-            # drop any fields that are not specified in the `fields` argument
-            allowed = set(fields)
-            existing = set(self.fields.keys())
-            # remove fields that are in `existing` but not in `allowed`
-            for field_name in existing - allowed:
-                self.fields.pop(field_name)
+
+        allowed = set(fields)  # drop any fields that are not specified in the `fields` argument
+        existing = set(self.fields.keys())
+        for field_name in existing - allowed:
+            self.fields.pop(field_name)

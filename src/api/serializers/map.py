@@ -41,7 +41,7 @@ class MunicipalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = '__all__'
 
 
-class LocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class LocalitySerializer(DynamicFieldsMixin, serializers.ModelSerializer, EagerLoadingMixin):
     location = LatLngField()
 
     class Meta:
@@ -133,10 +133,21 @@ class ActionLocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = ('id', 'locality', 'action_type', 'budget')
 
 
-class OrganizationMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class OrganizationMiniSerializer(DynamicFieldsMixin, serializers.ModelSerializer, EagerLoadingMixin):
     class Meta:
         model = Organization
         exclude = ('secret_key',)
+
+
+class ActionLocalityMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _SELECT_RELATED_FIELDS = ['locality', 'organization']
+
+    locality = LocalitySerializer(read_only=True, _include_fields=('name', 'municipality_name', 'state_name'))
+    organization = OrganizationMiniSerializer(read_only=True, _include_fields=('name',))
+
+    class Meta:
+        model = Action
+        fields = ('id', 'key', 'organization', 'locality', 'action_type')
 
 
 class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
