@@ -4,12 +4,10 @@ from db.map.models import Donor, Donation
 from db.users.models import DonorUser
 from api.mixins import EagerLoadingMixin
 from api.serializers.serializers import authenticate
-from api.serializers.map import ActionLocalitySerializer, DonorMiniSerializer
+from api.serializers.map import DonorMiniSerializer
 
 
 class DonorUserTokenSerializer(serializers.Serializer):
-    """TODO: refactor
-    """
     email = serializers.CharField()
     password = serializers.CharField()
 
@@ -26,7 +24,7 @@ class DonorUserTokenSerializer(serializers.Serializer):
 
 
 class DonorUserSerializer(serializers.ModelSerializer):
-    _SELECT_RELATED_FIELDS = ['organization']
+    _SELECT_RELATED_FIELDS = ['donor']
 
     donor = DonorMiniSerializer(read_only=True)
 
@@ -45,16 +43,6 @@ class DonorUpdateSerializer(serializers.ModelSerializer):
 class DonorReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Donor
-        fields = '__all__'
-
-
-class DonorDonationListSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    _SELECT_RELATED_FIELDS = ['action__locality']
-
-    action = ActionLocalitySerializer(read_only=True)
-
-    class Meta:
-        model = Donation
         fields = '__all__'
 
 

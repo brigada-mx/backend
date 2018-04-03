@@ -12,8 +12,8 @@ from db.map.models import Donation
 from db.users.models import DonorUser, DonorUserToken
 from api.backends import DonorUserAuthentication
 from api.serializers import PasswordSerializer, PasswordTokenSerializer, SendSetPasswordEmailSerializer
-from api.serializers import DonorUserTokenSerializer, DonationSerializer, DonorDonationUpdateSerializer
-from api.serializers import DonorUserSerializer, DonorUpdateSerializer, DonorReadSerializer, DonorDonationListSerializer
+from api.serializers import DonorUserTokenSerializer, DonationDetailSerializer, DonorDonationUpdateSerializer
+from api.serializers import DonorUserSerializer, DonorUpdateSerializer, DonorReadSerializer
 from api.serializers import DonorDonationCreateSerializer
 
 
@@ -127,7 +127,7 @@ class DonorDonationListCreate(generics.ListCreateAPIView):
     def get_serializer_class(self, *args, **kwargs):
         if self.request.method == 'POST':
             return DonorDonationCreateSerializer
-        return DonorDonationListSerializer
+        return DonationDetailSerializer
 
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
@@ -147,7 +147,7 @@ class DonorDonationRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     def get_serializer_class(self, *args, **kwargs):
         if self.request.method in ('PUT', 'PATCH'):
             return DonorDonationUpdateSerializer
-        return DonationSerializer
+        return DonationDetailSerializer
 
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
@@ -155,7 +155,10 @@ class DonorDonationRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
         )
 
     def perform_update(self, serializer):
-        serializer.save(saved_by='donor')
+        instance = self.get_object()
+        for attr, value in serializer.validated_data.items():
+            setattr(instance, attr, value)
+        instance.save(saved_by='donor')
 
     def put(self, request, *args, **kwargs):
         return self.patch(request, *args, **kwargs)

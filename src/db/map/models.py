@@ -406,7 +406,7 @@ class Donation(BaseModel):
         send_email.delay(emails, subject, body)
 
     def notify_donor(self, created=False):
-        org = self.organization.name
+        org = self.action.organization.name
         created_subject = f'Organización {org} te agregó una donación'
         subject = created_subject if created else f'Organización {org} modificó una de tus donaciones'
         body = """

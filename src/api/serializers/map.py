@@ -139,11 +139,11 @@ class OrganizationMiniSerializer(DynamicFieldsMixin, serializers.ModelSerializer
         exclude = ('secret_key',)
 
 
-class ActionLocalityMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class ActionMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['locality', 'organization']
 
-    locality = LocalitySerializer(read_only=True, _include_fields=('name', 'municipality_name', 'state_name'))
-    organization = OrganizationMiniSerializer(read_only=True, _include_fields=('name',))
+    locality = LocalitySerializer(read_only=True, _include_fields=('id', 'name', 'municipality_name', 'state_name'))
+    organization = OrganizationMiniSerializer(read_only=True, _include_fields=('id', 'name',))
 
     class Meta:
         model = Action
@@ -255,15 +255,14 @@ class ActionLogSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = '__all__'
 
 
-class DonationActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    _SELECT_RELATED_FIELDS = ['action__locality']
+class DonationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _SELECT_RELATED_FIELDS = ['action__locality', 'action__organization']
 
-    action = ActionLocalitySerializer(read_only=True)
+    action = ActionMiniSerializer(read_only=True)
 
     class Meta:
         model = Donation
         fields = '__all__'
-        read_only_fields = ('action',)
 
 
 class DonorSerializer(serializers.ModelSerializer, EagerLoadingMixin):
@@ -272,7 +271,7 @@ class DonorSerializer(serializers.ModelSerializer, EagerLoadingMixin):
             approved_by_donor=True, approved_by_org=True)),
     ]
 
-    donations = DonationActionSerializer(source='donation_set', many=True, read_only=True)
+    donations = DonationDetailSerializer(source='donation_set', many=True, read_only=True)
     metrics = serializers.SerializerMethodField()
 
     class Meta:

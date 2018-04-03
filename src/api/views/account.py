@@ -318,7 +318,10 @@ class AccountDonationRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView
         )
 
     def perform_update(self, serializer):
-        serializer.save(saved_by='org')
+        instance = self.get_object()
+        for attr, value in serializer.validated_data.items():
+            setattr(instance, attr, value)
+        instance.save(saved_by='org')
 
     def put(self, request, *args, **kwargs):
         return self.patch(request, *args, **kwargs)
