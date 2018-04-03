@@ -130,7 +130,7 @@ class ActionLocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
     class Meta:
         model = Action
-        fields = ('id', 'locality', 'action_type', 'budget')
+        fields = ('id', 'locality', 'action_type', 'budget', 'organization_id')
 
 
 class OrganizationMiniSerializer(DynamicFieldsMixin, serializers.ModelSerializer, EagerLoadingMixin):

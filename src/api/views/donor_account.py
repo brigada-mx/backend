@@ -135,7 +135,9 @@ class DonorDonationListCreate(generics.ListCreateAPIView):
         )
 
     def perform_create(self, serializer):
-        serializer.save(donor=self.request.user.donor, approved_by_donor=True, saved_by='donor')
+        instance = Donation(donor=self.request.user.donor, **serializer.validated_data)
+        instance.save(saved_by='donor')
+        return Response(serializer.data, status=201)
 
 
 class DonorDonationRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):

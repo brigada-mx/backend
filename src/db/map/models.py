@@ -399,8 +399,7 @@ class Donation(BaseModel):
         created_subject = f'Donador {donor} te agregó una donación'
         subject = created_subject if created else f'Donador {donor} modificó una de tus donaciones'
         body = """
-        Para que aparezca la donación en tu perfil público, tienes que aprobarla aquí.<br><br>
-        <a href="{}/cuenta/proyectos/{}" target="_blank" /><br><br>
+        Para que aparezca la donación en tu perfil público, <a href="{}/cuenta/proyectos/{}" target="_blank">tienes que aprobarla aquí<a/>.<br><br>
         """.format(os.getenv('CUSTOM_SITE_URL'), self.action.key)
 
         emails = list(self.action.organization.organizationuser_set.values_list('email', flat=True))
@@ -411,9 +410,8 @@ class Donation(BaseModel):
         created_subject = f'Organización {org} te agregó una donación'
         subject = created_subject if created else f'Organización {org} modificó una de tus donaciones'
         body = """
-        Para que aparezca la donación en tu perfil público, tienes que aprobarla aquí.<br><br>
-        <a href="{}/donador" target="_blank" /><br><br>
-        """.format(os.getenv('CUSTOM_SITE_URL'))
+        Para que aparezca la donación en tu perfil público, <a href="{}/donador/donaciones/{}" target="_blank">tienes que aprobarla aquí</a>.<br><br>
+        """.format(os.getenv('CUSTOM_SITE_URL'), self.id)
 
         emails = list(self.donor.donoruser_set.values_list('email', flat=True))
         send_email.delay(emails, subject, body)
