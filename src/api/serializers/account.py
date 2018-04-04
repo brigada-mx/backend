@@ -115,9 +115,11 @@ class AccountActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMix
 
 
 class AccountActionDetailReadSerializer(AccountActionDetailSerializer):
-    _SELECT_RELATED_FIELDS = ['organization', 'locality']
+    _PREFETCH_FUNCTIONS = [lambda: Prefetch('donation_set', queryset=Donation.objects.select_related('donor'))]
+    _SELECT_RELATED_FIELDS = ['locality']
 
     locality = LocalitySerializer(read_only=True)
+    donations = DonationSerializer(source='donation_set', many=True, read_only=True)
 
 
 class SubmissionUpdateSerializer(serializers.ModelSerializer):

@@ -202,8 +202,12 @@ class AccountActionRetrieveByKey(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
-        action = get_object_or_404(Action, organization=self.request.user.organization, key=kwargs['key'])
-        return Response(AccountActionDetailReadSerializer(action).data)
+        serializer_class = AccountActionDetailReadSerializer
+        action = get_object_or_404(
+            serializer_class.setup_eager_loading(Action.objects.all()),
+            organization=self.request.user.organization, key=kwargs['key']
+        )
+        return Response(serializer_class(action).data)
 
 
 class AccountSubmissionList(generics.ListAPIView):
@@ -298,7 +302,7 @@ class AccountDonationCreate(APIView):
         if action not in self.request.user.organization.action_set.all():
             return Response({'error': f'Action {action} does not belong to this organization'}, status=400)
 
-        instance = Donation(donor=donor, approved_by_org=True, **serializer.validated_data)
+        instance = Donation(donor=donor, **serializer.validated_data)
         instance.save(saved_by='org')
         return Response(serializer.data, status=201)
 

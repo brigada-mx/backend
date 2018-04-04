@@ -378,11 +378,14 @@ class Donation(BaseModel):
         if self.pk is None:
             if saved_by == 'donor':
                 self.approved_by_org = False
-                self.notify_org(created=True)
             if saved_by == 'org':
                 self.approved_by_donor = len(self.donor.donoruser_set.all()) == 0
+            super().save(*args, **kwargs)  # save instance first so that pk isn't `None`
+            if saved_by == 'donor':
+                self.notify_org(created=True)
+            if saved_by == 'org':
                 self.notify_donor(created=True)
-            return super().save(*args, **kwargs)
+            return
 
         old = Donation.objects.get(pk=self.pk)
         if any(getattr(old, f) != getattr(self, f) for f in donation_fields):
