@@ -7,7 +7,7 @@ from django.contrib.postgres.fields import JSONField
 from django.dispatch import receiver
 
 from db.config import BaseModel
-from db.choices import SCIAN_GROUP_ID_BY_CODE, ORGANIZATION_SECTOR_CHOICES
+from db.choices import SCIAN_GROUP_ID_BY_CODE, ORGANIZATION_SECTOR_CHOICES, DONOR_SECTOR_CHOICES
 from db.choices import SUBMISSION_SOURCE_CHOICES
 from jobs.messages import send_email
 from helpers.location import geos_location_from_coordinates
@@ -341,9 +341,11 @@ class Submission(BaseModel):
 class Donor(BaseModel):
     """A reconstruction donor.
     """
+    sector = models.TextField(choices=DONOR_SECTOR_CHOICES, blank=True, db_index=True)
     name = models.TextField(unique=True)
     desc = models.TextField(blank=True)
-    website = models.TextField(blank=True)
+    year_established = models.IntegerField(null=True, blank=True)
+    contact = JSONField(default={}, blank=True, help_text='Contact data')
     organization = models.OneToOneField('Organization', related_name='donor', blank=True, null=True,
                                         help_text='Is donor also an organization?')
 

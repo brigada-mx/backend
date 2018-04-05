@@ -5,6 +5,13 @@ ORGANIZATION_SECTOR_CHOICES = (
     ('religious', 'Religioso'),
 )
 
+DONOR_SECTOR_CHOICES = (
+    ('civil', 'Civil'),
+    ('public', 'Público'),
+    ('private', 'Privado'),
+    ('religious', 'Religioso'),
+)
+
 SUBMISSION_SOURCE_CHOICES = (
     ('kobo', 'KoBo'),
 )
