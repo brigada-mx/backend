@@ -21,6 +21,8 @@ class OrganizationUserAuthentication(authentication.BaseAuthentication):
             tkn = OrganizationUserToken.objects.get(key=token)
         except OrganizationUserToken.DoesNotExist:
             raise exceptions.AuthenticationFailed('invalid_token')
+        if not tkn.user.is_active:
+            raise exceptions.AuthenticationFailed('invalid_token')
 
         return (tkn.user, 'OrganizationUser')
 
@@ -38,6 +40,8 @@ class DonorUserAuthentication(authentication.BaseAuthentication):
         try:
             tkn = DonorUserToken.objects.get(key=token)
         except DonorUserToken.DoesNotExist:
+            raise exceptions.AuthenticationFailed('invalid_token')
+        if not tkn.user.is_active:
             raise exceptions.AuthenticationFailed('invalid_token')
 
         return (tkn.user, 'DonorUser')

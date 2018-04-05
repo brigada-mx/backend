@@ -14,6 +14,6 @@ def authenticate(model, email, password):
     if not email or not password:
         return None
     user = model.objects.filter(email=email).first()
-    if not user or not user.check_password(password):
+    if not user or not user.is_active or not user.check_password(password):
         return None
     return user
