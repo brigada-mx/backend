@@ -95,14 +95,18 @@ class CustomAbstractPublicUser(CustomAbstractBaseUser):
     password = models.CharField(max_length=128, blank=True)
     set_password_token = models.TextField(db_index=True, default='', blank=True)
     set_password_token_created = models.DateTimeField(null=True, blank=True)
+    is_mainuser = models.BooleanField(blank=True, default=False, db_index=True)
 
     class Meta:
         abstract = True
 
     def save(self, *args, **kwargs):
+        """
+        """
         if self.pk is None:
             if not self.password:
                 self.set_unusable_password()
+            self.is_mainuser = self.is_mainuser_on_create()
             return self.send_set_password_email(save=True, reset=False)
         return super().save(*args, **kwargs)
 
@@ -124,6 +128,9 @@ class OrganizationUser(CustomAbstractPublicUser):
     @property
     def is_organization_user(self):
         return True
+
+    def is_mainuser_on_create(self):
+        return OrganizationUser.objects.filter(organization=self.organization).first() is None
 
     def reset_password_email(self):
         subject = 'Restablecer tu contraseña Brigada'
@@ -153,6 +160,9 @@ class DonorUser(CustomAbstractPublicUser):
     @property
     def is_donor_user(self):
         return True
+
+    def is_mainuser_on_create(self):
+        return DonorUser.objects.filter(donor=self.donor).first() is None
 
     def reset_password_email(self):
         subject = 'Restablecer tu contraseña de donador Brigada'
