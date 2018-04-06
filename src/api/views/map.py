@@ -3,15 +3,17 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import generics
 
-from db.map.models import State, Municipality, Locality, Action, Organization, Establishment, Submission, Donor
+from db.map.models import State, Municipality, Locality, Action, Organization, Establishment, Submission
+from db.map.models import Donor, Donation
 from api.serializers import StateSerializer, MunicipalitySerializer
 from api.serializers import LocalityDetailSerializer, LocalityRawSerializer, LocalitySerializer
 from api.serializers import EstablishmentSerializer, SubmissionSerializer, ActionMiniSerializer
 from api.serializers import ActionSubmissionsSerializer, ActionLogSerializer, ActionDetailSerializer
-from api.serializers import OrganizationSerializer, OrganizationDetailSerializer, DonorMiniSerializer, DonorSerializer
+from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
+from api.serializers import DonorMiniSerializer, DonorSerializer, DonationActionSubmissionsSerializer
 from api.paginators import LargeNoCountPagination
 from api.throttles import SearchBurstRateScopedThrottle
-from api.filters import parse_boolean, ActionFilter, EstablishmentFilter, SubmissionFilter
+from api.filters import parse_boolean, ActionFilter, EstablishmentFilter, SubmissionFilter, DonationFilter
 
 
 class StateList(generics.ListAPIView):
@@ -186,4 +188,14 @@ class DonorDetail(generics.RetrieveAPIView):
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
             Donor.objects.all()
+        )
+
+
+class DonationList(generics.ListAPIView):
+    serializer_class = DonationActionSubmissionsSerializer
+    filter_class = DonationFilter
+
+    def get_queryset(self):
+        return self.get_serializer_class().setup_eager_loading(
+            Donation.objects.filter(approved_by_org=True, approved_by_donor=True, action__published=True)
         )

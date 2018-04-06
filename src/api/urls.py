@@ -29,6 +29,8 @@ urlpatterns = [
 
     url(r'^submissions/$', views.SubmissionList.as_view(), name='submission-list'),
 
+    url(r'^donations/$', cache_page(60 * 0.5)(views.DonationList.as_view()), name='donation-list'),
+
     url(r'^donors_mini/$', views.DonorMiniList.as_view(), name='donor-mini-list'),
     url(r'^donors/$', cache_page(60 * 3)(views.DonorList.as_view()), name='donor-list'),
     url(r'^donors/(?P<pk>[0-9]+)/$', cache_page(60 * 0.5)(views.DonorDetail.as_view()), name='donor-detail'),

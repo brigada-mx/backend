@@ -265,6 +265,29 @@ class DonationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = '__all__'
 
 
+class ActionForDonationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    locality = LocalitySerializer(read_only=True)
+    organization = OrganizationMiniSerializer(read_only=True)
+    submissions = SubmissionMiniSerializer(source='submission_set', many=True, read_only=True)
+
+    class Meta:
+        model = Action
+        fields = '__all__'
+
+
+class DonationActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _PREFETCH_FUNCTIONS = [
+        lambda: Prefetch('action__submission_set', queryset=Submission.objects.filter(published=True)),
+    ]
+    _SELECT_RELATED_FIELDS = ['action__locality', 'action__organization']
+
+    action = ActionForDonationSerializer(read_only=True)
+
+    class Meta:
+        model = Donation
+        fields = '__all__'
+
+
 class DonorSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_FUNCTIONS = [
         lambda: Prefetch('donation_set', queryset=Donation.objects.select_related('action__locality').filter(
