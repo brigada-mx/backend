@@ -37,7 +37,7 @@ class DonorUserSerializer(serializers.ModelSerializer):
 class DonorUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Donor
-        fields = ('sector', 'name', 'desc', 'year_established', 'contact')
+        fields = ('sector', 'name', 'desc', 'year_established', 'contact', 'donating', 'donating_desc')
 
 
 class DonorReadSerializer(serializers.ModelSerializer):

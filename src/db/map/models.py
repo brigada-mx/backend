@@ -346,6 +346,8 @@ class Donor(BaseModel):
     desc = models.TextField(blank=True)
     year_established = models.IntegerField(null=True, blank=True)
     contact = JSONField(default={}, blank=True, help_text='Contact data')
+    donating = models.BooleanField(blank=True, default=False, db_index=True)
+    donating_desc = models.TextField(blank=True)
     organization = models.OneToOneField('Organization', related_name='donor', blank=True, null=True,
                                         help_text='Is donor also an organization?')
 
