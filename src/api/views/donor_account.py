@@ -3,18 +3,47 @@ from datetime import timedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.db import transaction
 
 from rest_framework import permissions, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from db.map.models import Donation
+from db.map.models import Donation, Donor
 from db.users.models import DonorUser, DonorUserToken
 from api.backends import DonorUserAuthentication
 from api.serializers import PasswordSerializer, PasswordTokenSerializer, SendSetPasswordEmailSerializer
 from api.serializers import DonorUserTokenSerializer, DonationDetailSerializer, DonorDonationUpdateSerializer
-from api.serializers import DonorUserSerializer, DonorUpdateSerializer, DonorReadSerializer
+from api.serializers import DonorUserSerializer, DonorCreateSerializer, DonorUpdateSerializer, DonorReadSerializer
 from api.serializers import DonorDonationCreateSerializer
+
+
+class DonorDonorCreate(APIView):
+    throttle_scope = 'authentication'
+
+    def post(self, request, *args, **kwargs):
+        serializer = DonorCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        donor_name = serializer.validated_data.pop('donor_name', None)
+        donor_id = serializer.validated_data.pop('donor_id', None)
+        email = serializer.validated_data['email']
+        first_name = serializer.validated_data['first_name']
+        surnames = serializer.validated_data['surnames']
+
+        try:
+            with transaction.atomic():
+                if donor_id is not None:  # `donor_id` takes precedence if both are passed
+                    donor = get_object_or_404(Donor, id=donor_id)
+                    if donor.donoruser_set.first() is not None:
+                        return Response({'error': 'This donor already has a user'}, status=400)
+                else:
+                    donor = Donor.objects.create(name=donor_name)
+                DonorUser.objects.create(
+                    donor=donor, email=email, first_name=first_name, surnames=surnames, is_active=False
+                )
+        except Exception as e:
+            return Response({'error': str(e)}, status=400)
+        return Response({})
 
 
 class DonorSendSetPasswordEmail(APIView):

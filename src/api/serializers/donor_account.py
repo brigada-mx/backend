@@ -57,3 +57,13 @@ class DonorDonationUpdateSerializer(serializers.ModelSerializer, EagerLoadingMix
         model = Donation
         fields = '__all__'
         read_only_fields = ('donor', 'approved_by_org')
+
+
+class DonorCreateSerializer(serializers.Serializer):
+    donor_id = serializers.IntegerField(required=False)
+    donor_name = serializers.CharField(required=False, trim_whitespace=True)
+
+    email = serializers.EmailField(allow_blank=False)
+    first_name = serializers.CharField(max_length=100, allow_blank=False, trim_whitespace=True)
+    surnames = serializers.CharField(max_length=100, allow_blank=False, trim_whitespace=True)
+

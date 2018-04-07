@@ -87,6 +87,7 @@ urlpatterns = [
     url(r'^donor_account/send_set_password_email/$',
         views.DonorSendSetPasswordEmail.as_view(), name='donoraccount-send-set-password-email'),
     url(r'^donor_account/me/$', views.DonorMe.as_view(), name='donoraccount-me'),
+    url(r'^donor_account/donors/$', views.DonorDonorCreate.as_view(), name='donor-donor-create'),
     url(r'^donor_account/donor/$', views.DonorRetrieveUpdate.as_view(), name='donoraccount-donor-retrieve-update'),
     url(r'^donor_account/donations/$', views.DonorDonationListCreate.as_view(), name='donoraccount-donation-create'),
     url(r'^donor_account/donations/(?P<pk>[0-9]+)/$',
