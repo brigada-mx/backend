@@ -10,7 +10,7 @@ from api.serializers import LocalityDetailSerializer, LocalityRawSerializer, Loc
 from api.serializers import EstablishmentSerializer, SubmissionSerializer, ActionMiniSerializer
 from api.serializers import ActionSubmissionsSerializer, ActionLogSerializer, ActionDetailSerializer
 from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
-from api.serializers import DonorMiniSerializer, DonorSerializer, DonationActionSubmissionsSerializer
+from api.serializers import DonorSerializer, DonorHasUserSerializer, DonationActionSubmissionsSerializer
 from api.paginators import LargeNoCountPagination
 from api.throttles import SearchBurstRateScopedThrottle
 from api.filters import parse_boolean, ActionFilter, EstablishmentFilter, SubmissionFilter, DonationFilter
@@ -167,10 +167,12 @@ class LocalitySearch(generics.ListAPIView):
 
 
 class DonorMiniList(generics.ListAPIView):
-    serializer_class = DonorMiniSerializer
+    serializer_class = DonorHasUserSerializer
 
     def get_queryset(self):
-        return Donor.objects.all()
+        return self.get_serializer_class().setup_eager_loading(
+            Donor.objects.all()
+        )
 
 
 class DonorList(generics.ListAPIView):

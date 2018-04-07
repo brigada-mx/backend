@@ -8,6 +8,19 @@ from api.mixins import EagerLoadingMixin, DynamicFieldsMixin
 from api.fields import LatLngField
 
 
+class DonorHasUserSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _PREFETCH_RELATED_FIELDS = ['donoruser_set']
+
+    has_user = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Donor
+        fields = '__all__'
+
+    def get_has_user(self, obj):
+        return len(obj.donoruser_set.all()) > 0
+
+
 class DonorMiniSerializer(serializers.ModelSerializer):
     class Meta:
         model = Donor
