@@ -295,8 +295,9 @@ class DonationActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoad
 
 class DonorSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_FUNCTIONS = [
-        lambda: Prefetch('donation_set', queryset=Donation.objects.select_related('action__locality').filter(
-            approved_by_donor=True, approved_by_org=True)),
+        lambda: Prefetch('donation_set', queryset=Donation.objects.select_related(
+            'action__locality', 'action__organization'
+        ).filter(approved_by_donor=True, approved_by_org=True)),
     ]
 
     donations = DonationDetailSerializer(source='donation_set', many=True, read_only=True)

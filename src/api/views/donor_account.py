@@ -27,6 +27,7 @@ class DonorDonorCreate(APIView):
         donor_name = serializer.validated_data.pop('donor_name', None)
         donor_id = serializer.validated_data.pop('donor_id', None)
         email = serializer.validated_data['email']
+        sector = serializer.validated_data['sector']
         first_name = serializer.validated_data['first_name']
         surnames = serializer.validated_data['surnames']
 
@@ -38,6 +39,8 @@ class DonorDonorCreate(APIView):
                         return Response({'error': 'This donor already has a user'}, status=400)
                 else:
                     donor = Donor.objects.create(name=donor_name)
+                donor.sector = sector
+                donor.save()
                 user = DonorUser.objects.create(
                     donor=donor, email=email, first_name=first_name, surnames=surnames, is_active=False
                 )

@@ -60,6 +60,7 @@ class DonorDonationUpdateSerializer(serializers.ModelSerializer, EagerLoadingMix
 
 
 class DonorCreateSerializer(serializers.Serializer):
+    sector = serializers.CharField(allow_blank=False)
     donor_id = serializers.IntegerField(required=False)
     donor_name = serializers.CharField(required=False, trim_whitespace=True)
 
