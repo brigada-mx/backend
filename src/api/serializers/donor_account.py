@@ -66,4 +66,3 @@ class DonorCreateSerializer(serializers.Serializer):
     email = serializers.EmailField(allow_blank=False)
     first_name = serializers.CharField(max_length=100, allow_blank=False, trim_whitespace=True)
     surnames = serializers.CharField(max_length=100, allow_blank=False, trim_whitespace=True)
-

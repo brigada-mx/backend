@@ -38,11 +38,12 @@ class DonorDonorCreate(APIView):
                         return Response({'error': 'This donor already has a user'}, status=400)
                 else:
                     donor = Donor.objects.create(name=donor_name)
-                DonorUser.objects.create(
+                user = DonorUser.objects.create(
                     donor=donor, email=email, first_name=first_name, surnames=surnames, is_active=False
                 )
         except Exception as e:
             return Response({'error': str(e)}, status=400)
+        user.send_notify_admin_created_email()
         return Response({})
 
 

@@ -185,6 +185,13 @@ class DonorUser(CustomAbstractPublicUser):
         """.format(os.getenv('CUSTOM_SITE_URL'), self.set_password_token, self.email)
         send_email.delay([self.email], subject, body)
 
+    def send_notify_admin_created_email(self):
+        subject = 'Nuevo usuario de donador'
+        body = 'Nuevo usuario {} {} con email {}, para donador {} con id {}, esperando aprobación.'.format(
+            self.first_name, self.surnames, self.email, self.donor.name, self.donor.id
+        )
+        send_email.delay(['eduardo@fortana.co', 'kyle@fortana.co'], subject, body)
+
 
 class TokenBaseModel(models.Model):
     """Abstract token authorization model.
