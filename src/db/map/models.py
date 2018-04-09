@@ -5,6 +5,7 @@ from django.db.models import Max
 from django.utils import timezone
 from django.contrib.postgres.fields import JSONField
 from django.dispatch import receiver
+from django.core.exceptions import ValidationError
 
 from db.config import BaseModel
 from db.choices import SCIAN_GROUP_ID_BY_CODE, ORGANIZATION_SECTOR_CHOICES, DONOR_SECTOR_CHOICES
@@ -186,6 +187,10 @@ class Organization(BaseModel):
             self.secret_key = generate_secret_key()
         return super().save(*args, **kwargs)
 
+    def clean(self):
+        if not isinstance(self.contact, dict):
+            raise ValidationError({'contact': 'must be instance of dict'})
+
     def reset_secret_key(self):
         self.secret_key = generate_secret_key()
         self.save()
@@ -356,6 +361,16 @@ class Donor(BaseModel):
 
     class Meta:
         ordering = ('name',)
+
+    def clean(self):
+        if not isinstance(self.contact, dict):
+            raise ValidationError({'contact': 'must be instance of dict'})
+
+    def add_contact_email(self, contact_email):
+        contact_emails = self.contact.get('contact_emails', [])
+        contact_emails.append(contact_email)
+        self.contact['contact_emails'] = list(set(contact_emails))
+        self.save()
 
 
 class Donation(BaseModel):

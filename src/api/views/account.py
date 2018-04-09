@@ -290,6 +290,7 @@ class AccountDonationCreate(APIView):
         serializer.is_valid(raise_exception=True)
         donor_name = serializer.validated_data.pop('donor_name', None)
         donor_id = serializer.validated_data.pop('donor_id', None)
+        contact_email = serializer.validated_data.pop('contact_email', None)
 
         if donor_id is not None:  # `donor_id` takes precedence if both are passed
             donor = get_object_or_404(Donor, id=donor_id)
@@ -297,6 +298,8 @@ class AccountDonationCreate(APIView):
             donor = Donor.objects.filter(name=donor_name).first()
             if donor is None:
                 donor = Donor.objects.create(name=donor_name)
+        if contact_email:
+            donor.add_contact_email(contact_email)
 
         action = serializer.validated_data.get('action')
         if action not in self.request.user.organization.action_set.all():

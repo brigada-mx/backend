@@ -8,7 +8,7 @@ from api.serializers.map import DonorMiniSerializer
 
 
 class DonorUserTokenSerializer(serializers.Serializer):
-    email = serializers.CharField()
+    email = serializers.EmailField()
     password = serializers.CharField()
 
     def validate(self, attrs):

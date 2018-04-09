@@ -16,7 +16,7 @@ class ArchiveSerializer(serializers.Serializer):
 
 
 class OrganizationUserTokenSerializer(serializers.Serializer):
-    email = serializers.CharField()
+    email = serializers.EmailField()
     password = serializers.CharField()
 
     def validate(self, attrs):
@@ -131,6 +131,7 @@ class SubmissionUpdateSerializer(serializers.ModelSerializer):
 class AccountDonationCreateSerializer(serializers.ModelSerializer):
     donor_id = serializers.IntegerField(required=False)
     donor_name = serializers.CharField(required=False)
+    contact_email = serializers.EmailField(required=False)
 
     class Meta:
         model = Donation
