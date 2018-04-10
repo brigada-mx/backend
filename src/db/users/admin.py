@@ -14,7 +14,7 @@ class OrganizationUserAdmin(admin.ModelAdmin):
 
 
 class DonorUserAdmin(admin.ModelAdmin):
-    exclude = ('set_password_token', 'password', 'is_active', 'last_login', 'set_password_token_created')
+    exclude = ('set_password_token', 'password', 'last_login', 'set_password_token_created')
     readonly_fields = ('set_password_token', 'password')
 
 

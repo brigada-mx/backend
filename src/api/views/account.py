@@ -32,6 +32,8 @@ class AccountSendSetPasswordEmail(APIView):
         email = serializer.validated_data['email']
         user = OrganizationUser.objects.filter(email=email).first()
         if user is not None:
+            if not user.is_active:
+                return Response({'error': 'user not active'})
             user.send_set_password_email()
         return Response({'email': email})
 

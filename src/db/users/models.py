@@ -101,13 +101,17 @@ class CustomAbstractPublicUser(CustomAbstractBaseUser):
         abstract = True
 
     def save(self, *args, **kwargs):
-        """
-        """
         if self.pk is None:
             if not self.password:
                 self.set_unusable_password()
             self.is_mainuser = self.is_mainuser_on_create()
-            return self.send_set_password_email(save=True, reset=False)
+            if self.is_active:
+                self.send_set_password_email(save=True, reset=False)
+                return
+            else:
+                return super().save(*args, **kwargs)
+        if self.is_active and not self.set_password_token_created:
+            self.send_set_password_email(save=False, reset=False)
         return super().save(*args, **kwargs)
 
     def send_set_password_email(self, save=True, reset=True):
