@@ -4,12 +4,13 @@ from rest_framework import serializers
 
 from db.map.models import State, Municipality, Locality, Establishment
 from db.map.models import Organization, Action, ActionLog, Submission, Donor, Donation
+from db.users.models import DonorUser
 from api.mixins import EagerLoadingMixin, DynamicFieldsMixin
 from api.fields import LatLngField
 
 
 class DonorHasUserSerializer(serializers.ModelSerializer, EagerLoadingMixin):
-    _PREFETCH_RELATED_FIELDS = ['donoruser_set']
+    _PREFETCH_FUNCTIONS = [lambda: Prefetch('donoruser_set', queryset=DonorUser.objects.filter(is_active=True))]
 
     has_user = serializers.SerializerMethodField()
 
@@ -298,14 +299,19 @@ class DonorSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         lambda: Prefetch('donation_set', queryset=Donation.objects.select_related(
             'action__locality', 'action__organization'
         ).filter(approved_by_donor=True, approved_by_org=True)),
+        lambda: Prefetch('donoruser_set', queryset=DonorUser.objects.filter(is_active=True))
     ]
 
     donations = DonationDetailSerializer(source='donation_set', many=True, read_only=True)
+    has_user = serializers.SerializerMethodField()
     metrics = serializers.SerializerMethodField()
 
     class Meta:
         model = Donor
         fields = '__all__'
+
+    def get_has_user(self, obj):
+        return len(obj.donoruser_set.all()) > 0
 
     def get_metrics(self, obj):
         actions, orgs = set(), set()

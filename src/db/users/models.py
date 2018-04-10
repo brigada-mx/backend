@@ -181,7 +181,7 @@ class DonorUser(CustomAbstractPublicUser):
         body = """¡Gracias por crear tu cuenta de donador con Brigada!<br><br>
         Te faltan dos pasos para activar tu cuenta y convertirte en un usuario experto:<br><br>
         1. <a href="{}/establecer?token={}&email={}&type=donor" target="_blank">Activar tu cuenta</a><br><br>
-        2. <a href="https://calendly.com/brigada/capacitacion-donador" target="_blank">Agendar tu capacitación</a><br><br>
+        2. <a href="https://calendly.com/brigada/capacitacion" target="_blank">Agendar tu capacitación</a><br><br>
         Saludos,<br><br>
         Eduardo Mancera<br>
         Director de Brigada<br>
