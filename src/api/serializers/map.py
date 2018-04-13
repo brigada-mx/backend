@@ -298,7 +298,7 @@ class DonorSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_FUNCTIONS = [
         lambda: Prefetch('donation_set', queryset=Donation.objects.select_related(
             'action__locality', 'action__organization'
-        ).filter(approved_by_donor=True, approved_by_org=True)),
+        ).filter(approved_by_donor=True, approved_by_org=True, action__published=True)),
         lambda: Prefetch('donoruser_set', queryset=DonorUser.objects.filter(is_active=True))
     ]
 

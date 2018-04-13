@@ -41,6 +41,9 @@ urlpatterns = [
 
     url(r'^establishments/$', cache_page(60 * 30)(views.EstablishmentList.as_view()), name='establishment-list'),
 
+    # discourse endpoints
+    url(r'^discourse/login/$', views.DiscourseLogin.as_view(), name='discourse-login'),
+
     # organization account endpoints
     url(r'^account/token/$', views.AccountToken.as_view(), name='account-token'),
     url(r'^account/delete_token/$', views.AccountDeleteToken.as_view(), name='account-delete-token'),
