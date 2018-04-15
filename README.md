@@ -143,6 +143,31 @@ docker cp 919_db:/tmp/localities_index.csv ../data/algolia/
 The search results may be of higher quality, and they're faster. But we can't put all the localities in the index, which means we have to rebuild it every time we get new data on damaged buildings. PostgreSQL's full text search is good enough.
 
 
+## Copy production data to dev
+~~~sql
+# connect to local database
+delete from users_organizationusertoken;
+delete from users_donorusertoken;
+delete from users_organizationuser;
+delete from users_donoruser;
+delete from map_donation;
+delete from map_submission;
+delete from map_actionlog;
+delete from map_action;
+delete from map_donor;
+delete from map_organization;
+~~~
+
+~~~sh
+# in EC2 dashboard, find "default VPC security group", and add ingress access to "My IP"
+
+PGPASSWORD=password pg_dump -h pg-919.cexrnsicl0n4.us-west-2.rds.amazonaws.com -U postgres -a -t map_organization -t map_donor -t map_action -t map_submission -t map_donation -t users_organizationuser -t users_donoruser > /tmp/dump.sql
+
+docker cp /tmp/dump.sql 919_db:/dump.sql
+docker exec -it 919_db psql -h 127.0.0.1 -p 5432 -U postgres -f /dump.sql
+~~~
+
+
 ## Env vars
 Application configuration is stored in environment variables. These are stored in the `env.dev` and `env.prod` files.
 
@@ -202,3 +227,15 @@ python manage.py staffuser --email <email> --password <password> --full_name <fu
 From the root of the repo, run `python3 tools/org_users_to_contacts.py --outfile ~/Desktop/contacts.csv`. If this fails, make sure you have Python 3.6 or greater installed. The easiest way to do this is run `brew install python`.
 
 This script will create a CSV with all of our organization users that can be imported to Google Contacts.
+
+
+## pgweb for read-only access to our DB
+~~~sh
+wget https://github.com/sosedoff/pgweb/releases/download/v0.9.11/pgweb_linux_amd64.zip
+unzip pgweb_linux_amd64.zip
+mv pgweb_linux_amd64.zip pgweb
+
+./pgweb --url postgres://postgres:password@pg-919.cexrnsicl0n4.us-west-2.rds.amazonaws.com:5432/postgres --bind=0.0.0.0 --readonly --auth-user brigada --auth-pass <auth-pass>
+
+# http://34.213.162.114:8081/
+~~~

@@ -4,6 +4,7 @@ __pycache__/
 .env
 .vault-password
 .secret-key
+.pgweb-auth-pass
 requirements.txt
 
 # os x
