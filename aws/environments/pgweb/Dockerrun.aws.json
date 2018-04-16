@@ -1,0 +1,35 @@
+{
+  "AWSEBDockerrunVersion": 2,
+  "containerDefinitions": [
+    {
+      "name": "pgweb",
+      "image": "306439459454.dkr.ecr.us-west-2.amazonaws.com/pgweb",
+      "command": [
+        "./pgweb.sh"
+      ],
+      "essential": true,
+      "memory": 200,
+      "portMappings": [
+        {
+          "hostPort": 8081,
+          "containerPort": 8081
+        }
+      ]
+    },
+    {
+      "name": "nginx_pgweb",
+      "image": "306439459454.dkr.ecr.us-west-2.amazonaws.com/nginx_pgweb",
+      "essential": true,
+      "memory": 200,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 80
+        }
+      ],
+      "links": [
+        "pgweb"
+      ]
+    }
+  ]
+}
