@@ -3,6 +3,12 @@ from rest_framework import serializers
 from api.fields import LatLngField
 
 
+class DiscourseLoginSerializer(serializers.Serializer):
+    sso = serializers.CharField()
+    sig = serializers.CharField()
+    user_type = serializers.CharField()
+
+
 class LocationSerializer(serializers.Serializer):
     """Converts a param called `location` from a string to a `Point`
     instance, using `LatLngField`.

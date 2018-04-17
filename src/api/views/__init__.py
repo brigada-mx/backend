@@ -5,3 +5,4 @@ from .account import *
 from .donor_account import *
 from .internal import *
 from .webhooks import *
+from .discourse import *

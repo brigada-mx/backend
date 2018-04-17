@@ -11,12 +11,6 @@ from api.serializers.map import LocalitySerializer, DonationSerializer, ActionSe
 from api.serializers.map import OrganizationMiniSerializer, SubmissionMediumSerializer
 
 
-class DiscourseLoginSerializer(serializers.Serializer):
-    sso = serializers.CharField()
-    sig = serializers.CharField()
-    user_type = serializers.CharField()
-
-
 class ArchiveSerializer(serializers.Serializer):
     archived = serializers.BooleanField()
 
