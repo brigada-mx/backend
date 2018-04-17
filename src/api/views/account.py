@@ -85,20 +85,25 @@ class DiscourseLogin(APIView):
                     states.add(discourse_transform(state_name_transform(action.locality.state_name)))
             groups += list(states)
             org_name = user.organization.name
+            org_label = 'reconstructor'
+            org_id = user.organization.id
 
         if user_type == 'donor':
             groups = ['donadores']
             if user.donor.organization:
                 groups.append('reconstructores')
             org_name = user.donor.name
+            org_label = 'donador'
+            org_id = user.donor.id
 
         nonce_payload = b64decode(payload).decode()  # nonce=<nonce>
+        org_link = f'https://app.brigada.mx/{org_label}es/{org_id}'
         payload_dict = {
           'name': f'{user.full_name} - {org_name}',
           'external_id': f'{user_type}-{user.pk}',
           'email': user.email,
           'username': discourse_transform(user.full_name),
-          'bio': f'Estoy con el {"donador" if user_type == "donor" else "reconstructor"} {org_name}.',
+          'bio': f'Estoy con el {org_label} [{org_name}]({org_link}).',  # make sure discourse default trust level >= 1
           'add_groups': ','.join(groups),
         }
 
