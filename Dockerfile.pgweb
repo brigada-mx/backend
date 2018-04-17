@@ -1,3 +1,7 @@
 FROM sosedoff/pgweb
 
+RUN mkdir /code/
+WORKDIR /code/
+ADD ./pgweb /code/
+
 EXPOSE 8081

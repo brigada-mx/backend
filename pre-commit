@@ -1,6 +1,6 @@
 #!/bin/bash
 
-declare -a arr=("env.dev" "env.prod")
+declare -a arr=("env.dev" "env.prod" "env.pgweb")
 
 all_encrypted=0
 # iterate over files and check if any are not encrypted

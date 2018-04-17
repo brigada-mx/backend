@@ -230,12 +230,17 @@ This script will create a CSV with all of our organization users that can be imp
 
 
 ## pgweb for read-only access to our DB
+The quick and dirty way. Password-protected, but no SSL.
 ~~~sh
 wget https://github.com/sosedoff/pgweb/releases/download/v0.9.11/pgweb_linux_amd64.zip
 unzip pgweb_linux_amd64.zip
 mv pgweb_linux_amd64.zip pgweb
 
-./pgweb --url postgres://postgres:password@pg-919.cexrnsicl0n4.us-west-2.rds.amazonaws.com:5432/postgres --bind=0.0.0.0 --readonly --auth-user brigada --auth-pass <auth-pass>
+./pgweb --url postgres://postgres:password@pg-919.cexrnsicl0n4.us-west-2.rds.amazonaws.com:5432/postgres --bind=0.0.0.0 --readonly --auth-user brigada --auth-pass <auth-pass> &
 
-# http://34.213.162.114:8081/
+# http://<ec2-ip>:8081/
 ~~~
+
+A much better way, running in a multi-container, single instance docker env. Uses <https://github.com/DanielDent/docker-nginx-ssl-proxy> and <https://github.com/sosedoff/pgweb>. This depends on instances in this EB environment having read access to PostgreSQL.
+
+Lives at <pgweb.brigada.mx>. The connection is read-only, password protected and runs over SSL. This solution is safe and decoupled from the API.
