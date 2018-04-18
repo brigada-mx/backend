@@ -4,9 +4,11 @@ import hashlib
 from base64 import b64decode, b64encode
 from urllib.parse import unquote, quote
 
+from rest_framework import serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+from db.users.models import OrganizationUser, DonorUser
 from api.serializers import OrganizationUserTokenSerializer, DonorUserTokenSerializer, DiscourseLoginSerializer
 
 
@@ -26,8 +28,17 @@ def state_name_transform(name):
     return name
 
 
+def get_state_groups(user):
+    states = set()
+    for action in user.organization.action_set.select_related('locality').all():
+        if action.published:
+            states.add(discourse_transform(state_name_transform(action.locality.state_name)))
+    return list(states)
+
+
 class DiscourseLogin(APIView):
-    """View for obtaining an auth token by posting a valid email/password tuple.
+    """View for obtaining an auth token by posting a valid email/password tuple,
+    for either org user or donor user.
     """
     throttle_scope = 'authentication'
 
@@ -36,13 +47,33 @@ class DiscourseLogin(APIView):
         serializer.is_valid(raise_exception=True)
         sso = serializer.validated_data['sso']
         sig = serializer.validated_data['sig']
-        user_type = serializer.validated_data['user_type']
 
-        assert user_type in ('org', 'donor')
-        serializer_class = {'org': OrganizationUserTokenSerializer, 'donor': DonorUserTokenSerializer}[user_type]
-        serializer = serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
+        serializer = DonorUserTokenSerializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except serializers.ValidationError:
+            serializer = OrganizationUserTokenSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data['user'].email
+        groups = []
+
+        donor_user = DonorUser.objects.filter(email=email).first()
+        if donor_user:
+            user = donor_user
+            user_type = 'donor'
+            groups.append('donadores')
+            org_name = donor_user.donor.name
+            bio = f'Estoy con donador [{org_name}](https://app.brigada.mx/donadores/{donor_user.donor.id}).'
+
+        org_user = OrganizationUser.objects.filter(email=email).first()  # org user takes precedence
+        if org_user:
+            user = org_user
+            user_type = 'org'
+            groups.append('reconstructores')
+            groups += get_state_groups(org_user)
+            org_name = org_user.organization.name
+            bio = f'Estoy con [{org_name}](https://app.brigada.mx/reconstructores/{org_user.organization.id}).'
 
         sso_secret = os.getenv('CUSTOM_DISCOURSE_SSO_SECRET')
         payload = unquote(sso)
@@ -52,38 +83,13 @@ class DiscourseLogin(APIView):
         if signature != sig:
             return Response({'error': 'invalid_signature'}, status=400)
 
-        if user_type == 'org':
-            groups = ['reconstructores']
-            try:
-                if user.organization.donor:
-                    groups.append('donadores')
-            except:
-                pass
-            states = set()
-            for action in user.organization.action_set.select_related('locality').all():
-                if action.published:
-                    states.add(discourse_transform(state_name_transform(action.locality.state_name)))
-            groups += list(states)
-            org_name = user.organization.name
-            org_label = 'reconstructor'
-            org_id = user.organization.id
-
-        if user_type == 'donor':
-            groups = ['donadores']
-            if user.donor.organization:
-                groups.append('reconstructores')
-            org_name = user.donor.name
-            org_label = 'donador'
-            org_id = user.donor.id
-
         nonce_payload = b64decode(payload).decode()  # nonce=<nonce>
-        org_link = f'https://app.brigada.mx/{org_label}es/{org_id}'
         payload_dict = {
           'name': f'{user.full_name} - {org_name}',
           'external_id': f'{user_type}-{user.pk}',
           'email': user.email,
           'username': discourse_transform(user.full_name),
-          'bio': f'Estoy con el {org_label} [{org_name}]({org_link}).',  # make sure discourse default trust level >= 1
+          'bio': bio,  # make sure discourse default trust level >= 1, or links are disabled
           'add_groups': ','.join(groups),
         }
 

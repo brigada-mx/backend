@@ -6,7 +6,6 @@ from api.fields import LatLngField
 class DiscourseLoginSerializer(serializers.Serializer):
     sso = serializers.CharField()
     sig = serializers.CharField()
-    user_type = serializers.CharField()
 
 
 class LocationSerializer(serializers.Serializer):
