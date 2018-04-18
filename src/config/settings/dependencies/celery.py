@@ -1,9 +1,11 @@
 from __future__ import absolute_import
 
+from celery.schedules import crontab
 from datetime import timedelta
 
 CELERY_IMPORTS = (
     'jobs.kobo',
+    'jobs.discourse',
 )
 
 CELERY_TIMEZONE = 'America/Mexico_City'
@@ -20,5 +22,10 @@ CELERYBEAT_SCHEDULE = {
     'upload_recent_submission_images': {
         'task': 'upload_recent_submission_images',
         'schedule': timedelta(seconds=60 * 10),
+    },
+
+    'discourse_log_out_users': {
+        'task': 'discourse_log_out_users',
+        'schedule': crontab(minute=[15, 45], hour=3, day_of_week=[1, 4]),
     },
 }
