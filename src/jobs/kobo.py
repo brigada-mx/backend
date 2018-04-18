@@ -47,7 +47,10 @@ def sync_submissions(past_days=1):
     form_ids = get_form_ids()
 
     def sync_recent_form_submissions(form_id):
-        submissions = get_recent_form_submissions(form_id, past_days)
+        try:
+            submissions = get_recent_form_submissions(form_id, past_days)
+        except requests.exceptions.RequestException as e:
+            return {'exception': str(e)}
         return [r for r in [sync_submission(s) for s in submissions] if r]
 
     with futures.ThreadPoolExecutor(MAX_WORKERS) as executor:

@@ -18,7 +18,7 @@ def get_user_ids(exclude_emails=None):
     return [user['id'] for user in r.json() if user['email'] not in exclude_emails]
 
 
-@shared_task(name='discourse_log_out_users')
+@shared_task(name='discourse_log_out_users', default_retry_delay=30, max_retries=3)
 def discourse_log_out_users():
     from django.conf import settings
     if not settings.ENVIRONMENT == 'production':
@@ -29,8 +29,11 @@ def discourse_log_out_users():
         'kylebebak@gmail.com', 'eduardo@fortana.co', 'support+hostedsite@discourse.org', 'discobot_email', 'no_email'])
 
     def log_out_user(user_id):
-        r = requests.post(API_HOST + f'/admin/users/{user_id}/log_out', params=AUTH_PARAMS, timeout=TIMEOUT)
-        r.raise_for_status()
+        try:
+            r = requests.post(API_HOST + f'/admin/users/{user_id}/log_out', params=AUTH_PARAMS, timeout=TIMEOUT)
+            r.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            return {'exception': str(e)}
         return r.json()
 
     with futures.ThreadPoolExecutor(MAX_WORKERS) as executor:
