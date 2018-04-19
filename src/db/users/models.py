@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
 from db.config import BaseModel
-from jobs.messages import send_email
+from jobs.messages import send_email, send_email_with_footer
 
 
 class UserManager(BaseUserManager):
@@ -125,6 +125,14 @@ class CustomAbstractPublicUser(CustomAbstractBaseUser):
         else:
             self.activate_account_email()
 
+    def send_training_email(self):
+        subject = 'Capacitación virtual de Brigada'
+        body = """¡Gracias por activar tu cuenta!<br><br>
+        Falta solo una cosa para convertirte en un usuario experto:<br><br>
+        <a href="https://calendly.com/brigada/capacitacion" target="_blank">Agendar tu capacitación virtual</a>
+        """.format(os.getenv('CUSTOM_SITE_URL'), self.set_password_token, self.email)
+        send_email_with_footer.delay([self.email], subject, body)
+
 
 class OrganizationUser(CustomAbstractPublicUser):
     organization = models.ForeignKey('map.Organization')
@@ -147,15 +155,10 @@ class OrganizationUser(CustomAbstractPublicUser):
     def activate_account_email(self):
         subject = 'Activa tu cuenta Brigada'
         body = """¡Gracias por crear tu cuenta con Brigada!<br><br>
-        Te faltan dos pasos para activar tu cuenta y convertirte en un usuario experto:<br><br>
-        1. <a href="{}/establecer?token={}&email={}" target="_blank">Activar tu cuenta</a><br><br>
-        2. <a href="https://calendly.com/brigada/capacitacion" target="_blank">Agendar tu capacitación virtual</a><br><br>
-        Saludos,<br><br>
-        Eduardo Mancera<br>
-        Director de Brigada<br>
-        <a href="mailto:eduardo@fortana.co">eduardo@fortana.co</a>
+        Dale clic en el link para activar tu cuenta:<br><br>
+        <a href="{}/establecer?token={}&email={}&created=true" target="_blank">Activar tu cuenta</a>
         """.format(os.getenv('CUSTOM_SITE_URL'), self.set_password_token, self.email)
-        send_email.delay([self.email], subject, body)
+        send_email_with_footer.delay([self.email], subject, body)
 
 
 class DonorUser(CustomAbstractPublicUser):
@@ -179,15 +182,10 @@ class DonorUser(CustomAbstractPublicUser):
     def activate_account_email(self):
         subject = 'Activa tu cuenta Brigada'
         body = """¡Gracias por crear tu cuenta de donador con Brigada!<br><br>
-        Te faltan dos pasos para activar tu cuenta y convertirte en un usuario experto:<br><br>
-        1. <a href="{}/establecer?token={}&email={}&type=donor" target="_blank">Activar tu cuenta</a><br><br>
-        2. <a href="https://calendly.com/brigada/capacitacion" target="_blank">Agendar tu capacitación</a><br><br>
-        Saludos,<br><br>
-        Eduardo Mancera<br>
-        Director de Brigada<br>
-        <a href="mailto:eduardo@fortana.co">eduardo@fortana.co</a>
+        Dale clic en el link para activar tu cuenta:<br><br>
+        <a href="{}/establecer?token={}&email={}&type=donor&created=true" target="_blank">Activar tu cuenta</a>
         """.format(os.getenv('CUSTOM_SITE_URL'), self.set_password_token, self.email)
-        send_email.delay([self.email], subject, body)
+        send_email_with_footer.delay([self.email], subject, body)
 
     def send_notify_admin_created_email(self):
         subject = 'Nuevo usuario de donador'

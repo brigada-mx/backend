@@ -52,6 +52,8 @@ class AccountSetPasswordWithToken(APIView):
         user.set_password(serializer.validated_data['password'])
         user.set_password_token = ''
         user.save()
+        if serializer.validated_data['created']:
+            user.send_training_email()
         return Response({'id': user.pk})
 
 

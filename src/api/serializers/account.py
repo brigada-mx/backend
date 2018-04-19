@@ -43,6 +43,7 @@ class PasswordSerializer(serializers.Serializer):
 class PasswordTokenSerializer(serializers.Serializer):
     password = serializers.CharField(min_length=8, max_length=None, allow_blank=False, trim_whitespace=True)
     token = serializers.CharField(min_length=20, max_length=None, allow_blank=False, trim_whitespace=True)
+    created = serializers.BooleanField(required=False, default=False)
 
 
 class OrganizationCreateSerializer(serializers.Serializer):
