@@ -1,6 +1,15 @@
 from rest_framework import serializers
 
+from db.map.models import AppVersion
 from api.fields import LatLngField
+
+
+class AppVersionSerializer(serializers.ModelSerializer):
+    git_hash_short = serializers.ReadOnlyField()
+
+    class Meta:
+        model = AppVersion
+        fields = '__all__'
 
 
 class DiscourseLoginSerializer(serializers.Serializer):

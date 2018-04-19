@@ -1,3 +1,8 @@
+APP_TYPE_CHOICES = (
+    ('web', 'web'),
+    ('backend', 'backend'),
+)
+
 ORGANIZATION_SECTOR_CHOICES = (
     ('civil', 'Civil'),
     ('public', 'Público'),

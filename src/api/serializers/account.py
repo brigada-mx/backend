@@ -54,7 +54,7 @@ class OrganizationCreateSerializer(serializers.Serializer):
     surnames = serializers.CharField(max_length=100, allow_blank=False, trim_whitespace=True)
 
 
-class OrganizationUserSerializer(serializers.ModelSerializer):
+class OrganizationUserSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['organization']
 
     organization = OrganizationMiniSerializer(read_only=True)

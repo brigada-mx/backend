@@ -22,6 +22,7 @@ requester.pyr
 # docker
 dbdata/
 
+# sandbox
 sandbox/
 
 # elastic beanstalk files

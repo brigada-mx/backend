@@ -8,7 +8,7 @@ from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 
 from db.config import BaseModel
-from db.choices import SCIAN_GROUP_ID_BY_CODE, ORGANIZATION_SECTOR_CHOICES, DONOR_SECTOR_CHOICES
+from db.choices import SCIAN_GROUP_ID_BY_CODE, ORGANIZATION_SECTOR_CHOICES, DONOR_SECTOR_CHOICES, APP_TYPE_CHOICES
 from db.choices import SUBMISSION_SOURCE_CHOICES
 from jobs.messages import send_email
 from helpers.location import geos_location_from_coordinates
@@ -23,6 +23,18 @@ action_fields = [
 donation_fields = [
     'action', 'donor', 'amount', 'received_date', 'desc',
 ]
+
+
+class AppVersion(BaseModel):
+    app_type = models.TextField(choices=APP_TYPE_CHOICES, db_index=True)
+    git_hash = models.TextField(db_index=True)
+
+    @property
+    def git_hash_short(self):
+        return self.git_hash[:7]
+
+    class Meta:
+        ordering = ('-created',)
 
 
 class Locality(BaseModel):

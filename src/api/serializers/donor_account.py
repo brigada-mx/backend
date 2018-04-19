@@ -23,7 +23,7 @@ class DonorUserTokenSerializer(serializers.Serializer):
         return attrs
 
 
-class DonorUserSerializer(serializers.ModelSerializer):
+class DonorUserSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['donor']
 
     donor = DonorMiniSerializer(read_only=True)
