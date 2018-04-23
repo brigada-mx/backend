@@ -33,6 +33,6 @@ def send_email_with_footer(recipients, subject, body, source='accounts@brigada.m
     Saludos,<br><br>
     Eduardo Mancera<br>
     Director de Brigada<br>
-    <a href="mailto:eduardo@fortana.co">eduardo@fortana.co</a>
+    <a href="mailto:eduardo@brigada.mx">eduardo@brigada.mx</a>
     """
     return send_email(recipients, subject, body, source='accounts@brigada.mx', reply_to=None)

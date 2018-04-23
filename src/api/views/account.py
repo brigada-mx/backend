@@ -155,7 +155,9 @@ class AccountOrganizationCreate(APIView):
 
         try:
             with transaction.atomic():
-                organization = Organization.objects.create(name=name, sector=sector)
+                organization = Organization.objects.create(
+                    name=name, sector=sector, contact={'email': email, 'person_responsible': f'{first_name} {surnames}'}
+                )
                 OrganizationUser.objects.create(
                     organization=organization, email=email, first_name=first_name, surnames=surnames
                 )

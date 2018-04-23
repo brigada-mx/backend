@@ -26,6 +26,6 @@ CELERYBEAT_SCHEDULE = {
 
     'discourse_log_out_users': {
         'task': 'discourse_log_out_users',
-        'schedule': crontab(minute=[15, 45], hour=3, day_of_week=[1, 4]),
+        'schedule': crontab(minute=[15, 45], hour=3, day_of_week=1),
     },
 }
