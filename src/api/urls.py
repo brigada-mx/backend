@@ -10,6 +10,8 @@ urlpatterns = [
     url(r'^internal/app_versions/$', views.AppVersionListCreate.as_view(), name='app-version-list-create'),
     url(r'^internal/organization_users/$',
         views.InternalOrganizationUserList.as_view(), name='internal-organization-user-list'),
+    url(r'^internal/debug/throw_exception/$',
+        views.InternalDebugThrowException.as_view(), name='internal-debug-throw-exception'),
 
     # public endpoints
     url(r'^webhooks/kobo_submission/$', views.KoboSubmissionWebhook.as_view(), name='kobo-submission-webhook'),

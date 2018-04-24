@@ -2,7 +2,6 @@
 from config.settings.base import *
 
 ENVIRONMENT = 'development'
-RAVEN_CONFIG['environment'] = 'development'
 
 # https://github.com/tomchristie/django-pdb
 INSTALLED_APPS = ['django_pdb',] + INSTALLED_APPS + ['debug_toolbar', 'django_extensions']

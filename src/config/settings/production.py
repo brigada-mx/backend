@@ -2,7 +2,18 @@
 from config.settings.base import *
 
 ENVIRONMENT = 'production'
-RAVEN_CONFIG['environment'] = 'production'
+
+INSTALLED_APPS = INSTALLED_APPS + ['raven.contrib.django.raven_compat',]
+
+RAVEN_CONFIG = {
+    'dsn': os.getenv('CUSTOM_RAVEN_DSN'),
+    'ignore_exceptions': [
+        'Http404',
+        'django.exceptions.http.Http404',
+    ],
+    'environment': 'production',
+    'release': os.getenv('CUSTOM_GIT_COMMIT_HASH'),
+}
 
 REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ('rest_framework.renderers.JSONRenderer',)
 

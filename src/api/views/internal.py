@@ -1,3 +1,4 @@
+from rest_framework.views import APIView
 from rest_framework import permissions, generics
 
 from db.users.models import OrganizationUser, DonorUser
@@ -26,6 +27,17 @@ class InternalDonorUserList(generics.ListAPIView):
         return self.get_serializer_class().setup_eager_loading(
             DonorUser.objects.all()
         )
+
+
+class InternalDebugThrowException(APIView):
+    """curl -H "Content-Type: application/json" -H "Authorization: Bearer `cat .secret-key`" https://api.brigada.mx/api/internal/debug/throw_exception/
+    """
+    authentication_classes = (InternalAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = DonorUserSerializer
+
+    def get(self, request, *args, **kwargs):
+        raise Exception('debug')
 
 
 class AppVersionListCreate(generics.ListCreateAPIView):
