@@ -44,6 +44,7 @@ urlpatterns = [
 
     # discourse endpoints
     url(r'^discourse/login/$', views.DiscourseLogin.as_view(), name='discourse-login'),
+    url(r'^discourse/authenticated_login/$', views.DiscourseAuthLogin.as_view(), name='discourse-auth-login'),
 
     # organization account endpoints
     url(r'^account/token/$', views.AccountToken.as_view(), name='account-token'),
