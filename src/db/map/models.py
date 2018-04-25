@@ -13,6 +13,7 @@ from db.choices import SUBMISSION_SOURCE_CHOICES
 from jobs.messages import send_email
 from helpers.location import geos_location_from_coordinates
 from helpers.diceware import diceware
+from helpers.datetime import timediff
 
 
 action_fields = [
@@ -23,6 +24,34 @@ action_fields = [
 donation_fields = [
     'action', 'donor', 'amount', 'received_date', 'desc',
 ]
+
+
+class EmailNotification(BaseModel):
+    email = models.EmailField()
+    email_type = models.TextField()
+    period_hours = models.IntegerField()
+    target = models.IntegerField(null=True, blank=True, db_index=True)
+    sent = models.IntegerField(blank=True, default=0, db_index=True)
+    last_sent = models.DateTimeField(blank=True, null=True, db_index=True)
+    done = models.DateTimeField(blank=True, default=False, db_index=True)
+
+    class Meta:
+        unique_together = ('email', 'email_type')
+        ordering = ('done', '-last_sent')
+
+    def should_send(self):
+        if self.done:
+            return False
+        if self.last_sent is None:
+            return True
+        return timediff(timezone.now(), self.last_sent, fmt='h') > self.period_hours
+
+    def increment_sent(self):
+        self.sent += 1
+        if self.target is not None and self.sent >= self.target:
+            self.done = True
+        self.last_sent = timezone.now()
+        self.save()
 
 
 class AppVersion(BaseModel):

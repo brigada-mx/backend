@@ -4,7 +4,7 @@ from helpers.http import get_ses_client
 
 
 @shared_task(name='send_email', default_retry_delay=30, max_retries=3)
-def send_email(recipients, subject, body, source='accounts@brigada.mx', reply_to=None):
+def send_email(recipients, subject, body, source='Brigada <accounts@brigada.mx>', reply_to=None):
     return get_ses_client().send_email(
         Source=source,
         Destination={
@@ -27,7 +27,7 @@ def send_email(recipients, subject, body, source='accounts@brigada.mx', reply_to
 
 
 @shared_task(name='send_email_with_footer', default_retry_delay=30, max_retries=3)
-def send_email_with_footer(recipients, subject, body, source='accounts@brigada.mx', reply_to=None):
+def send_email_with_footer(recipients, subject, body, source='Eduardo Mancera <eduardo@brigada.mx>', reply_to=None):
     body += """
     <br><br>
     Saludos,<br><br>
@@ -35,4 +35,4 @@ def send_email_with_footer(recipients, subject, body, source='accounts@brigada.m
     Director de Brigada<br>
     <a href="mailto:eduardo@brigada.mx">eduardo@brigada.mx</a>
     """
-    return send_email(recipients, subject, body, source='accounts@brigada.mx', reply_to=None)
+    return send_email(recipients, subject, body, source, reply_to)

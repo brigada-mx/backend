@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 from pytz import NonExistentTimeError, AmbiguousTimeError
 
 from django.utils import timezone
-from django.db.models import Q
 
 
 def local_date(offset=0):
@@ -17,6 +16,8 @@ def make_aware_safe(dt):
 
     http://www.ilian.io/django-pytz-nonexistenttimeerror-and-ambiguoustimeerror/
     """
+    if timezone.is_aware(dt):
+        return dt
     try:
         return timezone.make_aware(dt)
     except (NonExistentTimeError, AmbiguousTimeError):
@@ -42,17 +43,9 @@ def timediff(t1=None, t0=None, fmt='h'):
     def clean(dt):
         if not dt:
             return timezone.now()
-        if not timezone.is_aware(dt):
-            return make_aware_safe(dt)
-        return dt
+        return make_aware_safe(dt)
 
     fmts = {'s': 1, 'm': 60, 'h': 3600, 'd': 86400, 'y': 31536000}
-    t0, t1 = [clean(dt) for dt in [t0, t1]]
+    t1 = clean(t1)
+    t0 = clean(t0)
     return (t1 - t0).total_seconds() / fmts[fmt]
-
-
-def datetime_range_filters(start=None, end=None):
-    if start:
-        yield Q(start__gte=start)
-    if end:
-        yield Q(end__lt=end)
