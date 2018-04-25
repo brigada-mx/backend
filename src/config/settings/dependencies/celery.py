@@ -6,6 +6,7 @@ from datetime import timedelta
 CELERY_IMPORTS = (
     'jobs.kobo',
     'jobs.discourse',
+    'jobs.notifications',
 )
 
 CELERY_TIMEZONE = 'America/Mexico_City'
@@ -27,5 +28,10 @@ CELERYBEAT_SCHEDULE = {
     'discourse_log_out_users': {
         'task': 'discourse_log_out_users',
         'schedule': crontab(minute=[15, 45], hour=3, day_of_week=1),
+    },
+
+    'send_email_notifications': {
+        'task': 'send_email_notifications',
+        'schedule': timedelta(seconds=60 * 60 * 4),
     },
 }

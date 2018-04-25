@@ -1,6 +1,7 @@
 import os
 
 from django.contrib.gis.db import models
+from django.db import transaction
 from django.db.models import Max
 from django.utils import timezone
 from django.contrib.postgres.fields import JSONField
@@ -27,16 +28,16 @@ donation_fields = [
 
 
 class EmailNotification(BaseModel):
-    email = models.EmailField()
     email_type = models.TextField()
+    args = JSONField(help_text='Arguments for notification function')
     period_hours = models.IntegerField()
     target = models.IntegerField(null=True, blank=True, db_index=True)
     sent = models.IntegerField(blank=True, default=0, db_index=True)
     last_sent = models.DateTimeField(blank=True, null=True, db_index=True)
-    done = models.DateTimeField(blank=True, default=False, db_index=True)
+    done = models.BooleanField(blank=True, default=False, db_index=True)
 
     class Meta:
-        unique_together = ('email', 'email_type')
+        unique_together = ('email_type', 'args')
         ordering = ('done', '-last_sent')
 
     def should_send(self):
@@ -223,9 +224,19 @@ class Organization(BaseModel):
     class Meta:
         ordering = ('name',)
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
         if not self.secret_key:
             self.secret_key = generate_secret_key()
+        if not self.pk:
+            super().save(*args, **kwargs)
+            EmailNotification.objects.create(
+                email_type='organization_user_no_projects',
+                args={'organization_id': self.pk},
+                period_hours=24*7,
+                target=2,
+            )
+            return
         return super().save(*args, **kwargs)
 
     def clean(self):
