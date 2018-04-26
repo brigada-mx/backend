@@ -437,6 +437,22 @@ class Donor(BaseModel):
         if not isinstance(self.contact, dict):
             raise ValidationError({'contact': 'must be instance of dict'})
 
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            super().save(*args, **kwargs)
+
+            EmailNotification.objects.create(
+                email_type='unclaimed_donor',
+                args={'donor_id': self.pk},
+                wait_hours=24*3,
+                period_hours=24*7,
+                target=3,
+            )
+
+            return
+        return super().save(*args, **kwargs)
+
     def add_contact_email(self, contact_email):
         contact_emails = self.contact.get('contact_emails', [])
         contact_emails.append(contact_email)

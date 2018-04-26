@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from celery import shared_task
 
-from db.map.models import EmailNotification, Organization, Action
+from db.map.models import EmailNotification, Organization, Action, Donor
 from jobs.messages import send_email_with_footer
 from helpers.datetime import timediff
 
@@ -85,8 +85,33 @@ def organization_no_photos(n):
         list(organization.organizationuser_set.values_list('email', flat=True)), subject, body)
 
 
-def donation_unclaimed_donor(n):
-    pass
+def unclaimed_donor(n):
+    donor = Donor.objects.prefetch_related('donoruser_set', 'donation_set').get(id=n.args['donor_id'])
+    users = donor.donoruser_set.all().order_by('created')
+    donations = donor.donation_set.all().order_by('created')
+    if len(users) > 0:
+        n.done = True
+        n.save()
+        return
+    if len(donations) == 0:
+        return
+
+    try:
+        emails = donor.contact['contact_emails']
+    except:
+        return
+
+    create_account_url = f'{os.getenv('CUSTOM_SITE_URL')}/crear/cuenta?type=donor&name={donor.name}&id={donor.id}'
+
+    subject = '¡Asume control de tu perfil de donador en la plataforma Brigada!'
+    body = """Reconstructores de la plataforma Brigada han dicho que tu organización, {}, ha financiado {} de sus proyectos, pero no has asumido control de tu perfil.<br><br>
+    Por eso te invitamos <a href="{}" target="_blank">a darte de alta en Brigada</a>.<br><br>
+    Ya que tu grupo tiene una cuenta, podrán documentar y editar donativos a cualquier proyecto que han financiado, para que todos sepan del trabajo que están haciendo por México.<br><br>
+    Si tienes cualquier duda, dale clic al botón de <b>Soporte</b> dentro de la plataforma.
+    """.format(
+        donor.name, len(donations), create_account_url)
+
+    return send_email_with_footer(emails, subject, body)
 
 
 def unapproved_donation(n):
@@ -97,7 +122,7 @@ notification_function_by_email_type = {
     'organization_no_projects': organization_no_projects,
     'organization_no_photos': organization_no_photos,
     'organization_no_donations': organization_no_donations,
-    'donation_unclaimed_donor': donation_unclaimed_donor,
+    'unclaimed_donor': unclaimed_donor,
     'unapproved_donation': unapproved_donation,
 }
 
