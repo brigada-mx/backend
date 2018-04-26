@@ -32,6 +32,6 @@ CELERYBEAT_SCHEDULE = {
 
     'send_email_notifications': {
         'task': 'send_email_notifications',
-        'schedule': timedelta(seconds=60 * 60 * 4),
+        'schedule': crontab(minute=0, hour=[10, 14, 18], day_of_week=[2, 3, 4, 5]),
     },
 }

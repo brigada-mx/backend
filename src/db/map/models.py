@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 from db.config import BaseModel
 from db.choices import SCIAN_GROUP_ID_BY_CODE, ORGANIZATION_SECTOR_CHOICES, DONOR_SECTOR_CHOICES, APP_TYPE_CHOICES
 from db.choices import SUBMISSION_SOURCE_CHOICES
-from jobs.messages import send_email
+from jobs.messages import send_email_with_footer
 from helpers.location import geos_location_from_coordinates
 from helpers.diceware import diceware
 from helpers.datetime import timediff
@@ -30,6 +30,7 @@ donation_fields = [
 class EmailNotification(BaseModel):
     email_type = models.TextField()
     args = JSONField(help_text='Arguments for notification function')
+    wait_hours = models.IntegerField(blank=True, default=0)
     period_hours = models.IntegerField()
     target = models.IntegerField(null=True, blank=True, db_index=True)
     sent = models.IntegerField(blank=True, default=0, db_index=True)
@@ -41,6 +42,9 @@ class EmailNotification(BaseModel):
         ordering = ('done', '-last_sent')
 
     def should_send(self):
+        hours = timediff(timezone.now(), self.created, fmt='h')
+        if hours < self.wait_hours:
+            return False
         if self.done:
             return False
         if self.last_sent is None:
@@ -230,12 +234,27 @@ class Organization(BaseModel):
             self.secret_key = generate_secret_key()
         if not self.pk:
             super().save(*args, **kwargs)
+
             EmailNotification.objects.create(
-                email_type='organization_user_no_projects',
+                email_type='organization_no_projects',
+                args={'organization_id': self.pk},
+                wait_hours=24*3,
+                period_hours=24*7,
+                target=2,
+            )
+            EmailNotification.objects.create(
+                email_type='organization_no_donations',
                 args={'organization_id': self.pk},
                 period_hours=24*7,
                 target=2,
             )
+            EmailNotification.objects.create(
+                email_type='organization_no_photos',
+                args={'organization_id': self.pk},
+                period_hours=24*7,
+                target=2,
+            )
+
             return
         return super().save(*args, **kwargs)
 
@@ -470,25 +489,31 @@ class Donation(BaseModel):
 
     def notify_org(self, created=False):
         donor = self.donor.name
-        created_subject = f'Donador {donor} te agregó una donación'
-        subject = created_subject if created else f'Donador {donor} modificó una de tus donaciones'
+        created_subject = f'Donador {donor} te agregó un donativo'
+        subject = created_subject if created else f'Donador {donor} modificó una de tus donativos'
         body = """
-        Para que aparezca la donación en tu perfil público, <a href="{}/cuenta/proyectos/{}" target="_blank">tienes que aprobarla aquí<a/>.<br><br>
+        Para que aparezca el donativo en tu perfil público, <a href="{}/cuenta/proyectos/{}" target="_blank">tienes que aprobarla aquí<a/>.
         """.format(os.getenv('CUSTOM_SITE_URL'), self.action.key)
 
+        if self.amount:
+            body = f"El donativo tiene un valor de ${'{:20,.0f}'.format(self.amount)} MXN.<br><br>" + body
+
         emails = list(self.action.organization.organizationuser_set.values_list('email', flat=True))
-        send_email.delay(emails, subject, body)
+        send_email_with_footer.delay(emails, subject, body)
 
     def notify_donor(self, created=False):
         org = self.action.organization.name
-        created_subject = f'Organización {org} te agregó una donación'
-        subject = created_subject if created else f'Organización {org} modificó una de tus donaciones'
+        created_subject = f'Organización {org} te agregó un donativo'
+        subject = created_subject if created else f'Organización {org} modificó una de tus donativos'
         body = """
-        Para que aparezca la donación en tu perfil público, <a href="{}/donador/donaciones/{}" target="_blank">tienes que aprobarla aquí</a>.<br><br>
+        Para que aparezca el donativo en tu perfil público, <a href="{}/donador/donativos/{}" target="_blank">tienes que aprobarla aquí</a>.
         """.format(os.getenv('CUSTOM_SITE_URL'), self.id)
 
+        if self.amount:
+            body = f"El donativo tiene un valor de ${'{:20,.0f}'.format(self.amount)} MXN.<br><br>" + body
+
         emails = list(self.donor.donoruser_set.values_list('email', flat=True))
-        send_email.delay(emails, subject, body)
+        send_email_with_footer.delay(emails, subject, body)
 
 
 @receiver(models.signals.post_save, sender=Submission)
