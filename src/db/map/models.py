@@ -11,7 +11,6 @@ from django.core.exceptions import ValidationError
 from db.config import BaseModel
 from db.choices import SCIAN_GROUP_ID_BY_CODE, ORGANIZATION_SECTOR_CHOICES, DONOR_SECTOR_CHOICES, APP_TYPE_CHOICES
 from db.choices import SUBMISSION_SOURCE_CHOICES
-from jobs.messages import send_email_with_footer
 from helpers.location import geos_location_from_coordinates
 from helpers.diceware import diceware
 from helpers.datetime import timediff
@@ -245,7 +244,7 @@ class Organization(BaseModel):
             EmailNotification.objects.create(
                 email_type='organization_no_donations',
                 args={'organization_id': self.pk},
-                period_hours=24*7,
+                period_hours=24*6,
                 target=2,
             )
             EmailNotification.objects.create(
@@ -443,7 +442,7 @@ class Donor(BaseModel):
             super().save(*args, **kwargs)
 
             EmailNotification.objects.create(
-                email_type='unclaimed_donor',
+                email_type='donor_unclaimed',
                 args={'donor_id': self.pk},
                 wait_hours=24*3,
                 period_hours=24*7,
@@ -474,62 +473,50 @@ class Donation(BaseModel):
     class Meta:
         ordering = ('-id',)
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
         """Approves donations created by org user if no donor user exists yet.
         Unpublishes donations updated by either org or donor if there are any
         changes to donation.
         """
         saved_by = kwargs.pop('saved_by', None)
+        donor_has_users = len(self.donor.donoruser_set.all()) > 0
+        n_base = {'email_type': 'donation_unnapproved', 'wait_hours': 0, 'period_hours': 24*3, 'target': 2}
 
         if self.pk is None:
             if saved_by == 'donor':
                 self.approved_by_org = False
             if saved_by == 'org':
-                self.approved_by_donor = len(self.donor.donoruser_set.all()) == 0
+                self.approved_by_donor = not donor_has_users
             super().save(*args, **kwargs)  # save instance first so that pk isn't `None`
             if saved_by == 'donor':
-                self.notify_org(created=True)
-            if saved_by == 'org':
-                self.notify_donor(created=True)
+                EmailNotification.objects.create(**{
+                    **n_base,
+                    'args': {'donation_id': self.pk, 'notify': 'org', 'created': True, 'dt': timezone.now()}
+                })
+            if saved_by == 'org' and donor_has_users:
+                EmailNotification.objects.create(**{
+                    **n_base,
+                    'args': {'donation_id': self.pk, 'notify': 'donor', 'created': True, 'dt': timezone.now()}
+                })
             return
 
         old = Donation.objects.get(pk=self.pk)
         if any(getattr(old, f) != getattr(self, f) for f in donation_fields):
             if saved_by == 'donor':
                 self.approved_by_org = False
-                self.notify_org(created=False)
+                EmailNotification.objects.create(**{
+                    **n_base,
+                    'args': {'donation_id': self.pk, 'notify': 'org', 'created': False, 'dt': timezone.now()}
+                })
             if saved_by == 'org':
-                self.approved_by_donor = False
-                self.notify_donor(created=False)
+                self.approved_by_donor = not donor_has_users
+                if donor_has_users:
+                    EmailNotification.objects.create(**{
+                        **n_base,
+                        'args': {'donation_id': self.pk, 'notify': 'donor', 'created': False, 'dt': timezone.now()},
+                    })
         return super().save(*args, **kwargs)
-
-    def notify_org(self, created=False):
-        donor = self.donor.name
-        created_subject = f'Donador {donor} te agregó un donativo'
-        subject = created_subject if created else f'Donador {donor} modificó una de tus donativos'
-        body = """
-        Para que aparezca el donativo en tu perfil público, <a href="{}/cuenta/proyectos/{}" target="_blank">tienes que aprobarla aquí<a/>.
-        """.format(os.getenv('CUSTOM_SITE_URL'), self.action.key)
-
-        if self.amount:
-            body = f"El donativo tiene un valor de ${'{:20,.0f}'.format(self.amount)} MXN.<br><br>" + body
-
-        emails = list(self.action.organization.organizationuser_set.values_list('email', flat=True))
-        send_email_with_footer.delay(emails, subject, body)
-
-    def notify_donor(self, created=False):
-        org = self.action.organization.name
-        created_subject = f'Organización {org} te agregó un donativo'
-        subject = created_subject if created else f'Organización {org} modificó una de tus donativos'
-        body = """
-        Para que aparezca el donativo en tu perfil público, <a href="{}/donador/donativos/{}" target="_blank">tienes que aprobarla aquí</a>.
-        """.format(os.getenv('CUSTOM_SITE_URL'), self.id)
-
-        if self.amount:
-            body = f"El donativo tiene un valor de ${'{:20,.0f}'.format(self.amount)} MXN.<br><br>" + body
-
-        emails = list(self.donor.donoruser_set.values_list('email', flat=True))
-        send_email_with_footer.delay(emails, subject, body)
 
 
 @receiver(models.signals.post_save, sender=Submission)
