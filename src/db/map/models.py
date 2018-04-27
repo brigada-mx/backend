@@ -436,22 +436,6 @@ class Donor(BaseModel):
         if not isinstance(self.contact, dict):
             raise ValidationError({'contact': 'must be instance of dict'})
 
-    @transaction.atomic
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            super().save(*args, **kwargs)
-
-            EmailNotification.objects.create(
-                email_type='donor_unclaimed',
-                args={'donor_id': self.pk},
-                wait_hours=24*3,
-                period_hours=24*7,
-                target=3,
-            )
-
-            return
-        return super().save(*args, **kwargs)
-
     def add_contact_email(self, contact_email):
         contact_emails = self.contact.get('contact_emails', [])
         contact_emails.append(contact_email)
@@ -481,7 +465,7 @@ class Donation(BaseModel):
         """
         saved_by = kwargs.pop('saved_by', None)
         donor_has_users = len(self.donor.donoruser_set.all()) > 0
-        n_base = {'email_type': 'donation_unnapproved', 'wait_hours': 0, 'period_hours': 24*3, 'target': 2}
+        n_base = {'wait_hours': 0, 'period_hours': 24*3, 'target': 2}
 
         if self.pk is None:
             if saved_by == 'donor':
@@ -489,16 +473,26 @@ class Donation(BaseModel):
             if saved_by == 'org':
                 self.approved_by_donor = not donor_has_users
             super().save(*args, **kwargs)  # save instance first so that pk isn't `None`
+
             if saved_by == 'donor':
                 EmailNotification.objects.create(**{
                     **n_base,
+                    'email_type': 'donation_unapproved',
                     'args': {'donation_id': self.pk, 'notify': 'org', 'created': True, 'dt': timezone.now()}
                 })
-            if saved_by == 'org' and donor_has_users:
-                EmailNotification.objects.create(**{
-                    **n_base,
-                    'args': {'donation_id': self.pk, 'notify': 'donor', 'created': True, 'dt': timezone.now()}
-                })
+            if saved_by == 'org':
+                if donor_has_users:
+                    EmailNotification.objects.create(**{
+                        **n_base,
+                        'email_type': 'donation_unapproved',
+                        'args': {'donation_id': self.pk, 'notify': 'donor', 'created': True, 'dt': timezone.now()}
+                    })
+                else:
+                    EmailNotification.objects.create(**{
+                        **n_base,
+                        'email_type': 'donor_unclaimed',
+                        'args': {'donation_id': self.pk, 'notify': 'donor', 'created': True, 'dt': timezone.now()}
+                    })
             return
 
         old = Donation.objects.get(pk=self.pk)
@@ -507,6 +501,7 @@ class Donation(BaseModel):
                 self.approved_by_org = False
                 EmailNotification.objects.create(**{
                     **n_base,
+                    'email_type': 'donation_unapproved',
                     'args': {'donation_id': self.pk, 'notify': 'org', 'created': False, 'dt': timezone.now()}
                 })
             if saved_by == 'org':
@@ -514,8 +509,16 @@ class Donation(BaseModel):
                 if donor_has_users:
                     EmailNotification.objects.create(**{
                         **n_base,
+                        'email_type': 'donation_unapproved',
                         'args': {'donation_id': self.pk, 'notify': 'donor', 'created': False, 'dt': timezone.now()},
                     })
+                else:
+                    EmailNotification.objects.create(**{
+                        **n_base,
+                        'email_type': 'donor_unclaimed',
+                        'args': {'donation_id': self.pk, 'notify': 'donor', 'created': True, 'dt': timezone.now()}
+                    })
+
         return super().save(*args, **kwargs)
 
 

@@ -1,12 +1,12 @@
 import os
-from concurrent import futures
 
 from django.utils import timezone
 
 from celery import shared_task
 
-from db.map.models import EmailNotification, Organization, Donor, Donation
-from jobs.messages import send_email_with_footer
+from db.map.models import EmailNotification, Organization, Donation
+from db.choices import ACTION_LABEL_BY_TYPE
+from jobs.messages import send_pretty_email
 from helpers.datetime import timediff
 
 
@@ -18,15 +18,15 @@ def organization_no_projects(n):
         n.save()
         return
 
-    subject = 'Todavía no has publicado un proyecto en Brigada'
+    subject = 'Aún no has registrado un proyecto en Brigada'
     body = """Creaste tu cuenta de Brigada para {} hace {} días, pero todavía no has publicado ningún proyecto.<br><br>
-    Crear y publicar un proyecto es fácil, <a href="{}/cuenta" target="_blank">ve a tu cuenta aquí</a> para hacerlo.<br><br>
+    Crear y publicar un proyecto es fácil, <a href="{}/cuenta" target="_blank">entra a tu cuenta aquí</a> para hacerlo.<br><br>
     Si tienes cualquier problema, dale clic al botón de <b>Soporte</b> dentro de la plataforma. O, si no has hecho tu capacitación virtual, <a href="https://calendly.com/brigada/capacitacion" target="_blank">progámala aquí</a>.
     """.format(
         organization.name, round(timediff(timezone.now(), n.created, fmt='d')), os.getenv('CUSTOM_SITE_URL'))
 
-    return send_email_with_footer(
-        list(organization.organizationuser_set.values_list('email', flat=True)), subject, body)
+    users = organization.organizationuser_set.all()
+    return [{'to': [u.email], 'subject': subject, 'body': body, 'name': u.first_name} for u in users]
 
 
 def organization_no_donations(n):
@@ -46,15 +46,15 @@ def organization_no_donations(n):
             n.save()
             return
 
-    subject = '¿Cómo se están financiando tus proyectos en Brigada?'
-    body = """Ya creaste {} proyecto{} en tu cuenta de Brigada, pero no has agregado ningún donativo.<br><br>
-    Agregar un donativo a un proyecto es fácil, <a href="{}/cuenta/proyectos/{}" target="_blank">ve a tu cuenta aquí</a> para hacerlo.<br><br>
-    Si tienes cualquier problema, dale clic al botón de <b>Soporte</b> dentro de la plataforma. O, si no has hecho tu capacitación virtual, <a href="https://calendly.com/brigada/capacitacion" target="_blank">progámala aquí</a>.
+    subject = 'En Brigada queremos presumir a tus donadores'
+    body = """Ya creaste {} proyecto{} en tu cuenta de Brigada, pero no has registrado ningún donativo.<br><br>
+    Hacerlo es fácil. <a href="{}/cuenta/proyectos/{}" target="_blank">Entra a tu cuenta</a>, abre uno de tus proyectos y dale clic al botón <b>Agregar</b> en la sección de <b>Donativos</b>.<br><br>
+    Si tienes cualquier problema, te podemos ayudar desde el link de <b>Soporte</b>. O, si no has hecho tu capacitación virtual, <a href="https://calendly.com/brigada/capacitacion" target="_blank">progámala aquí</a>.
     """.format(
         len(actions), 's' if len(actions) > 1 else '', os.getenv('CUSTOM_SITE_URL'), action.key)
 
-    return send_email_with_footer(
-        list(organization.organizationuser_set.values_list('email', flat=True)), subject, body)
+    users = organization.organizationuser_set.all()
+    return [{'to': [u.email], 'subject': subject, 'body': body, 'name': u.first_name} for u in users]
 
 
 def organization_no_photos(n):
@@ -74,47 +74,53 @@ def organization_no_photos(n):
             n.save()
             return
 
-    subject = '¡Documenta tus proyectos con fotos en Brigada!'
-    body = """Ya creaste {} proyecto{} en tu cuenta de Brigada, pero no los has documentado con fotos. Organizacaiones que agregan fotos a sus proyectos reciben 3 veces más visitas que los que no lo hacen.<br><br>
+    subject = 'Sube fotos de tus proyectos en Brigada'
+    body = """Ya creaste {} proyecto{} en tu cuenta de Brigada, pero no has compartido fotos con nuestra comunidad. Las organizacaiones que agregan fotos a sus proyectos reciben 3 veces el número de visitas a su perfil.<br><br>
     Agregar fotos a un proyecto es fácil, <a href="http://fotos.brigada.mx/subir" target="_blank">llena este formulario</a> para hacerlo.<br><br>
-    Si tienes cualquier problema, dale clic al botón de <b>Soporte</b> dentro de la plataforma. O, si no has hecho tu capacitación virtual, <a href="https://calendly.com/brigada/capacitacion" target="_blank">progámala aquí</a>.
+    Si tienes cualquier problema, dale clic al link de <b>Soporte</b> dentro de la plataforma. O, si no has hecho tu capacitación virtual, <a href="https://calendly.com/brigada/capacitacion" target="_blank">progámala aquí</a>.
     """.format(
         len(actions), 's' if len(actions) > 1 else '')
 
-    return send_email_with_footer(
-        list(organization.organizationuser_set.values_list('email', flat=True)), subject, body)
+    users = organization.organizationuser_set.all()
+    return [{'to': [u.email], 'subject': subject, 'body': body, 'name': u.first_name} for u in users]
 
 
 def donor_unclaimed(n):
-    donor = Donor.objects.prefetch_related('donoruser_set', 'donation_set').get(id=n.args['donor_id'])
-    users = donor.donoruser_set.all().order_by('created')
-    donations = donor.donation_set.all().order_by('created')
-    if len(users) > 0:
+    donation_id = n.args['donation_id']
+    donation = Donation.objects.get(id=donation_id)
+
+    donor = donation.donor
+    action = donation.action
+    if len(donor.donoruser_set.all()) > 0:
         n.done = True
         n.save()
-        return
-    if len(donations) == 0:
         return
 
     try:
         emails = donor.contact['contact_emails']
     except:
-        return
+        return []
 
-    create_account_url = f"{os.getenv('CUSTOM_SITE_URL')}/crear/cuenta/donador?name={donor.name}&id={donor.id}"
+    public_profile_url = f"{os.getenv('CUSTOM_SITE_URL')}/donadores/{donor.id}"
+    action_label = ACTION_LABEL_BY_TYPE.get(action.action_type)
 
-    subject = '¡Asume control de tu perfil de donador en la plataforma Brigada!'
-    body = """Reconstructores de la plataforma Brigada han dicho que tu organización, {}, ha financiado {} de sus proyectos, pero no has asumido control de tu perfil.<br><br>
-    Por eso te invitamos <a href="{}" target="_blank">a darte de alta en Brigada</a>.<br><br>
-    Ya que tu grupo tiene una cuenta, podrán documentar y editar donativos para cualquier proyecto que han financiado, para que todos sepan del trabajo que están haciendo por México.<br><br>
-    Si tienes cualquier duda, dale clic al botón de <b>Soporte</b> dentro de la plataforma.
+    subject = 'Encárgate de tu perfil en la plataforma Brigada'
+    body = """En Brigada, {} ha dicho que donaste {}a su proyecto {}en {}.<br><br>
+    Brigada es una red de {} organizaciones que en conjunto buscan reconstruir el país de manera transparente y eficiente.<br><br>
+    Te invitamos a que <a href="{}" target="_blank">asumas control de tu perfil público</a> y verifiques la información correspondiente al donativo. De esta manera, puedes mostrar el impacto de tu apoyo y formar parte de nuestra comunidad.
+    Si te interesa saber más sobre la plataforma, entra a <a href="http://brigada.mx" target="_blank">brigada.mx</a>.
     """.format(
-        donor.name, len(donations), create_account_url)
+        action.organization.name,
+        '${:20,.0f} MXN'.format(donation.amount) if donation.amount else '',
+        f'de {action_label} ' if action_label else '',
+        action.locality.name,
+        public_profile_url,
+    )
 
-    return send_email_with_footer(emails, subject, body)
+    return [{'to': [email], 'subject': subject, 'body': body} for email in emails]
 
 
-def donation_unnapproved(n):
+def donation_unapproved(n):
     donation_id = n.args['donation_id']
     notify = n.args['notify']
     created = n.args['created']
@@ -128,24 +134,24 @@ def donation_unnapproved(n):
     if notify == 'org':
         name = donation.donor.name
         created_subject = f'Donador {name} te agregó un donativo'
-        subject = created_subject if created else f'Donador {name} modificó una de tus donativos'
+        subject = created_subject if created else f'Donador {name} modificó uno de tus donativos'
         url = f"{os.getenv('CUSTOM_SITE_URL')}/cuenta/proyectos/{donation.action.key}"
         emails = list(donation.action.organization.organizationuser_set.values_list('email', flat=True))
     elif notify == 'donor':
         name = donation.action.organization.name
         created_subject = f'Reconstructor {name} te agregó un donativo'
-        subject = created_subject if created else f'Reconstructor {name} modificó una de tus donativos'
+        subject = created_subject if created else f'Reconstructor {name} modificó uno de tus donativos'
         url = f"{os.getenv('CUSTOM_SITE_URL')}/donador/donativos/{donation.id}"
         emails = list(donation.donor.donoruser_set.values_list('email', flat=True))
 
     body = """
-    Para que aparezca el donativo en tu perfil público, <a href="{}" target="_blank">tienes que aprobarla aquí<a/>.
-    """.format(url)
+    {} está esperando<a href="{}" target="_blank">a que lo apruebes aquí<a/>.
+    """.format(name, url)
 
     if donation.amount:
         body = f"El donativo tiene un valor de ${'{:20,.0f}'.format(donation.amount)} MXN.<br><br>" + body
 
-    send_email_with_footer.delay(emails, subject, body)
+    return [{'to': [email], 'subject': subject, 'body': body} for email in emails]
 
 
 notification_function_by_email_type = {
@@ -153,7 +159,7 @@ notification_function_by_email_type = {
     'organization_no_photos': organization_no_photos,
     'organization_no_donations': organization_no_donations,
     'donor_unclaimed': donor_unclaimed,
-    'donation_unnapproved': donation_unnapproved,
+    'donation_unapproved': donation_unapproved,
 }
 
 
@@ -161,24 +167,16 @@ def send_email_notification(n):
     r_base = {'args': n.args, 'type': n.email_type}
     if not n.should_send():
         return {**r_base, 'result': 'not_sent'}
-    try:
-        res = notification_function_by_email_type[n.email_type](n)
-    except Exception as e:
-        return {**r_base, 'exception': str(e)}
-    else:
-        if res is None:
-            return {**r_base, 'result': 'not_sent'}
-        if res['ResponseMetadata']['HTTPStatusCode'] != 200:
-            return {**r_base, 'error': res}
-        n.increment_sent()
-        return {**r_base, 'result': res}
+    kwargs_sets = notification_function_by_email_type[n.email_type](n)
+    if kwargs_sets is None:
+        return {**r_base, 'result': 'not_sent'}
+    for kwargs_set in kwargs_sets:
+        send_pretty_email.delay(**kwargs_set)
+    n.increment_sent()
+    return {**r_base, 'result': kwargs_sets}
 
 
 @shared_task(name='send_email_notifications')
 def send_email_notifications():
-    MAX_WORKERS = 5
     notifications = EmailNotification.objects.filter(done=False)
-
-    with futures.ThreadPoolExecutor(MAX_WORKERS) as executor:
-        res = executor.map(send_email_notification, notifications)
-    return [r for r in res if r]
+    return [send_email_notification(n) for n in notifications]
