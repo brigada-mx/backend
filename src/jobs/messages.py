@@ -28,7 +28,7 @@ def send_email(to, subject, body, source='Brigada <accounts@brigada.mx>', reply_
 
 @shared_task(name='send_pretty_email', default_retry_delay=60, max_retries=3)
 def send_pretty_email(to, subject, body, name='', source='Eduardo Mancera <eduardo@brigada.mx>', reply_to=None):
-    body = f'Hola {name},<br><br>' if name else 'Hola,<br><br>' + body
+    body = (f'Hola {name},<br><br>' if name else 'Hola,<br><br>') + body
     body += """
     <br><br>
     Saludos,<br><br>
