@@ -40,7 +40,7 @@ class DonorDonorCreate(APIView):
                 else:
                     donor = Donor.objects.create(name=donor_name)
                 donor.sector = sector
-                donor.contact = {'email': email, 'person_responsible': f'{first_name} {surnames}'},
+                donor.contact = {'email': email, 'person_responsible': f'{first_name} {surnames}'}
                 donor.save()
                 user = DonorUser.objects.create(
                     donor=donor, email=email, first_name=first_name, surnames=surnames, is_active=False

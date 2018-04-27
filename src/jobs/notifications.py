@@ -1,10 +1,12 @@
 import os
+import random
 
 from django.utils import timezone
 
 from celery import shared_task
 
 from db.map.models import EmailNotification, Organization, Donation
+from db.users.models import DonorUser
 from db.choices import ACTION_LABEL_BY_TYPE
 from jobs.messages import send_pretty_email
 from helpers.datetime import timediff
@@ -48,6 +50,7 @@ def organization_no_donations(n):
 
     subject = 'En Brigada queremos presumir a tus donadores'
     body = """Ya creaste {} proyecto{} en tu cuenta de Brigada, pero no has registrado ningún donativo.<br><br>
+    Al registrar tus donativos, le darás mayor legitimidad de tus proyectos ante la comunidad de Brigada.<br><br>
     Hacerlo es fácil. <a href="{}/cuenta/proyectos/{}" target="_blank">Entra a tu cuenta</a>, abre uno de tus proyectos y dale clic al botón <b>Agregar</b> en la sección de <b>Donativos</b>.<br><br>
     Si tienes cualquier problema, te podemos ayudar desde el link de <b>Soporte</b>. O, si no has hecho tu capacitación virtual, <a href="https://calendly.com/brigada/capacitacion" target="_blank">progámala aquí</a>.
     """.format(
@@ -114,6 +117,7 @@ def donor_unclaimed(n):
         '${:20,.0f} MXN'.format(donation.amount) if donation.amount else '',
         f'de {action_label} ' if action_label else '',
         action.locality.name,
+        Organization.objects.count() + DonorUser.objects.distinct('donor_id').count(),
         public_profile_url,
     )
 
@@ -163,9 +167,21 @@ notification_function_by_email_type = {
 }
 
 
+def balance_schedule():
+    weekday = timezone.now().isoweekday()
+    r = random.random()
+    if weekday == 1:
+        return r <= 0.25
+    if weekday == 2:
+        return r <= 0.25
+    if weekday == 3:
+        return r <= 0.5
+    return True
+
+
 def send_email_notification(n):
     r_base = {'args': n.args, 'type': n.email_type}
-    if not n.should_send():
+    if not n.should_send() or not balance_schedule():
         return {**r_base, 'result': 'not_sent'}
     kwargs_sets = notification_function_by_email_type[n.email_type](n)
     if kwargs_sets is None:
