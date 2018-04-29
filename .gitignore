@@ -3,7 +3,7 @@ __pycache__/
 # env
 .env
 .vault-password
-.secret-key
+.internal-auth-key
 requirements.txt
 
 # os x

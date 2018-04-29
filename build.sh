@@ -9,4 +9,4 @@ docker build -t nginx --file Dockerfile.nginx .
 docker build -t pgweb --file Dockerfile.pgweb .
 docker build -t nginx_pgweb --file Dockerfile.nginx-pgweb .
 
-curl -d '{"app_type":"backend", "git_hash":"'`git rev-parse HEAD`'"}' -H "Content-Type: application/json" -H "Authorization: Bearer `cat .secret-key`" -X POST https://api.brigada.mx/api/internal/app_versions/
+curl -d '{"app_type":"backend", "git_hash":"'`git rev-parse HEAD`'"}' -H "Content-Type: application/json" -H "Authorization: Bearer `cat .internal-auth-key`" -X POST https://api.brigada.mx/api/internal/app_versions/

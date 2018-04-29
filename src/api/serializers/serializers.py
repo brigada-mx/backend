@@ -1,7 +1,15 @@
 from rest_framework import serializers
 
-from db.map.models import AppVersion
+from db.map.models import AppVersion, EmailNotification
 from api.fields import LatLngField
+
+
+class EmailNotificationSerializer(serializers.ModelSerializer):
+    args = serializers.JSONField()
+
+    class Meta:
+        model = EmailNotification
+        fields = '__all__'
 
 
 class AppVersionSerializer(serializers.ModelSerializer):

@@ -1,5 +1,6 @@
+import os
+
 from django.contrib.auth.models import User
-from django.conf import settings
 
 from rest_framework import authentication
 from rest_framework import exceptions
@@ -51,12 +52,13 @@ class InternalAuthentication(authentication.BaseAuthentication):
     """Allows processes that run on our servers to authenticate with our API.
     """
     def authenticate(self, request):
+        key = os.getenv('CUSTOM_INTERNAL_AUTH_KEY')
         auth = request.META.get('HTTP_AUTHORIZATION', '')
         try:
             _, token = auth.split()
         except:
             return None
 
-        if not settings.SECRET_KEY == token:
+        if not key or key != token:
             return None
         return (User(), 'InternalUser')

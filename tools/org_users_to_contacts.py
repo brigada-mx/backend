@@ -39,7 +39,7 @@ def get_contact_lines(token):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-k', '--key_file', default='.secret-key')
+    parser.add_argument('-k', '--key_file', default='.internal-auth-key')
     parser.add_argument('-o', '--outfile', default='org_user_google_contacts.csv')
 
     args = parser.parse_args()

@@ -2,9 +2,19 @@ from rest_framework.views import APIView
 from rest_framework import permissions, generics
 
 from db.users.models import OrganizationUser, DonorUser
-from db.map.models import AppVersion
+from db.map.models import AppVersion, EmailNotification
 from api.backends import InternalAuthentication
 from api.serializers import OrganizationUserSerializer, DonorUserSerializer, AppVersionSerializer
+from api.serializers import EmailNotificationSerializer
+
+
+class InternalEmailNotificationListCreate(generics.ListCreateAPIView):
+    authentication_classes = (InternalAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = EmailNotificationSerializer
+
+    def get_queryset(self):
+        return EmailNotification.objects.all()
 
 
 class InternalOrganizationUserList(generics.ListAPIView):
@@ -30,7 +40,7 @@ class InternalDonorUserList(generics.ListAPIView):
 
 
 class InternalDebugThrowException(APIView):
-    """curl -H "Content-Type: application/json" -H "Authorization: Bearer `cat .secret-key`" https://api.brigada.mx/api/internal/debug/throw_exception/
+    """curl -H "Content-Type: application/json" -H "Authorization: Bearer `cat .internal-auth-key`" https://api.brigada.mx/api/internal/debug/throw_exception/
     """
     authentication_classes = (InternalAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
@@ -40,7 +50,7 @@ class InternalDebugThrowException(APIView):
         raise Exception('debug')
 
 
-class AppVersionListCreate(generics.ListCreateAPIView):
+class InternalAppVersionListCreate(generics.ListCreateAPIView):
     authentication_classes = (InternalAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = AppVersionSerializer
