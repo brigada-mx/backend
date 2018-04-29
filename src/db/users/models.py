@@ -131,7 +131,7 @@ class CustomAbstractPublicUser(CustomAbstractBaseUser):
         Falta solo una cosa para convertirte en un usuario experto:<br><br>
         <a href="https://calendly.com/brigada/capacitacion" target="_blank">Agendar tu capacitación virtual</a>
         """.format(os.getenv('CUSTOM_SITE_URL'), self.set_password_token, self.email)
-        send_pretty_email.delay([self.email], subject, body, self.first_name)
+        send_pretty_email.delay([self.email], subject, body, name=self.first_name)
 
 
 class OrganizationUser(CustomAbstractPublicUser):
@@ -158,7 +158,7 @@ class OrganizationUser(CustomAbstractPublicUser):
         Dale clic en el link para activar tu cuenta:<br><br>
         <a href="{}/establecer?token={}&email={}&created=true" target="_blank">Activar tu cuenta</a>
         """.format(os.getenv('CUSTOM_SITE_URL'), self.set_password_token, self.email)
-        send_pretty_email.delay([self.email], subject, body, self.first_name)
+        send_pretty_email.delay([self.email], subject, body, name=self.first_name)
 
 
 class DonorUser(CustomAbstractPublicUser):
@@ -185,7 +185,7 @@ class DonorUser(CustomAbstractPublicUser):
         Dale clic en el link para activar tu cuenta:<br><br>
         <a href="{}/establecer?token={}&email={}&type=donor&created=true" target="_blank">Activar tu cuenta</a>
         """.format(os.getenv('CUSTOM_SITE_URL'), self.set_password_token, self.email)
-        send_pretty_email.delay([self.email], subject, body, self.first_name)
+        send_pretty_email.delay([self.email], subject, body, name=self.first_name)
 
     def send_notify_admin_created_email(self):
         subject = 'Nuevo usuario de donador'

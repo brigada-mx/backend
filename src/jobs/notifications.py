@@ -8,7 +8,7 @@ from celery import shared_task
 from db.map.models import EmailNotification, Organization, Donation
 from db.users.models import DonorUser
 from db.choices import ACTION_LABEL_BY_TYPE
-from jobs.messages import send_pretty_email
+from jobs.messages import send_email, send_pretty_email
 from helpers.datetime import timediff
 
 
@@ -33,7 +33,7 @@ def organization_no_projects(n):
 
 def organization_no_donations(n):
     organization = Organization.objects.prefetch_related('action_set__donation_set').get(id=n.args['organization_id'])
-    actions = organization.action_set.all().order_by('created')
+    actions = organization.action_set.all()
     action = actions.first()
     if action is None:
         return
@@ -62,7 +62,7 @@ def organization_no_donations(n):
 
 def organization_no_photos(n):
     organization = Organization.objects.prefetch_related('action_set__submission_set').get(id=n.args['organization_id'])
-    actions = organization.action_set.all().order_by('created')
+    actions = organization.action_set.all()
     action = actions.first()
     if action is None:
         return
@@ -72,13 +72,13 @@ def organization_no_photos(n):
         return
 
     for action in actions:
-        for subsmission in action.subsmission_set.all():
+        for submission in action.submission_set.all():
             n.done = True
             n.save()
             return
 
     subject = 'Sube fotos de tus proyectos en Brigada'
-    body = """Ya creaste {} proyecto{} en tu cuenta de Brigada, pero no has compartido fotos con nuestra comunidad. Las organizacaiones que agregan fotos a sus proyectos reciben 3 veces el número de visitas a su perfil.<br><br>
+    body = """Ya creaste {} proyecto{} en tu cuenta de Brigada, pero no has compartido fotos con nuestra comunidad. Las organizacaiones que agregan fotos a sus proyectos reciben 3 veces más visitas a su perfil.<br><br>
     Agregar fotos a un proyecto es fácil, <a href="http://fotos.brigada.mx/subir" target="_blank">llena este formulario</a> para hacerlo.<br><br>
     Si tienes cualquier problema, dale clic al link de <b>Soporte</b> dentro de la plataforma. O, si no has hecho tu capacitación virtual, <a href="https://calendly.com/brigada/capacitacion" target="_blank">progámala aquí</a>.
     """.format(
@@ -88,13 +88,13 @@ def organization_no_photos(n):
     return [{'to': [u.email], 'subject': subject, 'body': body, 'name': u.first_name} for u in users]
 
 
-def donor_unclaimed(n):
-    donation_id = n.args['donation_id']
+def donor_unclaimed(n=None, **kwargs):
+    donation_id = n.args['donation_id'] if n else kwargs['donation_id']
     donation = Donation.objects.get(id=donation_id)
 
     donor = donation.donor
     action = donation.action
-    if len(donor.donoruser_set.all()) > 0:
+    if n and len(donor.donoruser_set.all()) > 0:
         n.done = True
         n.save()
         return
@@ -114,7 +114,7 @@ def donor_unclaimed(n):
     Si te interesa saber más sobre la plataforma, entra a <a href="http://brigada.mx" target="_blank">brigada.mx</a>.
     """.format(
         action.organization.name,
-        '${:20,.0f} MXN'.format(donation.amount) if donation.amount else '',
+        '${:,.0f} MXN '.format(donation.amount) if donation.amount else '',
         f'de {action_label} ' if action_label else '',
         action.locality.name,
         Organization.objects.count() + DonorUser.objects.distinct('donor_id').count(),
@@ -124,13 +124,13 @@ def donor_unclaimed(n):
     return [{'to': [email], 'subject': subject, 'body': body} for email in emails]
 
 
-def donation_unapproved(n):
-    donation_id = n.args['donation_id']
-    notify = n.args['notify']
-    created = n.args['created']
+def donation_unapproved(n=None, **kwargs):
+    donation_id = n.args['donation_id'] if n else kwargs['donation_id']
+    notify = n.args['notify'] if n else kwargs['notify']
+    created = n.args['created'] if n else kwargs['created']
 
     donation = Donation.objects.get(id=donation_id)
-    if donation.approved_by_org and donation.approved_by_donor:
+    if n and donation.approved_by_org and donation.approved_by_donor:
         n.done = True
         n.save()
         return
@@ -149,11 +149,11 @@ def donation_unapproved(n):
         emails = list(donation.donor.donoruser_set.values_list('email', flat=True))
 
     body = """
-    {} está esperando<a href="{}" target="_blank">a que lo apruebes aquí<a/>.
+    {} está esperando <a href="{}" target="_blank">a que lo apruebes aquí</a>. Si no lo abruebas, no aparece en tu perfil público, ni en el suyo.
     """.format(name, url)
 
     if donation.amount:
-        body = f"El donativo tiene un valor de ${'{:20,.0f}'.format(donation.amount)} MXN.<br><br>" + body
+        body = f"El donativo tiene un valor de ${'{:,.0f}'.format(donation.amount)} MXN.<br><br>" + body
 
     return [{'to': [email], 'subject': subject, 'body': body} for email in emails]
 
@@ -179,7 +179,9 @@ def balance_schedule():
     return True
 
 
-def send_email_notification(n):
+@shared_task(name='send_email_notification')
+def send_email_notification(notification_id):
+    n = EmailNotification.objects.get(id=notification_id)
     r_base = {'args': n.args, 'type': n.email_type}
     if not n.should_send() or not balance_schedule():
         return {**r_base, 'result': 'not_sent'}
@@ -187,7 +189,10 @@ def send_email_notification(n):
     if kwargs_sets is None:
         return {**r_base, 'result': 'not_sent'}
     for kwargs_set in kwargs_sets:
-        send_pretty_email.delay(**kwargs_set)
+        if n.pretty:
+            send_pretty_email.delay(**kwargs_set)
+        else:
+            send_email.delay(**kwargs_set)
     n.increment_sent()
     return {**r_base, 'result': kwargs_sets}
 
@@ -195,4 +200,5 @@ def send_email_notification(n):
 @shared_task(name='send_email_notifications')
 def send_email_notifications():
     notifications = EmailNotification.objects.filter(done=False)
-    return [send_email_notification(n) for n in notifications]
+    for n in notifications:
+        send_email_notification.delay(n.id)

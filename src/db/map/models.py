@@ -14,6 +14,7 @@ from db.choices import SUBMISSION_SOURCE_CHOICES
 from helpers.location import geos_location_from_coordinates
 from helpers.diceware import diceware
 from helpers.datetime import timediff
+from jobs.messages import send_email, send_pretty_email
 
 
 action_fields = [
@@ -21,9 +22,7 @@ action_fields = [
     'progress', 'budget', 'start_date', 'end_date', 'published',
 ]
 
-donation_fields = [
-    'action', 'donor', 'amount', 'received_date', 'desc',
-]
+donation_fields = ['action', 'donor', 'amount', 'received_date', 'desc']
 
 
 class EmailNotification(BaseModel):
@@ -35,6 +34,7 @@ class EmailNotification(BaseModel):
     sent = models.IntegerField(blank=True, default=0, db_index=True)
     last_sent = models.DateTimeField(blank=True, null=True, db_index=True)
     done = models.BooleanField(blank=True, default=False, db_index=True)
+    pretty = models.BooleanField(blank=True, default=True)
 
     class Meta:
         unique_together = ('email_type', 'args')
@@ -463,63 +463,62 @@ class Donation(BaseModel):
         Unpublishes donations updated by either org or donor if there are any
         changes to donation.
         """
+        from jobs.notifications import notification_function_by_email_type
+
         saved_by = kwargs.pop('saved_by', None)
         donor_has_users = len(self.donor.donoruser_set.all()) > 0
-        n_base = {'wait_hours': 0, 'period_hours': 24*3, 'target': 2}
+        email_type = None
+        notification_args = None
 
         if self.pk is None:
             if saved_by == 'donor':
                 self.approved_by_org = False
             if saved_by == 'org':
                 self.approved_by_donor = not donor_has_users
-            super().save(*args, **kwargs)  # save instance first so that pk isn't `None`
+            super().save(*args, **kwargs)  # save instance first so pk isn't `None`
 
             if saved_by == 'donor':
-                EmailNotification.objects.create(**{
-                    **n_base,
-                    'email_type': 'donation_unapproved',
-                    'args': {'donation_id': self.pk, 'notify': 'org', 'created': True, 'dt': timezone.now()}
-                })
+                email_type = 'donation_unapproved'
+                notification_args = {'donation_id': self.pk, 'notify': 'org', 'created': True}
             if saved_by == 'org':
                 if donor_has_users:
-                    EmailNotification.objects.create(**{
-                        **n_base,
-                        'email_type': 'donation_unapproved',
-                        'args': {'donation_id': self.pk, 'notify': 'donor', 'created': True, 'dt': timezone.now()}
-                    })
+                    email_type = 'donation_unapproved'
+                    notification_args = {'donation_id': self.pk, 'notify': 'donor', 'created': True}
                 else:
-                    EmailNotification.objects.create(**{
-                        **n_base,
-                        'email_type': 'donor_unclaimed',
-                        'args': {'donation_id': self.pk, 'notify': 'donor', 'created': True, 'dt': timezone.now()}
-                    })
-            return
+                    email_type = 'donor_unclaimed'
+                    notification_args = {'donation_id': self.pk}
+        else:
+            old = Donation.objects.get(pk=self.pk)
+            if any(getattr(old, f) != getattr(self, f) for f in donation_fields):
+                if saved_by == 'donor':
+                    self.approved_by_org = False
+                    email_type = 'donation_unapproved'
+                    notification_args = {'donation_id': self.pk, 'notify': 'org', 'created': False}
+                if saved_by == 'org':
+                    self.approved_by_donor = not donor_has_users
+                    if donor_has_users:
+                        email_type = 'donation_unapproved'
+                        notification_args = {'donation_id': self.pk, 'notify': 'donor', 'created': False},
+                    else:
+                        email_type = 'donor_unclaimed'
+                        notification_args = {'donation_id': self.pk}
+            super().save(*args, **kwargs)  # save instance before sending notifications so field values are updated
 
-        old = Donation.objects.get(pk=self.pk)
-        if any(getattr(old, f) != getattr(self, f) for f in donation_fields):
-            if saved_by == 'donor':
-                self.approved_by_org = False
-                EmailNotification.objects.create(**{
-                    **n_base,
-                    'email_type': 'donation_unapproved',
-                    'args': {'donation_id': self.pk, 'notify': 'org', 'created': False, 'dt': timezone.now()}
-                })
-            if saved_by == 'org':
-                self.approved_by_donor = not donor_has_users
-                if donor_has_users:
-                    EmailNotification.objects.create(**{
-                        **n_base,
-                        'email_type': 'donation_unapproved',
-                        'args': {'donation_id': self.pk, 'notify': 'donor', 'created': False, 'dt': timezone.now()},
-                    })
+        if email_type and notification_args:
+            pretty = email_type == 'donor_unclaimed'
+            EmailNotification.objects.create(
+                    email_type=email_type,
+                    args=notification_args,
+                    wait_hours=24*3,
+                    period_hours=24*3,
+                    target=1,
+                    pretty=pretty,
+                )
+            for kwargs_set in notification_function_by_email_type[email_type](**notification_args):
+                if pretty:
+                    send_pretty_email.delay(**kwargs_set)
                 else:
-                    EmailNotification.objects.create(**{
-                        **n_base,
-                        'email_type': 'donor_unclaimed',
-                        'args': {'donation_id': self.pk, 'notify': 'donor', 'created': True, 'dt': timezone.now()}
-                    })
-
-        return super().save(*args, **kwargs)
+                    send_email.delay(**kwargs_set)
 
 
 @receiver(models.signals.post_save, sender=Submission)
