@@ -9,7 +9,6 @@ CELERY_IMPORTS = (
     'jobs.notifications',
 )
 
-CELERY_TIMEZONE = 'America/Mexico_City'
 CELERY_ENABLE_UTC = True
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 CELERY_ACCEPT_CONTENT = ['json', 'msgpack', 'yaml']
@@ -27,15 +26,15 @@ CELERYBEAT_SCHEDULE = {
 
     'discourse_log_out_users': {
         'task': 'discourse_log_out_users',
-        'schedule': crontab(minute=[15, 45], hour=3, day_of_week=1),
+        'schedule': crontab(minute=[15, 45], hour=3+5, day_of_month=[1, 15]),
     },
 
     'send_email_notifications_monday': {
         'task': 'send_email_notifications',
-        'schedule': crontab(minute=0, hour=18, day_of_week=1),
+        'schedule': crontab(minute=30, hour=18+5, day_of_week=1),
     },
     'send_email_notifications': {
         'task': 'send_email_notifications',
-        'schedule': crontab(minute=0, hour=[10, 14, 18], day_of_week=[2, 3, 4]),
+        'schedule': crontab(minute=30, hour=[10+5, 14+5, 18+5], day_of_week=[2, 3, 4]),
     },
 }

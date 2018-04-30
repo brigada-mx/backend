@@ -115,8 +115,8 @@ def donor_unclaimed(n=None, **kwargs):
     """.format(
         action.organization.name,
         '${:,.0f} MXN '.format(donation.amount) if donation.amount else '',
-        f'de {action_label} ' if action_label else '',
-        action.locality.name,
+        f'de <b>{action_label}</b> ' if action_label else '',
+        f'<b>{action.locality.name}, {action.locality.state_name}</b>',
         Organization.objects.count() + DonorUser.objects.distinct('donor_id').count(),
         public_profile_url,
     )
@@ -127,7 +127,7 @@ def donor_unclaimed(n=None, **kwargs):
 def donation_unapproved(n=None, **kwargs):
     donation_id = n.args['donation_id'] if n else kwargs['donation_id']
     notify = n.args['notify'] if n else kwargs['notify']
-    created = n.args['created'] if n else kwargs['created']
+    # we also have a 'created' arg we might want to use
 
     donation = Donation.objects.get(id=donation_id)
     if n and donation.approved_by_org and donation.approved_by_donor:
@@ -135,25 +135,30 @@ def donation_unapproved(n=None, **kwargs):
         n.save()
         return
 
+    action = donation.action
+    action_label = ACTION_LABEL_BY_TYPE.get(action.action_type)
+
     if notify == 'org':
         name = donation.donor.name
-        created_subject = f'Donador {name} te agregó un donativo'
-        subject = created_subject if created else f'Donador {name} modificó uno de tus donativos'
+        subject = f'{name} espera tu aprobación'
         url = f"{os.getenv('CUSTOM_SITE_URL')}/cuenta/proyectos/{donation.action.key}"
-        emails = list(donation.action.organization.organizationuser_set.values_list('email', flat=True))
+        emails = list(action.organization.organizationuser_set.values_list('email', flat=True))
     elif notify == 'donor':
-        name = donation.action.organization.name
-        created_subject = f'Reconstructor {name} te agregó un donativo'
-        subject = created_subject if created else f'Reconstructor {name} modificó uno de tus donativos'
+        name = action.organization.name
+        subject = f'{name} espera tu aprobación'
         url = f"{os.getenv('CUSTOM_SITE_URL')}/donador/donativos/{donation.id}"
         emails = list(donation.donor.donoruser_set.values_list('email', flat=True))
 
-    body = """
-    {} está esperando <a href="{}" target="_blank">a que lo apruebes aquí</a>. Si no lo abruebas, no aparece en tu perfil público, ni en el suyo.
-    """.format(name, url)
+    body = """{} está esperando a que apruebes su donativo {}{}en {}. <a href="{}" target="_blank">Da clic aquí para revisarlo.</a><br><br>
 
-    if donation.amount:
-        body = f"El donativo tiene un valor de ${'{:,.0f}'.format(donation.amount)} MXN.<br><br>" + body
+    Si no lo abruebas, no aparece en tu perfil público, ni en el suyo.
+    """.format(
+        name,
+        'de ${:,.0f} MXN '.format(donation.amount) if donation.amount else '',
+        f'para <b>{action_label}</b> ' if action_label else '',
+        f'<b>{action.locality.name}, {action.locality.state_name}</b>',
+        url,
+    )
 
     return [{'to': [email], 'subject': subject, 'body': body} for email in emails]
 
