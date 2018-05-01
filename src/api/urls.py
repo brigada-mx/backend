@@ -17,9 +17,10 @@ urlpatterns = [
         views.InternalEmailNotificationListCreate.as_view(), name='internal-email-notification-list-create'),
 
     # public endpoints
-    url(r'^webhooks/kobo_submission/$', views.KoboSubmissionWebhook.as_view(), name='kobo-submission-webhook'),
-
     url(r'^$', views.api_root),
+
+    url(r'^webhooks/kobo_submission/$', views.KoboSubmissionWebhook.as_view(), name='kobo-submission-webhook'),
+    url(r'^webhooks/discourse_event/$', views.DiscourseEventWebhook.as_view(), name='discourse-event-webhook'),
 
     url(r'^states/$', cache_page(60 * 5)(views.StateList.as_view()), name='state-list'),
     url(r'^municipalities/$', cache_page(60 * 5)(views.MunicipalityList.as_view()), name='municipality-list'),

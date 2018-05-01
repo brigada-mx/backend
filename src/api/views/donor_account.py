@@ -8,6 +8,7 @@ from django.db import transaction
 from rest_framework import permissions, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from raven.contrib.django.raven_compat.models import client
 
 from db.map.models import Donation, Donor
 from db.users.models import DonorUser, DonorUserToken
@@ -46,6 +47,7 @@ class DonorDonorCreate(APIView):
                     donor=donor, email=email, first_name=first_name, surnames=surnames, is_active=False
                 )
         except Exception as e:
+            client.captureException()
             return Response({'error': str(e)}, status=400)
         user.send_notify_admin_created_email()
         return Response({})

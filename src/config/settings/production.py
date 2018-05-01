@@ -9,7 +9,9 @@ RAVEN_CONFIG = {
     'dsn': os.getenv('CUSTOM_RAVEN_DSN'),
     'ignore_exceptions': [
         'Http404',
-        'django.exceptions.http.Http404',
+        'django.http.response.Http404',
+        'TemplateSyntaxError',
+        'django.template.exceptions.TemplateSyntaxError',
     ],
     'environment': 'production',
     'release': os.getenv('CUSTOM_GIT_COMMIT_HASH'),
