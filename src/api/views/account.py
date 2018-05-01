@@ -381,3 +381,38 @@ class AccountSubmissionArchive(APIView):
             submission.action = None
         submission.save()
         return Response({'archived': archived})
+
+
+class AccountProfileStrength(APIView):
+    authentication_classes = (OrganizationUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        organization = self.request.user.organization
+        statusByCategory = {}
+
+        email = organization.contact.get('email')
+        statusByCategory['contact_email'] = bool(email)
+
+        address = organization.contact.get('address')
+        phone = organization.contact.get('phone')
+        website = organization.contact.get('website')
+        statusByCategory['contact_full'] = bool(address and phone and website)
+
+        statusByCategory['desc'] = bool(organization.desc)
+        statusByCategory['accepting_help'] = bool(organization.accepting_help and organization.help_desc)
+
+        actions = organization.action_set.filter(published=True)
+        statusByCategory['actions'] = len(actions) > 0
+
+        donations = Donation.objects.filter(action__organization_id=organization.id, action__published=True)
+        statusByCategory['donations'] = len(donations) > 0
+
+        submissions = Submission.objects.filter(action__organization_id=organization.id, action__published=True)
+        statusByCategory['submissions'] = len(submissions) > 0
+
+        count = sum(1 if statusByCategory[k] else 0 for k in statusByCategory.keys())
+        return Response({
+            'ratio': count / len(statusByCategory.keys()),
+            'statusByCategory': statusByCategory,
+        })
