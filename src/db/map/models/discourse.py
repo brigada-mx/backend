@@ -34,3 +34,13 @@ class DiscoursePostEvent(BaseModel):
         instance.discourse_user_id = post['user_id']
         instance.body = body
         instance.save()
+
+
+class DiscourseTopicEvent(BaseModel):
+    body = JSONField()
+
+    @classmethod
+    def save_from_webhook(cls, body):
+        instance = cls()
+        instance.body = body
+        instance.save()

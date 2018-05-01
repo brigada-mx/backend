@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from raven.contrib.django.raven_compat.models import client
-from db.map.models import DiscourseUser, DiscoursePostEvent
+from db.map.models import DiscourseUser, DiscoursePostEvent, DiscourseTopicEvent
 from jobs.kobo import sync_submission
 
 
@@ -24,6 +24,8 @@ class DiscourseEventWebhook(APIView):
                 DiscourseUser.save_from_webhook(request.data)
             elif 'post' in request.data:
                 DiscoursePostEvent.save_from_webhook(request.data)
+            elif 'topic' in request.data:
+                DiscourseTopicEvent.save_from_webhook(request.data)
         except Exception as e:
             client.captureException()
             return Response({'error': str(e)}, status=400)
