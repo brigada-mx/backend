@@ -25,22 +25,26 @@ class DiscourseUser(BaseModel):
 
 class DiscoursePostEvent(BaseModel):
     discourse_user_id = models.IntegerField(db_index=True)
+    event = models.TextField(blank=True, db_index=True, help_text='X-Discourse-Event request header')
     body = JSONField()
 
     @classmethod
-    def save_from_webhook(cls, body):
+    def save_from_webhook(cls, body, event=''):
         post = body['post']
         instance = cls()
         instance.discourse_user_id = post['user_id']
         instance.body = body
+        instance.event = event
         instance.save()
 
 
 class DiscourseTopicEvent(BaseModel):
+    event = models.TextField(blank=True, db_index=True, help_text='X-Discourse-Event request header')
     body = JSONField()
 
     @classmethod
-    def save_from_webhook(cls, body):
+    def save_from_webhook(cls, body, event=''):
         instance = cls()
         instance.body = body
+        instance.event = event
         instance.save()
