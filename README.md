@@ -41,11 +41,11 @@ __Make sure Elastic Beanstalk IAM user has permissions to read from ECR__. If no
 
 
 ## Endpoints
-NGINX forces HTTPS for all requests to these endpoints. It also compresses responses.
+NGINX forces HTTPS for requests to these endpoints. It also compresses responses.
 
 - API: <https://api.brigada.mx/api/>
 - Celery flower: <https://api.brigada.mx/flower/>
-- Django admin: <https://api.brigada.mx/admin/>\
+- Django admin: <https://api.brigada.mx/admin/>
 
 
 ## AWS
