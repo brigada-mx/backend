@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from raven.contrib.django.raven_compat.models import client
 
-from db.map.models import Action, Submission, Donor, Donation, Organization
+from db.map.models import Action, Submission, Donor, Donation, Organization, DiscourseUser, DiscoursePostEvent
 from db.users.models import OrganizationUser, OrganizationUserToken
 from api.backends import OrganizationUserAuthentication
 from api.serializers import AccountSubmissionSerializer, OrganizationUserSerializer, ArchiveSerializer
@@ -385,6 +385,19 @@ class AccountSubmissionArchive(APIView):
         return Response({'archived': archived})
 
 
+def has_created_discourse_post(emails):
+    """Have Discourse post(s) been created by users with any of the specified
+    `emails`?
+    """
+    for email in emails:
+        user = DiscourseUser.objects.filter(email=email).first()
+        if user is None:
+            continue
+        if DiscoursePostEvent.objects.filter(discourse_user_id=user.discourse_user_id, event='post_created'):
+            return True
+    return False
+
+
 class AccountProfileStrength(APIView):
     authentication_classes = (OrganizationUserAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
@@ -398,8 +411,7 @@ class AccountProfileStrength(APIView):
 
         address = organization.contact.get('address')
         phone = organization.contact.get('phone')
-        website = organization.contact.get('website')
-        statusByCategory['contact_full'] = bool(address and phone and website)
+        statusByCategory['contact_full'] = bool(email and address and phone)
 
         statusByCategory['desc'] = bool(organization.desc)
         statusByCategory['accepting_help'] = bool(organization.accepting_help and organization.help_desc)
@@ -412,6 +424,10 @@ class AccountProfileStrength(APIView):
 
         submissions = Submission.objects.filter(action__organization_id=organization.id, action__published=True)
         statusByCategory['submissions'] = len(submissions) > 0
+
+        statusByCategory['discourse_post'] = has_created_discourse_post(
+            list(organization.organizationuser_set.values_list('email', flat=True))
+        )
 
         count = sum(1 if statusByCategory[k] else 0 for k in statusByCategory.keys())
         return Response({

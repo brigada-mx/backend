@@ -188,11 +188,13 @@ def balance_schedule():
 def send_email_notification(notification_id):
     n = EmailNotification.objects.get(id=notification_id)
     r_base = {'args': n.args, 'type': n.email_type}
-    if not n.should_send() or not balance_schedule():
-        return {**r_base, 'result': 'not_sent'}
+    if not balance_schedule():
+        return {**r_base, 'result': 'balance_schedule_not_sent'}
+    if not n.should_send():
+        return {**r_base, 'result': 'should_send_not_sent'}
     kwargs_sets = notification_function_by_email_type[n.email_type](n)
     if kwargs_sets is None:
-        return {**r_base, 'result': 'not_sent'}
+        return {**r_base, 'result': 'notification_function_not_sent'}
     for kwargs_set in kwargs_sets:
         if n.pretty:
             send_pretty_email.delay(**kwargs_set)

@@ -6,8 +6,7 @@ from db.config import BaseModel
 
 class DiscourseUser(BaseModel):
     discourse_user_id = models.IntegerField(unique=True)
-    discourse_external_id = models.TextField(db_index=True)
-    email = models.EmailField(db_index=True)
+    email = models.EmailField(unique=True, help_text='Same as Discourse `external_id`')
     body = JSONField()
 
     @classmethod
@@ -17,8 +16,7 @@ class DiscourseUser(BaseModel):
         if instance is None:
             instance = cls()
         instance.discourse_user_id = user['id']
-        instance.discourse_external_id = user['external_id']
-        instance.email = user['email']
+        instance.email = user.get('email') or user.get('external_id')
         instance.body = body
         instance.save()
 

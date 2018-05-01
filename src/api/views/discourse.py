@@ -68,7 +68,7 @@ def login(email, sso, sig):
     nonce_payload = b64decode(payload).decode()  # nonce=<nonce>
     payload_dict = {
       'name': f'{user.full_name} - {org_name}',
-      'external_id': f'{user_type}-{user.pk}',
+      'external_id': user.email,
       'email': user.email,
       'username': discourse_transform(user.full_name),
       'bio': bio,  # make sure discourse default trust level >= 1, or links are disabled
