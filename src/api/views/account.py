@@ -404,33 +404,33 @@ class AccountProfileStrength(APIView):
 
     def get(self, request, *args, **kwargs):
         organization = self.request.user.organization
-        statusByCategory = {}
+        status_by_category = {}
 
         email = organization.contact.get('email')
-        statusByCategory['contact_email'] = bool(email)
+        status_by_category['contact_email'] = bool(email)
 
         address = organization.contact.get('address')
         phone = organization.contact.get('phone')
-        statusByCategory['contact_full'] = bool(email and address and phone)
+        status_by_category['contact_full'] = bool(email and address and phone)
 
-        statusByCategory['desc'] = bool(organization.desc)
-        statusByCategory['accepting_help'] = bool(organization.accepting_help and organization.help_desc)
+        status_by_category['desc'] = bool(organization.desc)
+        status_by_category['accepting_help'] = bool(organization.accepting_help and organization.help_desc)
 
         actions = organization.action_set.filter(published=True)
-        statusByCategory['actions'] = len(actions) > 0
+        status_by_category['actions'] = len(actions) > 0
 
         donations = Donation.objects.filter(action__organization_id=organization.id, action__published=True)
-        statusByCategory['donations'] = len(donations) > 0
+        status_by_category['donations'] = len(donations) > 0
 
         submissions = Submission.objects.filter(action__organization_id=organization.id, action__published=True)
-        statusByCategory['submissions'] = len(submissions) > 0
+        status_by_category['submissions'] = len(submissions) > 0
 
-        statusByCategory['discourse_post'] = has_created_discourse_post(
+        status_by_category['discourse_post'] = has_created_discourse_post(
             list(organization.organizationuser_set.values_list('email', flat=True))
         )
 
-        count = sum(1 if statusByCategory[k] else 0 for k in statusByCategory.keys())
+        count = sum(1 if status_by_category[k] else 0 for k in status_by_category.keys())
         return Response({
-            'ratio': count / len(statusByCategory.keys()),
-            'statusByCategory': statusByCategory,
+            'ratio': count / len(status_by_category.keys()),
+            'status_by_category': status_by_category,
         })
