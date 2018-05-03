@@ -282,7 +282,6 @@ class AccountSubmissionImageUpdate(APIView):
                 image['rotate'] = image.get('rotate', 0) - 1
             elif rotate == 'right':
                 image['rotate'] = image.get('rotate', 0) + 1
-            image['rotate'] = image['rotate'] % 4
 
         submission.image_urls[index] = image
         submission.save()

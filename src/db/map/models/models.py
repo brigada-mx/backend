@@ -354,7 +354,7 @@ class Submission(BaseModel):
     desc = models.TextField(blank=True, help_text='Can complement description inside of `data`')
     addr = models.TextField(blank=True, help_text='Can complement address inside of `data`')
     data = JSONField(help_text='Submission data and metadata, such as description, type, file URLs')
-    source_id = models.IntegerField()
+    source_id = models.IntegerField(blank=True, null=True)
     source = models.TextField(choices=SUBMISSION_SOURCE_CHOICES)
     submitted = models.DateTimeField(default=timezone.now, blank=True)
     image_urls = JSONField(default=[], blank=True)

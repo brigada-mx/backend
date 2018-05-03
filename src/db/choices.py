@@ -19,6 +19,7 @@ DONOR_SECTOR_CHOICES = (
 
 SUBMISSION_SOURCE_CHOICES = (
     ('kobo', 'KoBo'),
+    ('brigada', 'Brigada'),
 )
 
 # 1 is reserved for 'unknown'

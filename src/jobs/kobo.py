@@ -83,8 +83,12 @@ def sync_submission(s):
 
 
 def exif_extract_datetime(image_path):
-    data = piexif.load(image_path)
     date = ''
+    try:
+        data = piexif.load(image_path)
+    except:
+        client.captureException()
+        return date
 
     try:
         date = data['0th'][306]
