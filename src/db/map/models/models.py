@@ -498,7 +498,7 @@ class Donation(BaseModel):
                     self.approved_by_donor = not donor_has_users
                     if donor_has_users:
                         email_type = 'donation_unapproved'
-                        notification_args = {'donation_id': self.pk, 'notify': 'donor', 'created': False},
+                        notification_args = {'donation_id': self.pk, 'notify': 'donor', 'created': False}
                     else:
                         email_type = 'donor_unclaimed'
                         notification_args = {'donation_id': self.pk}
