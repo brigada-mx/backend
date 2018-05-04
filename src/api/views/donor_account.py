@@ -202,3 +202,36 @@ class DonorDonationRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
 
     def put(self, request, *args, **kwargs):
         return self.patch(request, *args, **kwargs)
+
+
+class DonorProfileStrength(APIView):
+    authentication_classes = (DonorUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        from .account import has_created_discourse_post
+        donor = self.request.user.donor
+        status_by_category = {}
+
+        email = donor.contact.get('email')
+        status_by_category['contact_email'] = bool(email)
+
+        address = donor.contact.get('address')
+        phone = donor.contact.get('phone')
+        status_by_category['contact_full'] = bool(email and address and phone)
+
+        status_by_category['desc'] = bool(donor.desc)
+        status_by_category['donating'] = bool(donor.donating and donor.donating_desc)
+
+        donations = Donation.objects.filter(donor_id=donor.id, action__published=True)
+        status_by_category['donations'] = len(donations) > 0
+
+        status_by_category['discourse_post'] = has_created_discourse_post(
+            list(donor.donoruser_set.values_list('email', flat=True))
+        )
+
+        count = sum(1 if status_by_category[k] else 0 for k in status_by_category.keys())
+        return Response({
+            'ratio': count / len(status_by_category.keys()),
+            'status_by_category': status_by_category,
+        })
