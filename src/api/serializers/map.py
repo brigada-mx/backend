@@ -116,7 +116,7 @@ class SubmissionMediumSerializer(DynamicFieldsMixin, serializers.ModelSerializer
         exclude = ('data', 'image_urls')
 
     def get_images(self, obj):
-        return obj.synced_images(published=True)
+        return obj.synced_images(exclude_hidden=True)
 
 
 class SubmissionSerializer(SubmissionMediumSerializer):
@@ -134,7 +134,7 @@ class SubmissionMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = ('id', 'images', 'location')
 
     def get_images(self, obj):
-        return obj.synced_images(published=True)
+        return obj.synced_images(exclude_hidden=True)
 
 
 class ActionLocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):

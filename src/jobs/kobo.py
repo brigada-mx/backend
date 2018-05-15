@@ -82,25 +82,13 @@ def sync_submission(s):
     return repr(submission)
 
 
-def exif_extract_datetime(image_path):
-    date = ''
+def exif_data(image_path):
     try:
         data = piexif.load(image_path)
+        return str(data)
     except:
         client.captureException()
-        return date
-
-    try:
-        date = data['0th'][306]
-    except:
-        try:
-            date = data['1st'][306]
-        except:
-            try:
-                date = data['Exif'][36867]  # also 36868
-            except:
-                client.captureException()
-    return date and datetime.strptime(date.decode('utf-8'), '%Y:%m:%d %H:%M:%S').isoformat()
+        return str(None)
 
 
 @shared_task(name='upload_submission_images')
@@ -131,14 +119,10 @@ def upload_submission_images(submission_id):
         except:
             continue
         else:
-            try:
-                exif_datetime = exif_extract_datetime(path)
-            except:
-                client.captureException()
-                exif_datetime = ''
+            data = exif_data(path)
             images[i] = {
                 'url': f'https://{bucket}.s3.amazonaws.com/{encoded_bucket_key}',
-                'exif_datetime': exif_datetime,
+                'exif': data,
             }
     if images != submission.image_urls:
         submission.image_urls = images
