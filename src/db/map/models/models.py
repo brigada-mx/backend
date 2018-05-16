@@ -389,12 +389,17 @@ class Submission(BaseModel):
         except:
             return ''
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
+        from jobs.kobo import upload_submission_images
+        from jobs.files import sync_submission_image_meta
+
         if self.action and self.action.organization != self.organization:
             self.action = None
 
         old_action = None
-        if self.pk:
+        created = self.pk is None
+        if not created:
             old = Submission.objects.get(pk=self.pk)
             old_action = old.action
         new_action = self.action
@@ -406,6 +411,12 @@ class Submission(BaseModel):
         if new_action and new_action != old_action:
             new_action.image_count = new_action.calculate_image_count()
             new_action.save()
+
+        if created:
+            if self.source == 'kobo':
+                upload_submission_images.delay(self.pk)
+            else:
+                sync_submission_image_meta.delay(self.pk)
 
     def synced_images(self, exclude_hidden=False):
         images = [i for i in self.image_urls if i.get('hidden') is not True] if exclude_hidden else self.image_urls
@@ -524,14 +535,6 @@ class Donation(BaseModel):
                     send_pretty_email.delay(**kwargs_set)
                 else:
                     send_email.delay(**kwargs_set)
-
-
-@receiver(models.signals.post_save, sender=Submission)
-def upload_submission_images_signal(sender, instance, created, **kwargs):
-    from jobs.kobo import upload_submission_images
-    if not created:
-        return
-    upload_submission_images.delay(instance.pk)
 
 
 @receiver(models.signals.pre_save, sender=Action)

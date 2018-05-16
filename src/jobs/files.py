@@ -31,21 +31,21 @@ def exif_data(image_path):
         return str(None)
 
 
-@shared_task(name='sync_submissions_meta')
-def sync_submissions_meta(past_days=None):
-    if past_days is None:
+@shared_task(name='sync_submissions_image_meta')
+def sync_submissions_image_meta(past_hours=None):
+    if past_hours is None:
         submissions = Submission.objects.all()
     else:
-        submissions = Submission.objects.filter(created__gt=timezone.now() - timedelta(days=past_days))
+        submissions = Submission.objects.filter(created__gt=timezone.now() - timedelta(hours=past_hours))
 
     for s in submissions:
         if all(image_meta_synced(i) for i in s.image_urls):
             continue
-        sync_submission_meta.delay(s.submission_id)
+        sync_submission_image_meta.delay(s.submission_id)
 
 
-@shared_task(name='sync_submission_meta')
-def sync_submission_meta(submission_id):
+@shared_task(name='sync_submission_image_meta')
+def sync_submission_image_meta(submission_id):
     MAX_WORKERS = 10
     submission = Submission.objects.get(id=submission_id)
 

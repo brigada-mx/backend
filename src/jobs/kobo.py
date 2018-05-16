@@ -82,6 +82,8 @@ def sync_submission(s):
 
 @shared_task(name='upload_submission_images')
 def upload_submission_images(submission_id):
+    from jobs.files import sync_submission_image_meta
+
     submission = Submission.objects.get(id=submission_id)
     org_id = submission.organization_id
     if org_id is None:
@@ -112,6 +114,7 @@ def upload_submission_images(submission_id):
             submission.image_urls[i] = {'url': f'https://{bucket}.s3.amazonaws.com/{encoded_bucket_key}'}
     if save:
         submission.save()
+        sync_submission_image_meta.delay(submission.id)
 
 
 @shared_task(name='upload_recent_submission_images')
