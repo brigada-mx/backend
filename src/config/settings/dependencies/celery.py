@@ -5,6 +5,7 @@ from datetime import timedelta
 
 CELERY_IMPORTS = (
     'jobs.kobo',
+    'jobs.files',
     'jobs.discourse',
     'jobs.notifications',
 )

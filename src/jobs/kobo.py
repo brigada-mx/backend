@@ -8,9 +8,7 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 
 from celery import shared_task
-import piexif
 import requests
-from raven.contrib.django.raven_compat.models import client
 
 from db.map.models import Organization, Submission
 from helpers.http import TokenAuth, download_file, get_s3_client
@@ -82,15 +80,6 @@ def sync_submission(s):
     return repr(submission)
 
 
-def exif_data(image_path):
-    try:
-        data = piexif.load(image_path)
-        return str(data)
-    except:
-        client.captureException()
-        return str(None)
-
-
 @shared_task(name='upload_submission_images')
 def upload_submission_images(submission_id):
     submission = Submission.objects.get(id=submission_id)
@@ -100,11 +89,12 @@ def upload_submission_images(submission_id):
     s3 = get_s3_client()
     bucket = os.getenv('CUSTOM_AWS_STORAGE_BUCKET_NAME')
 
-    images = list(submission.image_urls)
+    save = False
     for i, image in enumerate(submission.image_urls):
         url = image['url']
         if url.startswith(f'https://{bucket}.s3.amazonaws.com'):
             continue
+        save = True
         filename = f'{uuid.uuid4()}-{url.split("/")[-1].split("?")[0]}'
         path = download_file(url, os.path.join(os.sep, 'tmp', filename))
         if path is None:
@@ -119,13 +109,8 @@ def upload_submission_images(submission_id):
         except:
             continue
         else:
-            data = exif_data(path)
-            images[i] = {
-                'url': f'https://{bucket}.s3.amazonaws.com/{encoded_bucket_key}',
-                'exif': data,
-            }
-    if images != submission.image_urls:
-        submission.image_urls = images
+            submission.image_urls[i] = {'url': f'https://{bucket}.s3.amazonaws.com/{encoded_bucket_key}'}
+    if save:
         submission.save()
 
 

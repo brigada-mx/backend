@@ -408,14 +408,14 @@ class Submission(BaseModel):
             new_action.save()
 
     def synced_images(self, exclude_hidden=False):
-        bucket = os.getenv('CUSTOM_AWS_STORAGE_BUCKET_NAME')
         images = [i for i in self.image_urls if i.get('hidden') is not True] if exclude_hidden else self.image_urls
 
+        # exclude certain fields, e.g. str representation of exif data
         def prepare_image(image):
             return {k: image[k] for k in image if k not in ['exif']}
 
+        bucket = os.getenv('CUSTOM_AWS_STORAGE_BUCKET_NAME')
         return [prepare_image(i) for i in images if i['url'].startswith(f'https://{bucket}.s3.amazonaws.com')]
-        # exclude certain fields, e.g. str representation of exif data
 
 
 class Donor(BaseModel):
