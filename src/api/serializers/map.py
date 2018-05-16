@@ -113,7 +113,7 @@ class SubmissionMediumSerializer(DynamicFieldsMixin, serializers.ModelSerializer
 
     class Meta:
         model = Submission
-        exclude = ('data', 'image_urls')
+        exclude = ('data',)
 
     def get_images(self, obj):
         return obj.synced_images(exclude_hidden=True)

@@ -75,7 +75,7 @@ def sync_submission(s):
     if lat and lng:
         submission.location = geos_location_from_coordinates(lat, lng)
     if '_attachments' in s:
-        submission.image_urls = [{'url': a['download_url']} for a in (s.get('_attachments') or [])]
+        submission.images = [{'url': a['download_url']} for a in (s.get('_attachments') or [])]
     submission.save()
     return repr(submission)
 
@@ -92,7 +92,7 @@ def upload_submission_images(submission_id):
     bucket = os.getenv('CUSTOM_AWS_STORAGE_BUCKET_NAME')
 
     save = False
-    for i, image in enumerate(submission.image_urls):
+    for i, image in enumerate(submission.images):
         url = image['url']
         if url.startswith(f'https://{bucket}.s3.amazonaws.com'):
             continue
@@ -111,7 +111,7 @@ def upload_submission_images(submission_id):
         except:
             continue
         else:
-            submission.image_urls[i] = {'url': f'https://{bucket}.s3.amazonaws.com/{encoded_bucket_key}'}
+            submission.images[i] = {'url': f'https://{bucket}.s3.amazonaws.com/{encoded_bucket_key}'}
     if save:
         submission.save()
         sync_submission_image_meta.delay(submission.id)

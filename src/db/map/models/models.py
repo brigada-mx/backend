@@ -353,11 +353,11 @@ class Submission(BaseModel):
     action = models.ForeignKey('Action', null=True, blank=True)
     desc = models.TextField(blank=True, help_text='Can complement description inside of `data`')
     addr = models.TextField(blank=True, help_text='Can complement address inside of `data`')
-    data = JSONField(help_text='Submission data and metadata, such as description, type, file URLs')
+    data = JSONField(default={}, blank=True, help_text='Submission data and metadata')
     source_id = models.IntegerField(blank=True, null=True)
     source = models.TextField(choices=SUBMISSION_SOURCE_CHOICES)
     submitted = models.DateTimeField(default=timezone.now, blank=True)
-    image_urls = JSONField(default=[], blank=True)
+    images = JSONField(default=[], blank=True)
     published = models.BooleanField(blank=True, default=True, db_index=True)
     archived = models.BooleanField(blank=True, default=False, db_index=True)
 
@@ -419,7 +419,7 @@ class Submission(BaseModel):
                 sync_submission_image_meta.delay(self.pk)
 
     def synced_images(self, exclude_hidden=False):
-        images = [i for i in self.image_urls if i.get('hidden') is not True] if exclude_hidden else self.image_urls
+        images = [i for i in self.images if i.get('hidden') is not True] if exclude_hidden else self.images
 
         # exclude certain fields, e.g. str representation of exif data
         def prepare_image(image):

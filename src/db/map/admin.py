@@ -19,7 +19,7 @@ class OrganizationAdmin(admin.ModelAdmin):
 
 class SubmissionAdmin(admin.ModelAdmin):
     exclude = ('action', 'published', 'archived', 'desc', 'addr', 'location')
-    readonly_fields = ('source', 'source_id', 'submitted', 'image_urls', 'data')
+    readonly_fields = ('source', 'source_id', 'submitted', 'images', 'data')
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

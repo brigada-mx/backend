@@ -39,7 +39,7 @@ def sync_submissions_image_meta(past_hours=None):
         submissions = Submission.objects.filter(created__gt=timezone.now() - timedelta(hours=past_hours))
 
     for s in submissions:
-        if all(image_meta_synced(i) for i in s.image_urls):
+        if all(image_meta_synced(i) for i in s.images):
             continue
         sync_submission_image_meta.delay(s.submission_id)
 
@@ -61,7 +61,8 @@ def sync_submission_image_meta(submission_id):
         try:
             meta = get_image_size.get_image_metadata(path)
             width, height, extension = meta.width, meta.height, meta.type
-        except get_image_size.UnknownImageFormat:
+        except:
+            client.captureException()
             width, height, extension = None, None, None
 
         image['exif'] = exif_data(path)  # pass this string to `ast.literal_eval` to recover exif dict
@@ -71,7 +72,7 @@ def sync_submission_image_meta(submission_id):
         return image
 
     with futures.ThreadPoolExecutor(MAX_WORKERS) as executor:
-        res = executor.map(get_image_meta, submission.image_urls)
-    submission.image_urls = [i for i in res]
+        res = executor.map(get_image_meta, submission.images)
+    submission.images = [i for i in res]
 
     submission.save()
