@@ -14,7 +14,7 @@ from helpers import get_image_size
 
 
 def image_meta_synced(image):
-    return in_s3 and image.get('exif') is not None
+    return image.get('exif') is not None
 
 
 def in_s3(url):
@@ -39,9 +39,9 @@ def sync_submissions_image_meta(past_hours=None):
         submissions = Submission.objects.filter(created__gt=timezone.now() - timedelta(hours=past_hours))
 
     for s in submissions:
-        if all(image_meta_synced(i) for i in s.images):
+        if all(image_meta_synced(i) or not in_s3(i['url']) for i in s.images):
             continue
-        sync_submission_image_meta.delay(s.submission_id)
+        sync_submission_image_meta.delay(s.id)
 
 
 @shared_task(name='sync_submission_image_meta')
