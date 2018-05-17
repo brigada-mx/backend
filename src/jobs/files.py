@@ -25,10 +25,15 @@ def in_s3(url):
 def exif_data(image_path):
     try:
         data = piexif.load(image_path)
-        return str(data)
     except:
         client.captureException()
         return str(None)
+    else:
+        try:
+            del data['thumbnail']
+        except:
+            pass
+        return str(data)
 
 
 @shared_task(name='sync_submissions_image_meta')

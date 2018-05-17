@@ -3,6 +3,7 @@ import os
 from django.contrib.gis.db import models
 from django.db import transaction
 from django.db.models import Max
+from django.db.utils import IntegrityError
 from django.utils import timezone
 from django.contrib.postgres.fields import JSONField
 from django.dispatch import receiver
@@ -309,7 +310,7 @@ class Action(AbstractAction, BaseModel):
         while True:
             try:
                 return super().save(*args, **kwargs)
-            except Exception as e:
+            except IntegrityError as e:
                 self.key += 1
 
     def calculate_image_count(self):
