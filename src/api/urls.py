@@ -31,7 +31,7 @@ urlpatterns = [
 
     url(r'^actions/$', views.ActionList.as_view(), name='action-list'),
     url(r'^actions_mini/$', cache_page(60 * 3)(views.ActionMiniList.as_view()), name='action-mini-list'),
-    url(r'^actions/(?P<pk>[0-9]+)/$', views.ActionDetail.as_view(), name='action-detail'),
+    url(r'^actions/(?P<pk>[0-9]+)/$', cache_page(60 * 0.5)(views.ActionDetail.as_view()), name='action-detail'),
     url(r'^actions/(?P<pk>[0-9]+)/log/$', views.ActionLogList.as_view(), name='action-log'),
 
     url(r'^submissions/$', views.SubmissionList.as_view(), name='submission-list'),

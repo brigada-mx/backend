@@ -11,6 +11,8 @@ class LatLngField(serializers.Field):
     http://gis.stackexchange.com/questions/8650/measuring-accuracy-of-latitude-and-longitude
     """
     def to_representation(self, obj):
+        if not obj:
+            return {}
         return {'lng': round(obj.x, 5), 'lat': round(obj.y, 5)}
 
     def to_internal_value(self, data):

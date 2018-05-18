@@ -333,8 +333,7 @@ class Action(AbstractAction, BaseModel):
 
         photo_score = pow(self.image_count, 0.6) * (1 + (
             budget_multiplier() +
-            1 if self.target is not None else 0 +
-            1 if self.progress is not None else 0
+            1 if self.target is not None and self.progress is not None else 0
         ) / 3)
         return pow(base_score + photo_score, 0.75)
 
@@ -424,7 +423,11 @@ class Submission(BaseModel):
 
         # exclude certain fields, e.g. str representation of exif data
         def prepare_image(image):
-            return {k: image[k] for k in image if k not in ['exif']}
+            modified_image = {k: image[k] for k in image if k not in ['exif']}
+            if image.get('height') and image.get('width') and image.get('rotate', 0) % 2 != 0:
+                modified_image['width'] = image['height']
+                modified_image['height'] = image['width']
+            return modified_image
 
         bucket = os.getenv('CUSTOM_AWS_STORAGE_BUCKET_NAME')
         return [prepare_image(i) for i in images if i['url'].startswith(f'https://{bucket}.s3.amazonaws.com')]
