@@ -74,6 +74,8 @@ urlpatterns = [
         views.AccountActionRetrieveUpdate.as_view(), name='account-action-retrieve-update'),
     url(r'^account/actions_by_key/(?P<key>[0-9]+)/$',
         views.AccountActionRetrieveByKey.as_view(), name='account-action-retrieve-by-key'),
+    url(r'^account/action_strength/(?P<pk>[0-9]+)/$',
+        views.AccountActionStrength.as_view(), name='account-action-strength'),
 
     url(r'^account/submissions/$', views.AccountSubmissionList.as_view(), name='account-submission-list'),
     url(r'^account/submissions/(?P<pk>[0-9]+)/$',

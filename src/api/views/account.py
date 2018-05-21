@@ -433,3 +433,37 @@ class AccountProfileStrength(APIView):
             'ratio': count / len(status_by_category.keys()),
             'status_by_category': status_by_category,
         })
+
+
+class AccountActionStrength(APIView):
+    authentication_classes = (OrganizationUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        action = get_object_or_404(Action, pk=kwargs['pk'])
+        status_by_category = {}
+
+        status_by_category['desc'] = bool(action.desc)
+
+        status_by_category['dates'] = bool(action.start_date and action.end_date)
+
+        status_by_category['progress'] = bool(action.unit_of_measurement) \
+            and action.target is not None and action.progress is not None
+
+        status_by_category['budget'] = bool(action.budget)
+
+        status_by_category['image_count'] = action.image_count
+
+        donations = Donation.objects.filter(action=action, approved_by_donor=True, approved_by_org=True)
+        status_by_category['donations'] = len(donations)
+
+        verified_donations = Donation.objects.filter(
+            action=action, approved_by_donor=True, approved_by_org=True, donor__donoruser__isnull=False
+        ).distinct()
+        status_by_category['verified_donations'] = len(verified_donations)
+
+        count = sum(1 if status_by_category[k] else 0 for k in status_by_category.keys())
+        return Response({
+            'ratio': count / len(status_by_category.keys()),
+            'status_by_category': status_by_category,
+        })
