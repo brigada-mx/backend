@@ -8,7 +8,7 @@ from db.choices import ORGANIZATION_SECTOR_CHOICES
 class OrganizationForm(forms.ModelForm):
     class Meta:
         model = Organization
-        exclude = ('contact', 'secret_key', 'accepting_help', 'help_desc')
+        exclude = ('contact', 'secret_key')
 
     sector = forms.ChoiceField(choices=ORGANIZATION_SECTOR_CHOICES)
 

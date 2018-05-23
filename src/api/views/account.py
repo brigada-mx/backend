@@ -413,7 +413,6 @@ class AccountProfileStrength(APIView):
         status_by_category['contact_full'] = bool(email and address and phone)
 
         status_by_category['desc'] = bool(organization.desc)
-        status_by_category['accepting_help'] = bool(organization.accepting_help and organization.help_desc)
 
         actions = organization.action_set.filter(published=True)
         status_by_category['actions'] = len(actions) > 0

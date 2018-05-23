@@ -69,7 +69,7 @@ class OrganizationUserSerializer(serializers.ModelSerializer, EagerLoadingMixin)
 class OrganizationUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organization
-        fields = ('sector', 'name', 'desc', 'year_established', 'contact', 'accepting_help', 'help_desc')
+        fields = ('sector', 'name', 'desc', 'year_established', 'contact')
 
 
 class OrganizationReadSerializer(serializers.ModelSerializer):

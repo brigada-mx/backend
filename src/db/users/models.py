@@ -64,6 +64,10 @@ class CustomAbstractBaseUser(AbstractBaseUser, BaseModel):
         return False
 
     @property
+    def is_volunteer_user(self):
+        return False
+
+    @property
     def full_name(self):
         return ' '.join(f'{self.first_name} {self.surnames}'.split())
 
@@ -222,3 +226,13 @@ class OrganizationUserToken(TokenBaseModel):
 
 class DonorUserToken(TokenBaseModel):
     user = models.OneToOneField('DonorUser', related_name='auth_token', on_delete=models.CASCADE)
+
+
+class VolunteerUser(CustomAbstractBaseUser):
+    phone = models.TextField(max_length=20)
+    password = models.CharField(max_length=128, blank=True)
+    objects = UserManager()
+
+    @property
+    def is_volunteer_user(self):
+        return True

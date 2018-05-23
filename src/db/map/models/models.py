@@ -5,7 +5,7 @@ from django.db import transaction
 from django.db.models import Max
 from django.db.utils import IntegrityError
 from django.utils import timezone
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import JSONField, ArrayField
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 
@@ -219,8 +219,6 @@ class Organization(BaseModel):
     desc = models.TextField(blank=True)
     year_established = models.IntegerField(null=True, blank=True)
     contact = JSONField(default={}, blank=True, help_text='Contact data')
-    accepting_help = models.BooleanField(blank=True, default=False, db_index=True)
-    help_desc = models.TextField(blank=True)
 
     REPR_FIELDS = ['name', 'desc']
     STR_FIELDS = ['name', 'id', 'secret_key']
@@ -276,7 +274,7 @@ class AbstractAction(models.Model):
     locality = models.ForeignKey('Locality')
     action_type = models.TextField()
     desc = models.TextField()
-    target = models.FloatField(null=True, blank=True, help_text='How many units does action intend to deliver')
+    target = models.FloatField(null=True, blank=True, help_text='How many units does action intend to deliver?')
     unit_of_measurement = models.TextField(blank=True)
     progress = models.FloatField(null=True, blank=True, help_text='How many units have been delivered?')
     budget = models.FloatField(null=True, blank=True, help_text='$MXN')
@@ -343,6 +341,22 @@ class ActionLog(AbstractAction, BaseModel):
     source (e.g. spreadsheet), we add another record to this table.
     """
     action = models.ForeignKey('Action')
+
+
+@receiver(models.signals.pre_save, sender=Action)
+def create_action_log_record(sender, instance, **kwargs):
+    if instance.pk is None:
+        return
+    old = Action.objects.get(pk=instance.pk)
+    if any(getattr(old, f) != getattr(instance, f) for f in action_fields):
+        ActionLog.objects.create(action=instance, **{f: getattr(instance, f) for f in action_fields})
+
+
+@receiver(models.signals.post_save, sender=Action)
+def create_first_action_log_record(sender, instance, created, **kwargs):
+    if not created:
+        return
+    ActionLog.objects.create(action=instance, **{f: getattr(instance, f) for f in action_fields})
 
 
 class Submission(BaseModel):
@@ -541,17 +555,25 @@ class Donation(BaseModel):
                     send_email.delay(**kwargs_set)
 
 
-@receiver(models.signals.pre_save, sender=Action)
-def create_action_log_record(sender, instance, **kwargs):
-    if instance.pk is None:
-        return
-    old = Action.objects.get(pk=instance.pk)
-    if any(getattr(old, f) != getattr(instance, f) for f in action_fields):
-        ActionLog.objects.create(action=instance, **{f: getattr(instance, f) for f in action_fields})
+class VolunteerOpportunity(BaseModel):
+    action = models.ForeignKey('Action')
+    name_of_position = models.TextField()
+    required_skills = ArrayField(models.TextField())
+    desc = models.TextField()
+    location_desc = models.TextField()
+    transport_included = models.BooleanField(blank=True, default=False)
+    food_included = models.BooleanField(blank=True, default=False)
+    target = models.FloatField(help_text='How many volunteers does this project need?')
+    progress = models.FloatField(help_text='How many volunteers have signed up?')
+    start_date = models.DateField(null=True, blank=True, db_index=True)
+    end_date = models.DateField(null=True, blank=True, db_index=True)
+
+    class Meta:
+        ordering = ('-created',)
 
 
-@receiver(models.signals.post_save, sender=Action)
-def create_first_action_log_record(sender, instance, created, **kwargs):
-    if not created:
-        return
-    ActionLog.objects.create(action=instance, **{f: getattr(instance, f) for f in action_fields})
+class VolunteerApplication(BaseModel):
+    opportunity = models.ForeignKey('VolunteerOpportunity')
+    user = models.ForeignKey('users.VolunteerUser')
+    reason_why = models.TextField()
+    days_volunteered = models.IntegerField(blank=True, default=0)
