@@ -1,16 +1,22 @@
+from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 
 from rest_framework import generics
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from raven.contrib.django.raven_compat.models import client
 
 from db.map.models import State, Municipality, Locality, Action, Organization, Establishment, Submission
-from db.map.models import Donor, Donation
+from db.map.models import Donor, Donation, VolunteerOpportunity, VolunteerApplication
+from db.users.models import VolunteerUser
 from api.serializers import StateSerializer, MunicipalitySerializer
 from api.serializers import LocalityDetailSerializer, LocalityRawSerializer, LocalitySerializer
 from api.serializers import EstablishmentSerializer, SubmissionSerializer, ActionMiniSerializer
 from api.serializers import ActionSubmissionsSerializer, ActionLogSerializer, ActionDetailSerializer
 from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
 from api.serializers import DonorSerializer, DonorHasUserSerializer, DonationActionSubmissionsSerializer
+from api.serializers import VolunteerOpportunitySerializer, VolunteerUserApplicationCreateSerializer
 from api.paginators import LargeNoCountPagination
 from api.throttles import SearchBurstRateScopedThrottle
 from api.filters import parse_boolean, ActionFilter, EstablishmentFilter, SubmissionFilter, DonationFilter
@@ -201,3 +207,48 @@ class DonationList(generics.ListAPIView):
         return self.get_serializer_class().setup_eager_loading(
             Donation.objects.filter(approved_by_org=True, approved_by_donor=True, action__published=True)
         )
+
+
+class VolunteerOpportunityDetail(generics.RetrieveAPIView):
+    serializer_class = VolunteerOpportunitySerializer
+
+    def get_queryset(self):
+        return VolunteerOpportunity.objects.filter(published=True)
+
+
+class VolunteerOpportunityList(generics.ListAPIView):
+    serializer_class = VolunteerOpportunitySerializer
+
+    def get_queryset(self):
+        return VolunteerOpportunity.objects.filter(published=True)
+
+
+class VolunteerUserApplicationCreate(APIView):
+    throttle_scope = 'authentication'
+
+    def post(self, request, *args, **kwargs):
+        serializer = VolunteerUserApplicationCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        phone = serializer.validated_data['phone']
+        email = serializer.validated_data['email']
+        first_name = serializer.validated_data['first_name']
+        surnames = serializer.validated_data['surnames']
+        opportunity_id = serializer.validated_data['opportunity_id']
+        reason_why = serializer.validated_data['reason_why']
+
+        try:
+            with transaction.atomic():
+                try:
+                    user = VolunteerUser.objects.get(email=email)
+                except VolunteerUser.DoesNotExist:
+                    user = VolunteerUser(email=email)
+                user.phone = phone
+                user.first_name = first_name
+                user.surnames = surnames
+                user.save()
+
+                VolunteerApplication.objects.create(opportunity_id=opportunity_id, reason_why=reason_why, user=user)
+        except Exception as e:
+            client.captureException()
+            return Response({'error': str(e)}, status=400)
+        return Response({})

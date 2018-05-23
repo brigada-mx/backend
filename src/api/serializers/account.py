@@ -1,14 +1,14 @@
 from django.db.models import Prefetch
-
 from rest_framework import serializers
 
-from db.map.models import Organization, Action, Submission, Donation
+from db.map.models import Organization, Action, Submission, Donation, VolunteerOpportunity, VolunteerApplication
 from db.users.models import OrganizationUser
 from api.fields import LatLngField
 from api.mixins import EagerLoadingMixin, DynamicFieldsMixin
 from api.serializers.serializers import authenticate
 from api.serializers.map import LocalitySerializer, DonationSerializer, ActionSerializer
 from api.serializers.map import OrganizationMiniSerializer, SubmissionMediumSerializer
+from api.serializers.map import VolunteerApplicationSerializer, VolunteerOpportunitySerializer
 
 
 class ArchiveSerializer(serializers.Serializer):
@@ -102,12 +102,13 @@ class AccountActionCreateSerializer(serializers.ModelSerializer):
 
 class AccountActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_FUNCTIONS = [lambda: Prefetch('donation_set', queryset=Donation.objects.select_related('donor'))]
-    _PREFETCH_RELATED_FIELDS = ['submission_set']
+    _PREFETCH_RELATED_FIELDS = ['submission_set', 'volunteeropportunity_set']
     _SELECT_RELATED_FIELDS = ['organization']
 
     organization = OrganizationMiniSerializer(read_only=True)
     submissions = SubmissionMediumSerializer(source='submission_set', many=True, read_only=True)
     donations = DonationSerializer(source='donation_set', many=True, read_only=True)
+    opportunities = VolunteerOpportunitySerializer(source='volunteeropportunity_set', many=True, read_only=True)
 
     class Meta:
         model = Action
@@ -116,11 +117,9 @@ class AccountActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMix
 
 
 class AccountActionDetailReadSerializer(AccountActionDetailSerializer):
-    _PREFETCH_FUNCTIONS = [lambda: Prefetch('donation_set', queryset=Donation.objects.select_related('donor'))]
-    _SELECT_RELATED_FIELDS = ['locality']
+    _SELECT_RELATED_FIELDS = ['organization', 'locality']
 
     locality = LocalitySerializer(read_only=True)
-    donations = DonationSerializer(source='donation_set', many=True, read_only=True)
 
 
 class SubmissionUpdateSerializer(serializers.ModelSerializer):
@@ -163,8 +162,24 @@ class AccountSubmissionImageUpdateSerializer(serializers.Serializer):
     rotate = serializers.RegexField(regex=r'^left|right$', required=False)
 
 
-class AccountDonationUpdateSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class AccountDonationUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Donation
         fields = '__all__'
         read_only_fields = ('action', 'approved_by_donor')
+
+
+class VolunteerOpportunityCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VolunteerOpportunity
+
+
+class VolunteerOpportunityDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _PREFETCH_FUNCTIONS = [
+        lambda: Prefetch('volunteerapplication_set', queryset=VolunteerApplication.objects.select_related('user'))
+    ]
+
+    applications = VolunteerApplicationSerializer(source='volunteerapplication_set', many=True, read_only=True)
+
+    class Meta:
+        model = VolunteerOpportunity

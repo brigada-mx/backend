@@ -34,6 +34,13 @@ urlpatterns = [
     url(r'^actions/(?P<pk>[0-9]+)/$', cache_page(60 * 0.5)(views.ActionDetail.as_view()), name='action-detail'),
     url(r'^actions/(?P<pk>[0-9]+)/log/$', views.ActionLogList.as_view(), name='action-log'),
 
+    url(r'^volunteer_opportunities/$',
+        cache_page(60 * 3)(views.VolunteerOpportunityList.as_view()), name='volunteer-opportunity-list'),
+    url(r'^volunteer_opportunities/(?P<pk>[0-9]+)/$',
+        views.VolunteerOpportunityDetail.as_view(), name='volunteer-opportunity-detail'),
+    url(r'^volunteer_applications/$',
+        views.VolunteerUserApplicationCreate.as_view(), name='volunteer-user-application-create'),
+
     url(r'^submissions/$', views.SubmissionList.as_view(), name='submission-list'),
 
     url(r'^donations/$', cache_page(60 * 0.5)(views.DonationList.as_view()), name='donation-list'),
@@ -91,6 +98,11 @@ urlpatterns = [
         views.AccountSubmissionArchive.as_view(), name='account-submission-archive'),
     url(r'^account/submissions/(?P<pk>[0-9]+)/image/$',
         views.AccountSubmissionImageUpdate.as_view(), name='account-submission-image'),
+
+    url(r'^account/volunteer_opportunities/$',
+        views.VolunteerOpportunityListCreate.as_view(), name='account-volunteer-opportunity-list-create'),
+    url(r'^account/volunteer_opportunities/(?P<pk>[0-9]+)/$',
+        views.VolunteerOpportunityRetrieveUpdate.as_view(), name='account-volunteer-opportunity-retrieve-update'),
 
     # donor account endpoints
     url(r'^donor_account/token/$', views.DonorToken.as_view(), name='donoraccount-token'),

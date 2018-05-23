@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from raven.contrib.django.raven_compat.models import client
 
 from db.map.models import Action, Submission, Donor, Donation, Organization, DiscourseUser, DiscoursePostEvent
+from db.map.models import VolunteerOpportunity
 from db.users.models import OrganizationUser, OrganizationUserToken
 from api.backends import OrganizationUserAuthentication
 from api.serializers import AccountSubmissionSerializer, OrganizationUserSerializer, ArchiveSerializer
@@ -21,7 +22,8 @@ from api.serializers import SubmissionUpdateSerializer, AccountActionDetailSeria
 from api.serializers import AccountActionListSerializer, AccountActionCreateSerializer
 from api.serializers import DonationSerializer, AccountDonationUpdateSerializer, AccountDonationCreateSerializer
 from api.serializers import AccountSubmissionImageUpdateSerializer
-from api.filters import ActionFilter, SubmissionFilter
+from api.serializers import VolunteerOpportunityCreateSerializer, VolunteerOpportunityDetailSerializer
+from api.filters import ActionFilter, SubmissionFilter, VolunteerOpportunityFilter
 
 
 class AccountSendSetPasswordEmail(APIView):
@@ -413,6 +415,8 @@ class AccountProfileStrength(APIView):
         status_by_category['contact_full'] = bool(email and address and phone)
 
         status_by_category['desc'] = bool(organization.desc)
+        status_by_category['volunteers'] = VolunteerOpportunity.objects.filter(
+            action__organization=organization, published=True).exists()
 
         actions = organization.action_set.filter(published=True)
         status_by_category['actions'] = len(actions) > 0
@@ -466,3 +470,44 @@ class AccountActionStrength(APIView):
             'ratio': count / len(status_by_category.keys()),
             'status_by_category': status_by_category,
         })
+
+
+class VolunteerOpportunityListCreate(generics.ListCreateAPIView):
+    authentication_classes = (OrganizationUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+    filter_class = VolunteerOpportunityFilter
+
+    def get_serializer_class(self, *args, **kwargs):
+        if self.request.method == 'POST':
+            return VolunteerOpportunityCreateSerializer
+        return VolunteerOpportunityDetailSerializer
+
+    def get_queryset(self):
+        return self.get_serializer_class().setup_eager_loading(
+            VolunteerOpportunity.objects.filter(action__organization=self.request.user.organization)
+        )
+
+    def perform_create(self, serializer):
+        organization = self.request.user.organization
+        action = serializer.validated_data.get('action')
+        if action not in organization.action_set.all():
+            return Response({'error': f'Action {action} does not belong to this organization'}, status=400)
+        serializer.save(organization=organization)
+
+
+class VolunteerOpportunityRetrieveUpdate(generics.RetrieveUpdateAPIView):
+    authentication_classes = (OrganizationUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_serializer_class(self, *args, **kwargs):
+        if self.request.method in ('PUT', 'PATCH'):
+            return VolunteerOpportunityCreateSerializer
+        return VolunteerOpportunityDetailSerializer
+
+    def get_queryset(self):
+        return self.get_serializer_class().setup_eager_loading(
+            VolunteerOpportunity.objects.filter(action__organization=self.request.user.organization)
+        )
+
+    def put(self, request, *args, **kwargs):
+        return self.patch(request, *args, **kwargs)

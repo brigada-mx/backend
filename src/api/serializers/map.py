@@ -2,11 +2,40 @@ from django.db.models import Prefetch
 
 from rest_framework import serializers
 
-from db.map.models import State, Municipality, Locality, Establishment
+from db.map.models import State, Municipality, Locality, Establishment, VolunteerOpportunity, VolunteerApplication
 from db.map.models import Organization, Action, ActionLog, Submission, Donor, Donation
-from db.users.models import DonorUser
+from db.users.models import DonorUser, VolunteerUser
 from api.mixins import EagerLoadingMixin, DynamicFieldsMixin
 from api.fields import LatLngField
+
+
+class VolunteerOpportunitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VolunteerOpportunity
+
+
+class VolunteerUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VolunteerUser
+
+
+class VolunteerUserApplicationCreateSerializer(serializers.Serializer):
+    phone = serializers.CharField(max_length=20, allow_blank=False, trim_whitespace=True)
+    first_name = serializers.CharField(max_length=100, allow_blank=False, trim_whitespace=True)
+    surnames = serializers.CharField(max_length=100, allow_blank=False, trim_whitespace=True)
+    email = serializers.EmailField(allow_blank=False)
+
+    opportunity_id = serializers.IntegerField(required=False)
+    reason_why = serializers.CharField(max_length=280, allow_blank=False, trim_whitespace=True)
+
+
+class VolunteerApplicationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _SELECT_RELATED_FIELDS = ['user']
+
+    user = VolunteerUserSerializer(read_only=True)
+
+    class Meta:
+        model = VolunteerApplication
 
 
 class DonorHasUserSerializer(serializers.ModelSerializer, EagerLoadingMixin):
@@ -202,6 +231,7 @@ class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         lambda: Prefetch('submission_set', queryset=Submission.objects.filter(published=True)),
         lambda: Prefetch('donation_set', queryset=Donation.objects.select_related('donor').filter(
             approved_by_donor=True, approved_by_org=True)),
+        lambda: Prefetch('volunteeropportunity_set', queryset=VolunteerOpportunity.objects.filter(published=True)),
     ]
     _SELECT_RELATED_FIELDS = ['locality', 'organization']
 
@@ -209,6 +239,7 @@ class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     organization = OrganizationMiniSerializer(read_only=True)
     submissions = SubmissionMediumSerializer(source='submission_set', many=True, read_only=True)
     donations = DonationSerializer(source='donation_set', many=True, read_only=True)
+    opportunities = VolunteerOpportunitySerializer(source='volunteeropportunity_set', many=True, read_only=True)
 
     class Meta:
         model = Action

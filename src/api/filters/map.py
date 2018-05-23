@@ -1,7 +1,7 @@
 import django_filters
 from django_filters import rest_framework as filters
 
-from db.map.models import Action, Establishment, Submission, Donation
+from db.map.models import Action, Establishment, Submission, Donation, VolunteerOpportunity
 from api.filters import parse_boolean, BooleanFilter
 
 
@@ -31,6 +31,15 @@ class ActionFilter(filters.FilterSet):
     class Meta:
         model = Action
         fields = ['locality_id', 'organization_id', 'archived']
+
+
+class VolunteerOpportunityFilter(filters.FilterSet):
+    action_id = django_filters.NumberFilter(name='action')
+    published = BooleanFilter(name='published')
+
+    class Meta:
+        model = VolunteerOpportunity
+        fields = ['action_id', 'published']
 
 
 class EstablishmentFilter(filters.FilterSet):

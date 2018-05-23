@@ -567,6 +567,7 @@ class VolunteerOpportunity(BaseModel):
     progress = models.FloatField(help_text='How many volunteers have signed up?')
     start_date = models.DateField(null=True, blank=True, db_index=True)
     end_date = models.DateField(null=True, blank=True, db_index=True)
+    published = models.BooleanField(blank=True, default=True, db_index=True)
 
     class Meta:
         ordering = ('-created',)
