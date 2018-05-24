@@ -12,11 +12,13 @@ from api.fields import LatLngField
 class VolunteerOpportunitySerializer(serializers.ModelSerializer):
     class Meta:
         model = VolunteerOpportunity
+        fields = '__all__'
 
 
 class VolunteerUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = VolunteerUser
+        fields = '__all__'
 
 
 class VolunteerUserApplicationCreateSerializer(serializers.Serializer):
@@ -36,6 +38,7 @@ class VolunteerApplicationSerializer(serializers.ModelSerializer, EagerLoadingMi
 
     class Meta:
         model = VolunteerApplication
+        fields = '__all__'
 
 
 class DonorHasUserSerializer(serializers.ModelSerializer, EagerLoadingMixin):

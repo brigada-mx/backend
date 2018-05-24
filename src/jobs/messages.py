@@ -27,6 +27,12 @@ def send_email(to, subject, body, source='Brigada <contacto@brigada.mx>', reply_
 
 
 @shared_task(name='send_pretty_email', default_retry_delay=60, max_retries=3)
+def send_personalized_email(to, subject, body, source='Brigada <contacto@brigada.mx>', reply_to=None, name=''):
+    body = (f'Hola {name},<br><br>' if name else 'Hola,<br><br>') + body
+    return send_email(to, subject, body, source, reply_to)
+
+
+@shared_task(name='send_pretty_email', default_retry_delay=60, max_retries=3)
 def send_pretty_email(to, subject, body, source='Eduardo Mancera <eduardo@brigada.mx>', reply_to=None, name=''):
     body = (f'Hola {name},<br><br>' if name else 'Hola,<br><br>') + body
     body += """

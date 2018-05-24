@@ -5,11 +5,38 @@ from django.utils import timezone
 
 from celery import shared_task
 
-from db.map.models import EmailNotification, Organization, Donation
+from db.map.models import EmailNotification, Organization, Donation, VolunteerApplication
 from db.users.models import DonorUser
 from db.choices import ACTION_LABEL_BY_TYPE
-from jobs.messages import send_email, send_pretty_email
+from jobs.messages import send_email, send_pretty_email, send_personalized_email
 from helpers.datetime import timediff
+
+
+@shared_task(name='send_volunteer_application_email')
+def send_volunteer_application_email(application_id):
+    application = VolunteerApplication.objects.get(id=application_id)
+    action = application.opportunity.action
+    action_label = ACTION_LABEL_BY_TYPE.get(action.action_type)
+    locality_label = f'{action.locality.name}, {action.locality.state_name}'
+
+    subject = '{} quiere ser voluntario para tu proyecto de {} en {}'.format(
+        application.user.full_name, action_label or '-', locality_label,
+    )
+    body = """{} quiere ser voluntario para tu proyecto de {} en {}. Aplicó para {}.<br><br>
+    Aquí están sus datos de contacto:<br>
+    Teléfono: {}<br>
+    Email: {}<br><br>
+    Le gustaría trabajar con ustedes porque: <b>{}</b><br><br>
+    Por favor mándale una respuesta. Si esta oportunidad ya no está disponible, <a href="{}/cuenta/proyectos/{}" target="_blank">actualízala aquí</a>.
+    """.format(
+        application.user.full_name, action_label or '-', locality_label, application.opportunity.name_of_position,
+        application.user.phone, application.user.email, application.reason_why,
+        os.getenv('CUSTOM_SITE_URL'), action.key,
+    )
+
+    users = action.organization.organizationuser_set.all()
+    for u in users:
+        send_personalized_email.delay(to=[u.email], subject=subject, body=body, name=u.first_name)
 
 
 def organization_no_projects(n):

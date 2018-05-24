@@ -172,6 +172,7 @@ class AccountDonationUpdateSerializer(serializers.ModelSerializer):
 class VolunteerOpportunityCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = VolunteerOpportunity
+        fields = '__all__'
 
 
 class VolunteerOpportunityDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
@@ -183,3 +184,4 @@ class VolunteerOpportunityDetailSerializer(serializers.ModelSerializer, EagerLoa
 
     class Meta:
         model = VolunteerOpportunity
+        fields = '__all__'

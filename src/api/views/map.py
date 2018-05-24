@@ -20,6 +20,7 @@ from api.serializers import VolunteerOpportunitySerializer, VolunteerUserApplica
 from api.paginators import LargeNoCountPagination
 from api.throttles import SearchBurstRateScopedThrottle
 from api.filters import parse_boolean, ActionFilter, EstablishmentFilter, SubmissionFilter, DonationFilter
+from jobs.notifications import send_volunteer_application_email
 
 
 class StateList(generics.ListAPIView):
@@ -247,8 +248,11 @@ class VolunteerUserApplicationCreate(APIView):
                 user.surnames = surnames
                 user.save()
 
-                VolunteerApplication.objects.create(opportunity_id=opportunity_id, reason_why=reason_why, user=user)
+                application = VolunteerApplication.objects.create(
+                    opportunity_id=opportunity_id, reason_why=reason_why, user=user
+                )
         except Exception as e:
             client.captureException()
             return Response({'error': str(e)}, status=400)
+        send_volunteer_application_email.delay(application.id)
         return Response({})

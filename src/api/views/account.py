@@ -8,6 +8,7 @@ from django.db import transaction
 from rest_framework import permissions, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.exceptions import APIException
 from raven.contrib.django.raven_compat.models import client
 
 from db.map.models import Action, Submission, Donor, Donation, Organization, DiscourseUser, DiscoursePostEvent
@@ -487,12 +488,18 @@ class VolunteerOpportunityListCreate(generics.ListCreateAPIView):
             VolunteerOpportunity.objects.filter(action__organization=self.request.user.organization)
         )
 
-    def perform_create(self, serializer):
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
         organization = self.request.user.organization
         action = serializer.validated_data.get('action')
         if action not in organization.action_set.all():
             return Response({'error': f'Action {action} does not belong to this organization'}, status=400)
-        serializer.save(organization=organization)
+
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=201, headers=headers)
 
 
 class VolunteerOpportunityRetrieveUpdate(generics.RetrieveUpdateAPIView):
