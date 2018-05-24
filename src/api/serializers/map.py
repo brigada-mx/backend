@@ -243,6 +243,7 @@ class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     submissions = SubmissionMediumSerializer(source='submission_set', many=True, read_only=True)
     donations = DonationSerializer(source='donation_set', many=True, read_only=True)
     opportunities = VolunteerOpportunitySerializer(source='volunteeropportunity_set', many=True, read_only=True)
+    score = serializers.ReadOnlyField()
 
     class Meta:
         model = Action
@@ -261,6 +262,7 @@ class ActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin
     organization = OrganizationMiniSerializer(read_only=True)
     submissions = SubmissionMiniSerializer(source='submission_set', many=True, read_only=True)
     donations = DonationSerializer(source='donation_set', many=True, read_only=True)
+    score = serializers.ReadOnlyField()
 
     class Meta:
         model = Action

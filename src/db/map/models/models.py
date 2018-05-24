@@ -265,7 +265,8 @@ class Organization(BaseModel):
         self.save()
 
     def score(self):
-        return sum(action.score() for action in self.action_set.all())
+        base_score = 4
+        return sum(pow(base_score + action.score, 0.75) for action in self.action_set.all())
 
 
 class AbstractAction(models.Model):
@@ -314,11 +315,10 @@ class Action(AbstractAction, BaseModel):
     def calculate_image_count(self):
         return sum(len(s.synced_images(exclude_hidden=True)) for s in self.submission_set.filter(published=True))
 
+    @property
     def score(self):
         if not self.published:
             return 0
-
-        base_score = 4
 
         def budget_multiplier():
             if self.budget is None:
@@ -329,11 +329,12 @@ class Action(AbstractAction, BaseModel):
                     return i
             return len(levels)
 
-        photo_score = pow(self.image_count, 0.6) * (1 + (
+        return pow(self.image_count, 0.6) * (
+            1 +
             budget_multiplier() +
-            1 if self.target is not None and self.progress is not None else 0
-        ) / 3)
-        return pow(base_score + photo_score, 0.75)
+            1 if self.target is not None and self.progress is not None and self.unit_of_measurement else 0 +
+            1 if self.start_date and self.end_date else 0
+        )
 
 
 class ActionLog(AbstractAction, BaseModel):
