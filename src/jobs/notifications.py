@@ -22,7 +22,7 @@ def send_volunteer_application_email(application_id):
     subject = '{} quiere ser voluntario para tu proyecto de {} en {}'.format(
         application.user.full_name, action_label or '-', locality_label,
     )
-    body = """{} quiere ser voluntario para tu proyecto de {} en {}. Aplicó para {}.<br><br>
+    body = """{} quiere ser voluntario para tu proyecto de {} en {}. Aplicó para el puesto de {}.<br><br>
     Aquí están sus datos de contacto:<br>
     Teléfono: {}<br>
     Email: {}<br><br>

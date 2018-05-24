@@ -83,6 +83,9 @@ def sync_submission(s):
 @shared_task(name='upload_submission_images')
 def upload_submission_images(submission_id):
     from jobs.files import sync_submission_image_meta
+    from django.conf import settings
+    if not settings.ENVIRONMENT == 'production':
+        return
 
     submission = Submission.objects.get(id=submission_id)
     org_id = submission.organization_id

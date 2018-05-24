@@ -8,7 +8,6 @@ from django.db import transaction
 from rest_framework import permissions, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.exceptions import APIException
 from raven.contrib.django.raven_compat.models import client
 
 from db.map.models import Action, Submission, Donor, Donation, Organization, DiscourseUser, DiscoursePostEvent

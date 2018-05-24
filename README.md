@@ -244,3 +244,14 @@ mv pgweb_linux_amd64.zip pgweb
 A much better way, running in a multi-container, single instance docker env. Uses <https://github.com/DanielDent/docker-nginx-ssl-proxy> and <https://github.com/sosedoff/pgweb>. This depends on instances in this EB environment having read access to PostgreSQL.
 
 Lives at <pgweb.brigada.mx>. The connection is read-only, password protected and runs over SSL. This solution is safe and decoupled from the API.
+
+
+## Code Style
+Enforced by `flake8` linter.
+
+~~~sh
+pip install flake8
+pip install flake8-commas
+~~~
+
+Check `.flake8` for rules. Run linter on all files, ignoring line length warnings: `flake8 . | grep -v E501`.

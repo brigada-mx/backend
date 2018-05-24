@@ -541,13 +541,13 @@ class Donation(BaseModel):
         if email_type and notification_args:
             pretty = email_type == 'donor_unclaimed'
             EmailNotification.objects.create(
-                    email_type=email_type,
-                    args=notification_args,
-                    wait_hours=24*3,
-                    period_hours=24*3,
-                    target=1,
-                    pretty=pretty,
-                )
+                email_type=email_type,
+                args=notification_args,
+                wait_hours=24*3,
+                period_hours=24*3,
+                target=1,
+                pretty=pretty,
+            )
             for kwargs_set in notification_function_by_email_type[email_type](**notification_args):
                 if pretty:
                     send_pretty_email.delay(**kwargs_set)

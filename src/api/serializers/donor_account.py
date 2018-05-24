@@ -31,7 +31,7 @@ class DonorUserSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     class Meta:
         model = DonorUser
         fields = ('email', 'full_name', 'first_name', 'surnames', 'is_active', 'donor')
-        read_only_fields = ('email', 'is_active', 'full_name',)
+        read_only_fields = ('email', 'is_active', 'full_name')
 
 
 class DonorUpdateSerializer(serializers.ModelSerializer):

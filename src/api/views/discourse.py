@@ -43,7 +43,6 @@ def login(email, sso, sig):
     donor_user = DonorUser.objects.filter(email=email).first()
     if donor_user:
         user = donor_user
-        user_type = 'donor'
         groups.append('donadores')
         org_name = donor_user.donor.name
         bio = f'Estoy con donador [{org_name}](https://app.brigada.mx/donadores/{donor_user.donor.id}).'
@@ -51,7 +50,6 @@ def login(email, sso, sig):
     org_user = OrganizationUser.objects.filter(email=email).first()  # org user takes precedence
     if org_user:
         user = org_user
-        user_type = 'org'
         groups.append('reconstructores')
         groups += get_state_groups(org_user)
         org_name = org_user.organization.name
@@ -67,12 +65,12 @@ def login(email, sso, sig):
 
     nonce_payload = b64decode(payload).decode()  # nonce=<nonce>
     payload_dict = {
-      'name': f'{user.full_name} - {org_name}',
-      'external_id': user.email,
-      'email': user.email,
-      'username': discourse_transform(user.full_name),
-      'bio': bio,  # make sure discourse default trust level >= 1, or links are disabled
-      'add_groups': ','.join(groups),
+        'name': f'{user.full_name} - {org_name}',
+        'external_id': user.email,
+        'email': user.email,
+        'username': discourse_transform(user.full_name),
+        'bio': bio,  # make sure discourse default trust level >= 1, or links are disabled
+        'add_groups': ','.join(groups),
     }
 
     payload_parts = [nonce_payload] + [f'{k}={quote(v)}' for k, v in payload_dict.items()]
@@ -109,7 +107,7 @@ class DiscourseAuthLogin(APIView):
     """View for obtaining an auth token by posting a valid email/password tuple,
     for either org user or donor user.
     """
-    authentication_classes = (OrganizationUserAuthentication, DonorUserAuthentication,)
+    authentication_classes = (OrganizationUserAuthentication, DonorUserAuthentication)
     permission_classes = (permissions.IsAuthenticated,)
     throttle_scope = 'authentication'
 

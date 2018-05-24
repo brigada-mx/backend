@@ -14,6 +14,4 @@ class BooleanFilter(django_filters.Filter):
         boolean = parse_boolean(value)
         if boolean is None:
             return qs
-        return qs.filter(
-            **{self.name: boolean}
-        )
+        return qs.filter(**{self.name: boolean})

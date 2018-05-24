@@ -21,7 +21,7 @@ class UserManager(BaseUserManager):
             email=self.normalize_email(email),
             first_name=kwargs.pop('first_name', ''),
             surname=kwargs.pop('surname', ''),
-            **kwargs
+            **kwargs,
         )
 
         password = kwargs.pop('password', None)

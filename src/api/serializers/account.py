@@ -63,7 +63,7 @@ class OrganizationUserSerializer(serializers.ModelSerializer, EagerLoadingMixin)
     class Meta:
         model = OrganizationUser
         fields = ('email', 'full_name', 'first_name', 'surnames', 'is_active', 'organization')
-        read_only_fields = ('email', 'is_active', 'full_name',)
+        read_only_fields = ('email', 'is_active', 'full_name')
 
 
 class OrganizationUpdateSerializer(serializers.ModelSerializer):

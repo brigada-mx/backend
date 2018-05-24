@@ -15,6 +15,7 @@ import collections
 import json
 import os
 import struct
+import unittest
 
 FILE_UNKNOWN = "Sorry, don't know how to get size for this file."
 
@@ -91,8 +92,7 @@ def get_image_metadata(file_path):
             w, h = struct.unpack("<HH", data[6:10])
             width = int(w)
             height = int(h)
-        elif ((size >= 24) and data.startswith(b'\211PNG\r\n\032\n')
-              and (data[12:16] == b'IHDR')):
+        elif ((size >= 24) and data.startswith(b'\211PNG\r\n\032\n') and (data[12:16] == b'IHDR')):
             # PNGs
             imgtype = PNG
             w, h = struct.unpack(">LL", data[16:24])
@@ -170,7 +170,7 @@ def get_image_metadata(file_path):
                 9: (4, boChar + "l"),  # SLONG
                 10: (8, boChar + "ll"),  # SRATIONAL
                 11: (4, boChar + "f"),  # FLOAT
-                12: (8, boChar + "d")   # DOUBLE
+                12: (8, boChar + "d"),   # DOUBLE
             }
             ifdOffset = struct.unpack(boChar + "L", data[4:8])[0]
             try:
@@ -235,9 +235,6 @@ def get_image_metadata(file_path):
                  file_size=size,
                  width=width,
                  height=height)
-
-
-import unittest
 
 
 class Test_get_image_size(unittest.TestCase):
@@ -309,13 +306,13 @@ def main(argv=None):
 
     prs.add_option('-v', '--verbose',
                    dest='verbose',
-                   action='store_true',)
+                   action='store_true')
     prs.add_option('-q', '--quiet',
                    dest='quiet',
-                   action='store_true',)
+                   action='store_true')
     prs.add_option('-t', '--test',
                    dest='run_tests',
-                   action='store_true',)
+                   action='store_true')
 
     argv = list(argv) if argv is not None else sys.argv[1:]
     (opts, args) = prs.parse_args(args=argv)
