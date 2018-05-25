@@ -3,6 +3,7 @@ import os
 
 from django.db import models
 from django.utils import timezone
+from django.contrib.postgres.fields import CIEmailField
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
 from db.config import BaseModel
@@ -42,7 +43,7 @@ class UserManager(BaseUserManager):
 class CustomAbstractBaseUser(AbstractBaseUser, BaseModel):
     first_name = models.TextField(max_length=100, db_index=True)
     surnames = models.TextField(max_length=100, db_index=True)
-    email = models.EmailField(unique=True, db_index=True)
+    email = CIEmailField(unique=True, db_index=True)
     is_active = models.BooleanField(default=True)
 
     USERNAME_FIELD = 'email'
