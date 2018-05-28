@@ -16,7 +16,7 @@ from api.serializers import EstablishmentSerializer, SubmissionSerializer, Actio
 from api.serializers import ActionSubmissionsSerializer, ActionLogSerializer, ActionDetailSerializer
 from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
 from api.serializers import DonorSerializer, DonorHasUserSerializer, DonationActionSubmissionsSerializer
-from api.serializers import VolunteerOpportunitySerializer, VolunteerUserApplicationCreateSerializer
+from api.serializers import VolunteerOpportunityDetailSerializer, VolunteerUserApplicationCreateSerializer
 from api.paginators import LargeNoCountPagination
 from api.throttles import SearchBurstRateScopedThrottle
 from api.filters import parse_boolean, ActionFilter, EstablishmentFilter, SubmissionFilter, DonationFilter
@@ -211,17 +211,21 @@ class DonationList(generics.ListAPIView):
 
 
 class VolunteerOpportunityDetail(generics.RetrieveAPIView):
-    serializer_class = VolunteerOpportunitySerializer
+    serializer_class = VolunteerOpportunityDetailSerializer
 
     def get_queryset(self):
-        return VolunteerOpportunity.objects.filter(published=True)
+        return self.get_serializer_class().setup_eager_loading(
+            VolunteerOpportunity.objects.filter(published=True)
+        )
 
 
 class VolunteerOpportunityList(generics.ListAPIView):
-    serializer_class = VolunteerOpportunitySerializer
+    serializer_class = VolunteerOpportunityDetailSerializer
 
     def get_queryset(self):
-        return VolunteerOpportunity.objects.filter(published=True)
+        return self.get_serializer_class().setup_eager_loading(
+            VolunteerOpportunity.objects.filter(published=True)
+        )
 
 
 class VolunteerUserApplicationCreate(APIView):
@@ -234,6 +238,7 @@ class VolunteerUserApplicationCreate(APIView):
         email = serializer.validated_data['email']
         first_name = serializer.validated_data['first_name']
         surnames = serializer.validated_data['surnames']
+        age = serializer.validated_data['age']
         opportunity_id = serializer.validated_data['opportunity_id']
         reason_why = serializer.validated_data['reason_why']
 
@@ -246,6 +251,7 @@ class VolunteerUserApplicationCreate(APIView):
                 user.phone = phone
                 user.first_name = first_name
                 user.surnames = surnames
+                user.age = age
                 user.save()
 
                 application = VolunteerApplication.objects.create(

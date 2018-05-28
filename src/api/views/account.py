@@ -22,7 +22,7 @@ from api.serializers import SubmissionUpdateSerializer, AccountActionDetailSeria
 from api.serializers import AccountActionListSerializer, AccountActionCreateSerializer
 from api.serializers import DonationSerializer, AccountDonationUpdateSerializer, AccountDonationCreateSerializer
 from api.serializers import AccountSubmissionImageUpdateSerializer
-from api.serializers import VolunteerOpportunityCreateSerializer, VolunteerOpportunityDetailSerializer
+from api.serializers import VolunteerOpportunityCreateSerializer, AccountVolunteerOpportunityDetailSerializer
 from api.filters import ActionFilter, SubmissionFilter, VolunteerOpportunityFilter
 
 
@@ -480,7 +480,7 @@ class VolunteerOpportunityListCreate(generics.ListCreateAPIView):
     def get_serializer_class(self, *args, **kwargs):
         if self.request.method == 'POST':
             return VolunteerOpportunityCreateSerializer
-        return VolunteerOpportunityDetailSerializer
+        return AccountVolunteerOpportunityDetailSerializer
 
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
@@ -508,7 +508,7 @@ class VolunteerOpportunityRetrieveUpdate(generics.RetrieveUpdateAPIView):
     def get_serializer_class(self, *args, **kwargs):
         if self.request.method in ('PUT', 'PATCH'):
             return VolunteerOpportunityCreateSerializer
-        return VolunteerOpportunityDetailSerializer
+        return AccountVolunteerOpportunityDetailSerializer
 
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(

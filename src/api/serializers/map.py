@@ -26,6 +26,7 @@ class VolunteerUserApplicationCreateSerializer(serializers.Serializer):
     first_name = serializers.CharField(max_length=100, allow_blank=False, trim_whitespace=True)
     surnames = serializers.CharField(max_length=100, allow_blank=False, trim_whitespace=True)
     email = serializers.EmailField(allow_blank=False)
+    age = serializers.IntegerField()
 
     opportunity_id = serializers.IntegerField(required=False)
     reason_why = serializers.CharField(max_length=280, allow_blank=False, trim_whitespace=True)
@@ -196,6 +197,17 @@ class ActionMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = ('id', 'key', 'organization', 'locality', 'action_type')
 
 
+class ActionLocalityOrganizationSerializer(ActionLocalitySerializer):
+    _SELECT_RELATED_FIELDS = ['locality', 'organization']
+
+    locality = LocalitySerializer(read_only=True)
+    organization = OrganizationMiniSerializer(read_only=True, _include_fields=('id', 'name'))
+
+    class Meta:
+        model = Action
+        fields = ('id', 'locality', 'action_type', 'budget', 'organization')
+
+
 class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_FUNCTIONS = [
         lambda: Prefetch('action_set', queryset=Action.objects.select_related('locality').filter(published=True))
@@ -357,3 +369,13 @@ class DonorSerializer(serializers.ModelSerializer, EagerLoadingMixin):
             actions.add(donation.action.id)
             orgs.add(donation.action.organization_id)
         return {'action_count': len(actions), 'org_count': len(orgs), 'total_donated': total_donated}
+
+
+class VolunteerOpportunityDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _SELECT_RELATED_FIELDS = ['action__locality', 'action__organization']
+
+    action = ActionLocalityOrganizationSerializer(read_only=True)
+
+    class Meta:
+        model = VolunteerOpportunity
+        fields = '__all__'

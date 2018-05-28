@@ -29,7 +29,7 @@ def send_volunteer_application_email(application_id):
     Le gustaría trabajar con ustedes porque: <b>{}</b><br><br>
     Por favor mándale una respuesta. Si esta oportunidad ya no está disponible, <a href="{}/cuenta/proyectos/{}" target="_blank">actualízala aquí</a>.
     """.format(
-        application.user.full_name, action_label or '-', locality_label, application.opportunity.name_of_position,
+        application.user.full_name, action_label or '-', locality_label, application.opportunity.position,
         application.user.phone, application.user.email, application.reason_why,
         os.getenv('CUSTOM_SITE_URL'), action.key,
     )

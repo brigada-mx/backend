@@ -175,7 +175,7 @@ class VolunteerOpportunityCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class VolunteerOpportunityDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class AccountVolunteerOpportunityDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_FUNCTIONS = [
         lambda: Prefetch('volunteerapplication_set', queryset=VolunteerApplication.objects.select_related('user'))
     ]

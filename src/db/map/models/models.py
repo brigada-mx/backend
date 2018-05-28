@@ -558,15 +558,15 @@ class Donation(BaseModel):
 
 class VolunteerOpportunity(BaseModel):
     action = models.ForeignKey('Action')
-    name_of_position = models.TextField()
+    position = models.TextField()
     required_skills = ArrayField(models.TextField())
     desc = models.TextField()
     from_anywhere = models.BooleanField()
     location_desc = models.TextField(blank=True)
     transport_included = models.BooleanField(blank=True, default=False)
     food_included = models.BooleanField(blank=True, default=False)
-    target = models.FloatField(help_text='How many volunteers does this project need?')
-    progress = models.FloatField(blank=True, default=0, help_text='How many volunteers have signed up?')
+    target = models.IntegerField(help_text='How many volunteers does this project need?')
+    progress = models.IntegerField(blank=True, default=0, help_text='How many volunteers have signed up?')
     start_date = models.DateField(null=True, blank=True, db_index=True)
     end_date = models.DateField(null=True, blank=True, db_index=True)
     published = models.BooleanField(blank=True, default=True, db_index=True)

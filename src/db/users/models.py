@@ -230,9 +230,9 @@ class DonorUserToken(TokenBaseModel):
 
 
 class VolunteerUser(CustomAbstractBaseUser):
+    age = models.IntegerField()
     phone = models.TextField(max_length=20)
     password = models.CharField(max_length=128, blank=True)
-    objects = UserManager()
 
     @property
     def is_volunteer_user(self):
