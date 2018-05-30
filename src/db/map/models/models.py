@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 
 from db.config import BaseModel
 from db.choices import SCIAN_GROUP_ID_BY_CODE, ORGANIZATION_SECTOR_CHOICES, DONOR_SECTOR_CHOICES, APP_TYPE_CHOICES
-from db.choices import SUBMISSION_SOURCE_CHOICES
+from db.choices import SUBMISSION_SOURCE_CHOICES, VOLUNTEER_OPPORTUNITY_LOCATION_CHOICES
 from helpers.location import geos_location_from_coordinates
 from helpers.diceware import diceware
 from helpers.datetime import timediff
@@ -561,7 +561,7 @@ class VolunteerOpportunity(BaseModel):
     position = models.TextField()
     required_skills = ArrayField(models.TextField())
     desc = models.TextField()
-    from_anywhere = models.BooleanField()
+    location = models.TextField(choices=VOLUNTEER_OPPORTUNITY_LOCATION_CHOICES, db_index=True)
     location_desc = models.TextField(blank=True)
     transport_included = models.BooleanField(blank=True, default=False)
     food_included = models.BooleanField(blank=True, default=False)
@@ -570,6 +570,7 @@ class VolunteerOpportunity(BaseModel):
     start_date = models.DateField(null=True, blank=True, db_index=True)
     end_date = models.DateField(null=True, blank=True, db_index=True)
     published = models.BooleanField(blank=True, default=True, db_index=True)
+    archived = models.BooleanField(blank=True, default=False, db_index=True)
 
     class Meta:
         ordering = ('-created',)

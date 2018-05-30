@@ -1,3 +1,9 @@
+VOLUNTEER_OPPORTUNITY_LOCATION_CHOICES = (
+    ('anywhere', 'anywhere'),
+    ('in_locality', 'in_locality'),
+    ('other', 'other'),
+)
+
 APP_TYPE_CHOICES = (
     ('web', 'web'),
     ('backend', 'backend'),

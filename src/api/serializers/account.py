@@ -169,7 +169,7 @@ class AccountDonationUpdateSerializer(serializers.ModelSerializer):
         read_only_fields = ('action', 'approved_by_donor')
 
 
-class VolunteerOpportunityCreateSerializer(serializers.ModelSerializer):
+class VolunteerOpportunityCreateSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     class Meta:
         model = VolunteerOpportunity
         fields = '__all__'
