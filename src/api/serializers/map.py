@@ -16,6 +16,8 @@ class VolunteerOpportunitySerializer(serializers.ModelSerializer):
 
 
 class VolunteerUserSerializer(serializers.ModelSerializer):
+    full_name = serializers.ReadOnlyField()
+
     class Meta:
         model = VolunteerUser
         fields = '__all__'

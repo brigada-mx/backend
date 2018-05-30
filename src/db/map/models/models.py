@@ -581,3 +581,6 @@ class VolunteerApplication(BaseModel):
     user = models.ForeignKey('users.VolunteerUser')
     reason_why = models.TextField()
     days_volunteered = models.IntegerField(blank=True, default=0)
+
+    class Meta:
+        ordering = ('-created',)
