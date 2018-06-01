@@ -192,7 +192,7 @@ class ActionMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['locality', 'organization']
 
     locality = LocalitySerializer(read_only=True, _include_fields=('id', 'name', 'municipality_name', 'state_name'))
-    organization = OrganizationMiniSerializer(read_only=True, _include_fields=('id', 'name'))
+    organization = OrganizationMiniSerializer(read_only=True, _include_fields=('id', 'name', 'sector'))
 
     class Meta:
         model = Action
@@ -203,7 +203,7 @@ class ActionLocalityOrganizationSerializer(ActionLocalitySerializer):
     _SELECT_RELATED_FIELDS = ['locality', 'organization']
 
     locality = LocalitySerializer(read_only=True)
-    organization = OrganizationMiniSerializer(read_only=True, _include_fields=('id', 'name'))
+    organization = OrganizationMiniSerializer(read_only=True, _include_fields=('id', 'name', 'sector'))
 
     class Meta:
         model = Action

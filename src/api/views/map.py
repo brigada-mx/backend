@@ -261,4 +261,6 @@ class VolunteerUserApplicationCreate(APIView):
             client.captureException()
             return Response({'error': str(e)}, status=400)
         send_volunteer_application_email.delay(application.id)
-        return Response({})
+        return Response(
+            {'user': {'email': email, 'phone': phone, 'first_name': first_name, 'surnames': surnames, 'age': age}}
+        )
