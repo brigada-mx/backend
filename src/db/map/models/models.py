@@ -315,6 +315,10 @@ class Action(AbstractAction, BaseModel):
     def calculate_image_count(self):
         return sum(len(s.synced_images(exclude_hidden=True)) for s in self.submission_set.filter(published=True))
 
+    def synced_images(self, *args, **kwargs):
+        images = [s.synced_images(*args, **kwargs) for s in self.submission_set.filter(published=True)]
+        return [image for s in images for image in s]
+
     @property
     def score(self):
         if not self.published:
@@ -577,10 +581,22 @@ class VolunteerOpportunity(BaseModel):
 
 
 class VolunteerApplication(BaseModel):
+    """Brigadista (shares, volunteers, donates).
+    """
     opportunity = models.ForeignKey('VolunteerOpportunity')
     user = models.ForeignKey('users.VolunteerUser')
     reason_why = models.TextField()
     days_volunteered = models.IntegerField(blank=True, default=0)
 
     class Meta:
+        ordering = ('-created',)
+
+
+class Share(BaseModel):
+    action = models.ForeignKey('Action')
+    user = models.ForeignKey('users.VolunteerUser', null=True, blank=True)
+    meta = JSONField(default={}, blank=True)
+
+    class Meta:
+        unique_together = ('action', 'user')
         ordering = ('-created',)

@@ -2,7 +2,7 @@ from django.db.models import Prefetch
 from rest_framework import serializers
 
 from db.map.models import Organization, Action, Submission, Donation, VolunteerOpportunity, VolunteerApplication
-from db.users.models import OrganizationUser
+from db.users.models import OrganizationUser, VolunteerUser
 from api.fields import LatLngField
 from api.mixins import EagerLoadingMixin, DynamicFieldsMixin
 from api.serializers.serializers import authenticate
@@ -64,6 +64,12 @@ class OrganizationUserSerializer(serializers.ModelSerializer, EagerLoadingMixin)
         model = OrganizationUser
         fields = ('email', 'full_name', 'first_name', 'surnames', 'is_active', 'organization')
         read_only_fields = ('email', 'is_active', 'full_name')
+
+
+class VolunteerUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VolunteerUser
+        exclude = ('password',)
 
 
 class OrganizationUpdateSerializer(serializers.ModelSerializer):

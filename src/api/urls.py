@@ -34,12 +34,19 @@ urlpatterns = [
     url(r'^actions/(?P<pk>[0-9]+)/$', cache_page(60 * 0.5)(views.ActionDetail.as_view()), name='action-detail'),
     url(r'^actions/(?P<pk>[0-9]+)/log/$', views.ActionLogList.as_view(), name='action-log'),
 
+    url(r'^brigada_users/$', views.VolunteerUserCreate.as_view(), name='brigada-user-create'),
+
     url(r'^volunteer_opportunities/$',
         cache_page(60 * 3)(views.VolunteerOpportunityList.as_view()), name='volunteer-opportunity-list'),
     url(r'^volunteer_opportunities/(?P<pk>[0-9]+)/$',
         views.VolunteerOpportunityDetail.as_view(), name='volunteer-opportunity-detail'),
     url(r'^volunteer_applications/$',
         views.VolunteerUserApplicationCreate.as_view(), name='volunteer-user-application-create'),
+
+    url(r'^shares/$', views.ShareListCreate.as_view(), name='share-list-create'),
+    url(r'^share_set_user/$', views.ShareSetUser.as_view(), name='share-set-user'),
+    url(r'^action_share/(?P<pk>[0-9]+)/$',
+        cache_page(60 * 0.5)(views.ActionShare.as_view()), name='action-share'),
 
     url(r'^submissions/$', views.SubmissionList.as_view(), name='submission-list'),
 

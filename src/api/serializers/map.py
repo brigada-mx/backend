@@ -3,7 +3,7 @@ from django.db.models import Prefetch
 from rest_framework import serializers
 
 from db.map.models import State, Municipality, Locality, Establishment, VolunteerOpportunity, VolunteerApplication
-from db.map.models import Organization, Action, ActionLog, Submission, Donor, Donation
+from db.map.models import Organization, Action, ActionLog, Submission, Donor, Donation, Share
 from db.users.models import DonorUser, VolunteerUser
 from api.mixins import EagerLoadingMixin, DynamicFieldsMixin
 from api.fields import LatLngField
@@ -23,11 +23,27 @@ class VolunteerUserSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ShareSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    class Meta:
+        model = Share
+        fields = '__all__'
+
+
+class ShareCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Share
+        exclude = ('user',)
+
+
+class ShareSetUserSerializer(serializers.Serializer):
+    email = serializers.EmailField(allow_blank=False)
+    share_id = serializers.IntegerField()
+
+
 class VolunteerUserApplicationCreateSerializer(serializers.Serializer):
     phone = serializers.CharField(max_length=20, allow_blank=False, trim_whitespace=True)
     first_name = serializers.CharField(max_length=100, allow_blank=False, trim_whitespace=True)
     surnames = serializers.CharField(max_length=100, allow_blank=False, trim_whitespace=True)
-    email = serializers.EmailField(allow_blank=False)
     age = serializers.IntegerField()
 
     opportunity_id = serializers.IntegerField(required=False)

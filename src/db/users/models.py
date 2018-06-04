@@ -230,8 +230,8 @@ class DonorUserToken(TokenBaseModel):
 
 
 class VolunteerUser(CustomAbstractBaseUser):
-    age = models.IntegerField()
-    phone = models.TextField(max_length=20)
+    age = models.IntegerField(null=True, blank=True)
+    phone = models.TextField(max_length=20, blank=True)
     password = models.CharField(max_length=128, blank=True)
 
     @property

@@ -21,9 +21,14 @@ from api.serializers import OrganizationUpdateSerializer, OrganizationCreateSeri
 from api.serializers import SubmissionUpdateSerializer, AccountActionDetailSerializer, AccountActionDetailReadSerializer
 from api.serializers import AccountActionListSerializer, AccountActionCreateSerializer
 from api.serializers import DonationSerializer, AccountDonationUpdateSerializer, AccountDonationCreateSerializer
-from api.serializers import AccountSubmissionImageUpdateSerializer
+from api.serializers import AccountSubmissionImageUpdateSerializer, VolunteerUserSerializer
 from api.serializers import VolunteerOpportunityCreateSerializer, AccountVolunteerOpportunityDetailSerializer
 from api.filters import ActionFilter, SubmissionFilter, VolunteerOpportunityFilter
+
+
+class VolunteerUserCreate(generics.CreateAPIView):
+    throttle_scope = 'authentication'
+    serializer_class = VolunteerUserSerializer
 
 
 class AccountSendSetPasswordEmail(APIView):

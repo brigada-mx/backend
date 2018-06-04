@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from raven.contrib.django.raven_compat.models import client
 
 from db.map.models import State, Municipality, Locality, Action, Organization, Establishment, Submission
-from db.map.models import Donor, Donation, VolunteerOpportunity, VolunteerApplication
+from db.map.models import Donor, Donation, VolunteerOpportunity, VolunteerApplication, Share
 from db.users.models import VolunteerUser
 from api.serializers import StateSerializer, MunicipalitySerializer
 from api.serializers import LocalityDetailSerializer, LocalityRawSerializer, LocalitySerializer
@@ -17,6 +17,7 @@ from api.serializers import ActionSubmissionsSerializer, ActionLogSerializer, Ac
 from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
 from api.serializers import DonorSerializer, DonorHasUserSerializer, DonationActionSubmissionsSerializer
 from api.serializers import VolunteerOpportunityDetailSerializer, VolunteerUserApplicationCreateSerializer
+from api.serializers import ShareSerializer, ShareCreateSerializer, ShareSetUserSerializer
 from api.paginators import LargeNoCountPagination
 from api.throttles import SearchBurstRateScopedThrottle
 from api.filters import parse_boolean, ActionFilter, EstablishmentFilter, SubmissionFilter, DonationFilter
@@ -264,3 +265,48 @@ class VolunteerUserApplicationCreate(APIView):
         return Response(
             {'user': {'email': email, 'phone': phone, 'first_name': first_name, 'surnames': surnames, 'age': age}}
         )
+
+
+class ActionShare(APIView):
+    def get(self, request, *args, **kwargs):
+        action = get_object_or_404(Action, pk=kwargs['pk'])
+        shares = Share.objects.filter(action=action)
+        progress = len(shares)
+        target = ((progress // 5) + 1) * 5
+        try:
+            image = action.synced_images(exclude_hidden=True)[0]
+        except IndexError:
+            image = {}
+        return Response({'progress': len(shares), 'target': target, 'action_id': action.id, 'image': image}, status=200)
+
+
+class ShareListCreate(generics.ListCreateAPIView):
+    throttle_scope = 'authentication'
+
+    def get_serializer_class(self, *args, **kwargs):
+        if self.request.method == 'POST':
+            return ShareCreateSerializer
+        return ShareSerializer
+
+    def get_queryset(self):
+        return self.get_serializer_class().setup_eager_loading(
+            Share.objects.all()
+        )
+
+
+class ShareSetUser(APIView):
+    throttle_scope = 'authentication'
+
+    def post(self, request, *args, **kwargs):
+        serializer = ShareSetUserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email']
+        share_id = serializer.validated_data['share_id']
+
+        user = get_object_or_404(VolunteerUser, email=email)
+        share = get_object_or_404(Share, id=share_id)
+        if share.user:
+            return Response({}, status=200)
+        share.user = user
+        share.save()
+        return Response({}, status=200)
