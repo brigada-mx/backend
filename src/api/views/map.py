@@ -283,8 +283,19 @@ class ActionShare(APIView):
 
         action_serializer = ActionLocalityOrganizationSerializer(action)
 
-        return Response({
-            'progress': len(shares), 'target': target, 'action': action_serializer.data, 'image': image},
+        email = request.query_params.get('email', '')
+        already_shared = False
+        if email:
+            already_shared = shares.filter(user__email=email).exists()
+
+        return Response(
+            {
+                'progress': len(shares),
+                'target': target,
+                'action': action_serializer.data,
+                'image': image,
+                'already_shared': already_shared,
+            },
             status=200,
         )
 
