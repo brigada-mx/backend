@@ -316,7 +316,9 @@ class Action(AbstractAction, BaseModel):
         return sum(len(s.synced_images(exclude_hidden=True)) for s in self.submission_set.filter(published=True))
 
     def synced_images(self, *args, **kwargs):
-        images = [s.synced_images(*args, **kwargs) for s in self.submission_set.filter(published=True)]
+        images = [
+            s.synced_images(*args, **kwargs) for s in self.submission_set.filter(published=True).order_by('-created')
+        ]
         return [image for s in images for image in s]
 
     @property

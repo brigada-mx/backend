@@ -15,6 +15,7 @@ from api.serializers import StateSerializer, MunicipalitySerializer
 from api.serializers import LocalityDetailSerializer, LocalityRawSerializer, LocalitySerializer
 from api.serializers import EstablishmentSerializer, SubmissionSerializer, ActionMiniSerializer
 from api.serializers import ActionSubmissionsSerializer, ActionLogSerializer, ActionDetailSerializer
+from api.serializers import ActionLocalityOrganizationSerializer
 from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
 from api.serializers import DonorSerializer, DonorHasUserSerializer, DonationActionSubmissionsSerializer
 from api.serializers import VolunteerOpportunityDetailSerializer, VolunteerUserApplicationCreateSerializer
@@ -270,7 +271,8 @@ class VolunteerUserApplicationCreate(APIView):
 
 class ActionShare(APIView):
     def get(self, request, *args, **kwargs):
-        action = get_object_or_404(Action, pk=kwargs['pk'])
+        action = get_object_or_404(Action.objects.select_related('organization', 'locality'), pk=kwargs['pk'])
+
         shares = Share.objects.filter(action=action)
         progress = len(shares)
         target = ((progress // 5) + 1) * 5
@@ -278,7 +280,13 @@ class ActionShare(APIView):
             image = action.synced_images(exclude_hidden=True)[0]
         except IndexError:
             image = {}
-        return Response({'progress': len(shares), 'target': target, 'action_id': action.id, 'image': image}, status=200)
+
+        action_serializer = ActionLocalityOrganizationSerializer(action)
+
+        return Response({
+            'progress': len(shares), 'target': target, 'action': action_serializer.data, 'image': image},
+            status=200,
+        )
 
 
 class ShareListCreate(generics.ListCreateAPIView):
