@@ -283,6 +283,7 @@ class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
 class ActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_FUNCTIONS = [
+        lambda: Prefetch('volunteeropportunity_set', queryset=VolunteerOpportunity.objects.filter(published=True)),
         lambda: Prefetch('submission_set', queryset=Submission.objects.filter(published=True)),
         lambda: Prefetch('donation_set', queryset=Donation.objects.select_related('donor').filter(
             approved_by_donor=True, approved_by_org=True)),
@@ -291,6 +292,7 @@ class ActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin
 
     locality = LocalitySerializer(read_only=True)
     organization = OrganizationMiniSerializer(read_only=True)
+    opportunities = VolunteerOpportunitySerializer(source='volunteeropportunity_set', many=True, read_only=True)
     submissions = SubmissionMiniSerializer(source='submission_set', many=True, read_only=True)
     donations = DonationSerializer(source='donation_set', many=True, read_only=True)
     score = serializers.ReadOnlyField()
@@ -305,6 +307,7 @@ class OrganizationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixi
         lambda: Prefetch('action_set', queryset=Action.objects.select_related(
             'locality', 'organization'
         ).prefetch_related(
+            Prefetch('volunteeropportunity_set', queryset=VolunteerOpportunity.objects.filter(published=True)),
             Prefetch('submission_set', queryset=Submission.objects.filter(published=True)),
             Prefetch('donation_set', queryset=Donation.objects.select_related('donor').filter(
                 approved_by_donor=True, approved_by_org=True)),
@@ -348,6 +351,8 @@ class DonationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
 class DonationActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_FUNCTIONS = [
+        lambda: Prefetch('action__volunteeropportunity_set',
+                         queryset=VolunteerOpportunity.objects.filter(published=True)),
         lambda: Prefetch('action__submission_set', queryset=Submission.objects.filter(published=True)),
         lambda: Prefetch('action__donation_set', queryset=Donation.objects.select_related('donor').filter(
             approved_by_donor=True, approved_by_org=True)),
