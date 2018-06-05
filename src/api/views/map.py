@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django.core.exceptions import ValidationError
 
 from rest_framework import generics
 from rest_framework.views import APIView
@@ -308,5 +309,8 @@ class ShareSetUser(APIView):
         if share.user:
             return Response({}, status=200)
         share.user = user
-        share.save()
+        try:
+            share.save()
+        except ValidationError as e:
+            return Response({'error': str(e)}, status=400)
         return Response({}, status=200)

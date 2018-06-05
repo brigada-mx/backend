@@ -45,6 +45,7 @@ class VolunteerUserApplicationCreateSerializer(serializers.Serializer):
     first_name = serializers.CharField(max_length=100, allow_blank=False, trim_whitespace=True)
     surnames = serializers.CharField(max_length=100, allow_blank=False, trim_whitespace=True)
     age = serializers.IntegerField()
+    email = serializers.EmailField(allow_blank=False)
 
     opportunity_id = serializers.IntegerField(required=False)
     reason_why = serializers.CharField(max_length=280, allow_blank=False, trim_whitespace=True)
