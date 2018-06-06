@@ -4,8 +4,8 @@ import hashlib
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
 from raven.contrib.django.raven_compat.models import client
+
 from db.map.models import DiscourseUser, DiscoursePostEvent, DiscourseTopicEvent
 from jobs.kobo import sync_submission
 

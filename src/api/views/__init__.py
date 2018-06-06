@@ -6,3 +6,4 @@ from .donor_account import *
 from .internal import *
 from .webhooks import *
 from .discourse import *
+from .files import *

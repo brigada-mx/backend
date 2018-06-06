@@ -14,7 +14,7 @@ from helpers import get_image_size
 
 
 def image_meta_synced(image):
-    return image.get('exif') is not None
+    return 'exif' in image
 
 
 def in_s3(url):

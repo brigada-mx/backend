@@ -127,4 +127,7 @@ urlpatterns = [
     url(r'^donor_account/donations/$', views.DonorDonationListCreate.as_view(), name='donoraccount-donation-create'),
     url(r'^donor_account/donations/(?P<pk>[0-9]+)/$',
         views.DonorDonationRetrieveUpdateDestroy.as_view(), name='donoraccount-donation-retrieve-update-destroy'),
+
+    # other protected endpoints
+    url(r'^files/get_upload_url/$', views.GetPresignedUploadUrl.as_view(), name='files-get-upload-url'),
 ]
