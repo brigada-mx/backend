@@ -106,6 +106,15 @@ class AccountActionCreateSerializer(serializers.ModelSerializer):
         read_only_fields = ('key', 'organization')
 
 
+class AccountSubmissionCreateSerializer(serializers.ModelSerializer):
+    location = LatLngField()
+
+    class Meta:
+        model = Submission
+        fields = '__all__'
+        read_only_fields = ('organization', 'source', 'source_id', 'data', 'submitted')
+
+
 class AccountActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_FUNCTIONS = [lambda: Prefetch('donation_set', queryset=Donation.objects.select_related('donor'))]
     _PREFETCH_RELATED_FIELDS = ['submission_set', 'volunteeropportunity_set']

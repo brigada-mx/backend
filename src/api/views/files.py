@@ -22,7 +22,7 @@ class GetPresignedUploadUrl(APIView):
             Bucket=bucket,
             Key=key,
             Fields={'acl': 'public-read'},
-            Conditions=[{'acl': 'public-read'}, ['content-length-range', 10, 1024 * 1024 * 25]],
+            Conditions=[{'acl': 'public-read'}, ['content-length-range', 10, 1024 * 1024 * 10]],
             ExpiresIn=1800,
         )
         return Response({**post, 'full_url': f'{post["url"]}{post["fields"]["key"]}'}, status=200)

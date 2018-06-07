@@ -7,6 +7,7 @@ from django.db import transaction
 
 from rest_framework import permissions, generics
 from rest_framework.views import APIView
+from rest_framework.serializers import ValidationError
 from rest_framework.response import Response
 from raven.contrib.django.raven_compat.models import client
 
@@ -14,7 +15,8 @@ from db.map.models import Action, Submission, Donor, Donation, Organization, Dis
 from db.map.models import VolunteerOpportunity
 from db.users.models import OrganizationUser, OrganizationUserToken
 from api.backends import OrganizationUserAuthentication
-from api.serializers import AccountSubmissionSerializer, OrganizationUserSerializer, ArchiveSerializer
+from api.serializers import AccountSubmissionSerializer, AccountSubmissionCreateSerializer
+from api.serializers import OrganizationUserSerializer, ArchiveSerializer
 from api.serializers import PasswordSerializer, PasswordTokenSerializer, SendSetPasswordEmailSerializer
 from api.serializers import OrganizationUserTokenSerializer, OrganizationReadSerializer
 from api.serializers import OrganizationUpdateSerializer, OrganizationCreateSerializer
@@ -225,16 +227,27 @@ class AccountActionRetrieveByKey(APIView):
         return Response(serializer_class(action).data)
 
 
-class AccountSubmissionList(generics.ListAPIView):
+class AccountSubmissionListCreate(generics.ListCreateAPIView):
     authentication_classes = (OrganizationUserAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = AccountSubmissionSerializer
     filter_class = SubmissionFilter
+
+    def get_serializer_class(self, *args, **kwargs):
+        if self.request.method == 'POST':
+            return AccountSubmissionCreateSerializer
+        return AccountSubmissionSerializer
 
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
             Submission.objects.filter(organization=self.request.user.organization)
         )
+
+    def perform_create(self, serializer):
+        organization = self.request.user.organization
+        action = serializer.validated_data.get('action')
+        if action not in organization.action_set.all():
+            raise ValidationError(f'Action {action} does not belong to this organization')
+        serializer.save(organization=organization, source='brigada')
 
 
 class AccountSubmissionRetrieveUpdate(generics.RetrieveUpdateAPIView):

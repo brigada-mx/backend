@@ -91,7 +91,7 @@ urlpatterns = [
     url(r'^account/action_strength/(?P<pk>[0-9]+)/$',
         views.AccountActionStrength.as_view(), name='account-action-strength'),
 
-    url(r'^account/submissions/$', views.AccountSubmissionList.as_view(), name='account-submission-list'),
+    url(r'^account/submissions/$', views.AccountSubmissionListCreate.as_view(), name='account-submission-list-create'),
     url(r'^account/submissions/(?P<pk>[0-9]+)/$',
         views.AccountSubmissionRetrieveUpdate.as_view(), name='account-submission-update'),
 
@@ -129,5 +129,5 @@ urlpatterns = [
         views.DonorDonationRetrieveUpdateDestroy.as_view(), name='donoraccount-donation-retrieve-update-destroy'),
 
     # other protected endpoints
-    url(r'^files/get_upload_url/$', views.GetPresignedUploadUrl.as_view(), name='files-get-upload-url'),
+    url(r'^files/upload_url/$', views.GetPresignedUploadUrl.as_view(), name='files-upload-url'),
 ]
