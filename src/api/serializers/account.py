@@ -112,7 +112,7 @@ class AccountSubmissionCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission
         fields = '__all__'
-        read_only_fields = ('organization', 'source', 'source_id', 'data', 'submitted')
+        read_only_fields = ('organization', 'source', 'source_id', 'data')
 
 
 class AccountActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
@@ -138,9 +138,11 @@ class AccountActionDetailReadSerializer(AccountActionDetailSerializer):
 
 
 class SubmissionUpdateSerializer(serializers.ModelSerializer):
+    location = LatLngField()
+
     class Meta:
         model = Submission
-        fields = ('action', 'desc', 'addr', 'published')
+        fields = ('action', 'desc', 'addr', 'published', 'submitted', 'location')
 
 
 class AccountDonationCreateSerializer(serializers.ModelSerializer):
