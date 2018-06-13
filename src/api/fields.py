@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from helpers.location import geos_location_from_coordinate_string
+from helpers.location import geos_location_from_coordinate_object
 
 
 class LatLngField(serializers.Field):
@@ -18,8 +18,8 @@ class LatLngField(serializers.Field):
     def to_internal_value(self, data):
         if data:
             try:
-                location = geos_location_from_coordinate_string(data)
+                location = geos_location_from_coordinate_object(data)
             except:
                 raise serializers.ValidationError(
-                    'The location string must have the following format: {lat},{lng}')
+                    'The location object must have the following shape: { lat, lng }')
             return location

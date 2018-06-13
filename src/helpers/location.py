@@ -18,9 +18,8 @@ def calculate_distance_between_points(p0, p1, **kwargs):
     return calculate_distance_between_coords(p0.y, p0.x, p1.y, p1.x, **kwargs)
 
 
-def geos_location_from_coordinate_string(coords):
-    latitude, longitude = [coordinate.strip() for coordinate in coords.split(',')]
-    return GEOSGeometry(f'POINT({longitude} {latitude})')
+def geos_location_from_coordinate_object(obj):
+    return GEOSGeometry(f'POINT({obj["lng"]} {obj["lat"]})')
 
 
 def geos_location_from_coordinates(latitude, longitude):
