@@ -95,6 +95,11 @@ urlpatterns = [
     url(r'^account/submissions/(?P<pk>[0-9]+)/$',
         views.AccountSubmissionRetrieveUpdate.as_view(), name='account-submission-update'),
 
+    url(r'^account/testimonials/$',
+        views.AccountTestimonialListCreate.as_view(), name='account-testimonial-list-create'),
+    url(r'^account/testimonials/(?P<pk>[0-9]+)/$',
+        views.AccountTestimonialRetrieveUpdate.as_view(), name='account-testimonial-update'),
+
     url(r'^account/donations/$', views.AccountDonationCreate.as_view(), name='account-donation-create'),
     url(r'^account/donations/(?P<pk>[0-9]+)/$',
         views.AccountDonationRetrieveUpdateDestroy.as_view(), name='account-donation-retrieve-update-destroy'),

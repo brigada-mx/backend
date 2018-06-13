@@ -11,8 +11,8 @@ from rest_framework.serializers import ValidationError
 from rest_framework.response import Response
 from raven.contrib.django.raven_compat.models import client
 
-from db.map.models import Action, Submission, Donor, Donation, Organization, DiscourseUser, DiscoursePostEvent
-from db.map.models import VolunteerOpportunity
+from db.map.models import Action, Submission, Donor, Donation, Testimonial, Organization, VolunteerOpportunity
+from db.map.models import DiscourseUser, DiscoursePostEvent
 from db.users.models import OrganizationUser, OrganizationUserToken
 from api.backends import OrganizationUserAuthentication
 from api.serializers import AccountSubmissionSerializer, AccountSubmissionCreateSerializer
@@ -20,12 +20,15 @@ from api.serializers import OrganizationUserSerializer, ArchiveSerializer
 from api.serializers import PasswordSerializer, PasswordTokenSerializer, SendSetPasswordEmailSerializer
 from api.serializers import OrganizationUserTokenSerializer, OrganizationReadSerializer
 from api.serializers import OrganizationUpdateSerializer, OrganizationCreateSerializer
-from api.serializers import SubmissionUpdateSerializer, AccountActionDetailSerializer, AccountActionDetailReadSerializer
+from api.serializers import AccountSubmissionUpdateSerializer, AccountActionDetailSerializer
+from api.serializers import AccountActionDetailReadSerializer
 from api.serializers import AccountActionListSerializer, AccountActionCreateSerializer
 from api.serializers import DonationSerializer, AccountDonationUpdateSerializer, AccountDonationCreateSerializer
 from api.serializers import AccountSubmissionImageUpdateSerializer, VolunteerUserSerializer
 from api.serializers import VolunteerOpportunityCreateSerializer, AccountVolunteerOpportunityDetailSerializer
-from api.filters import ActionFilter, SubmissionFilter, VolunteerOpportunityFilter
+from api.serializers import AccountTestimonialCreateSerializer, AccountTestimonialSerializer
+from api.serializers import AccountTestimonialUpdateSerializer
+from api.filters import ActionFilter, SubmissionFilter, TestimonialFilter, VolunteerOpportunityFilter
 
 
 class VolunteerUserCreate(generics.CreateAPIView):
@@ -256,7 +259,7 @@ class AccountSubmissionRetrieveUpdate(generics.RetrieveUpdateAPIView):
 
     def get_serializer_class(self, *args, **kwargs):
         if self.request.method in ('PUT', 'PATCH'):
-            return SubmissionUpdateSerializer
+            return AccountSubmissionUpdateSerializer
         return AccountSubmissionSerializer
 
     def get_queryset(self):
@@ -306,6 +309,52 @@ class AccountSubmissionImageUpdate(APIView):
         submission.images[index] = image
         submission.save()
         return Response({'image': image})
+
+
+class AccountTestimonialListCreate(generics.ListCreateAPIView):
+    authentication_classes = (OrganizationUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+    filter_class = TestimonialFilter
+
+    def get_serializer_class(self, *args, **kwargs):
+        if self.request.method == 'POST':
+            return AccountTestimonialCreateSerializer
+        return AccountTestimonialSerializer
+
+    def get_queryset(self):
+        return self.get_serializer_class().setup_eager_loading(
+            Testimonial.objects.filter(action__organization=self.request.user.organization)
+        )
+
+    def perform_create(self, serializer):
+        organization = self.request.user.organization
+        action = serializer.validated_data.get('action')
+        if action not in organization.action_set.all():
+            raise ValidationError(f'Action {action} does not belong to this organization')
+        serializer.save()
+
+
+class AccountTestimonialRetrieveUpdate(generics.RetrieveUpdateAPIView):
+    authentication_classes = (OrganizationUserAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_serializer_class(self, *args, **kwargs):
+        if self.request.method in ('PUT', 'PATCH'):
+            return AccountTestimonialUpdateSerializer
+        return AccountTestimonialSerializer
+
+    def get_queryset(self):
+        return Testimonial.objects.filter(action__organization=self.request.user.organization)
+
+    def patch(self, request, *args, **kwargs):
+        action = request.data.get('action', None)
+        if action is not None:
+            if action not in self.request.user.organization.action_set.values_list('pk', flat=True):
+                return Response({'error': f'Action {action} does not belong to this organization'}, status=400)
+        return super().patch(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.patch(request, *args, **kwargs)
 
 
 class AccountDonationCreate(APIView):

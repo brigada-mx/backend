@@ -1,8 +1,9 @@
 from django.db.models import Prefetch
 from rest_framework import serializers
 
-from db.map.models import Organization, Action, Submission, Donation, VolunteerOpportunity, VolunteerApplication
-from db.users.models import OrganizationUser, VolunteerUser
+from db.map.models import Organization, Action, Submission, Testimonial, Donation
+from db.map.models import VolunteerOpportunity, VolunteerApplication
+from db.users.models import VolunteerUser, OrganizationUser
 from api.fields import LatLngField
 from api.mixins import EagerLoadingMixin, DynamicFieldsMixin
 from api.serializers.serializers import authenticate
@@ -106,15 +107,6 @@ class AccountActionCreateSerializer(serializers.ModelSerializer):
         read_only_fields = ('key', 'organization')
 
 
-class AccountSubmissionCreateSerializer(serializers.ModelSerializer):
-    location = LatLngField()
-
-    class Meta:
-        model = Submission
-        fields = '__all__'
-        read_only_fields = ('organization', 'source', 'source_id', 'data')
-
-
 class AccountActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_FUNCTIONS = [lambda: Prefetch('donation_set', queryset=Donation.objects.select_related('donor'))]
     _PREFETCH_RELATED_FIELDS = ['submission_set', 'volunteeropportunity_set']
@@ -137,25 +129,7 @@ class AccountActionDetailReadSerializer(AccountActionDetailSerializer):
     locality = LocalitySerializer(read_only=True)
 
 
-class SubmissionUpdateSerializer(serializers.ModelSerializer):
-    location = LatLngField()
-
-    class Meta:
-        model = Submission
-        fields = ('action', 'desc', 'addr', 'published', 'submitted', 'location')
-
-
-class AccountDonationCreateSerializer(serializers.ModelSerializer):
-    donor_id = serializers.IntegerField(required=False)
-    donor_name = serializers.CharField(required=False)
-    contact_email = serializers.EmailField(required=False)
-
-    class Meta:
-        model = Donation
-        exclude = ('donor', 'approved_by_donor')
-
-
-class AccountSubmissionSerializer(SubmissionMediumSerializer):
+class AccountSubmissionSerializer(DynamicFieldsMixin, serializers.ModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['action']
 
     action = ActionSerializer(read_only=True)
@@ -173,10 +147,63 @@ class AccountSubmissionSerializer(SubmissionMediumSerializer):
         return obj.synced_images()
 
 
+class AccountSubmissionCreateSerializer(serializers.ModelSerializer):
+    location = LatLngField()
+
+    class Meta:
+        model = Submission
+        fields = '__all__'
+        read_only_fields = ('organization', 'source', 'source_id', 'data')
+
+
+class AccountSubmissionUpdateSerializer(serializers.ModelSerializer):
+    location = LatLngField()
+
+    class Meta:
+        model = Submission
+        fields = ('action', 'desc', 'addr', 'published', 'submitted', 'location')
+
+
 class AccountSubmissionImageUpdateSerializer(serializers.Serializer):
     url = serializers.URLField()
     published = serializers.BooleanField(required=False)
     rotate = serializers.RegexField(regex=r'^left|right$', required=False)
+
+
+class AccountTestimonialSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    _SELECT_RELATED_FIELDS = ['action']
+
+    action = ActionSerializer(read_only=True)
+    location = LatLngField()
+
+    class Meta:
+        model = Testimonial
+
+
+class AccountTestimonialCreateSerializer(serializers.ModelSerializer):
+    location = LatLngField()
+
+    class Meta:
+        model = Testimonial
+        fields = '__all__'
+
+
+class AccountTestimonialUpdateSerializer(serializers.ModelSerializer):
+    location = LatLngField()
+
+    class Meta:
+        model = Testimonial
+        exclude = ('video',)
+
+
+class AccountDonationCreateSerializer(serializers.ModelSerializer):
+    donor_id = serializers.IntegerField(required=False)
+    donor_name = serializers.CharField(required=False)
+    contact_email = serializers.EmailField(required=False)
+
+    class Meta:
+        model = Donation
+        exclude = ('donor', 'approved_by_donor')
 
 
 class AccountDonationUpdateSerializer(serializers.ModelSerializer):

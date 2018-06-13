@@ -367,7 +367,7 @@ def create_first_action_log_record(sender, instance, created, **kwargs):
 
 
 class Submission(BaseModel):
-    """Submitted platform via mobile app.
+    """Images submitted via Kobo or from account admin.
     """
     location = models.PointField(null=True, blank=True)
     organization = models.ForeignKey('Organization', null=True, blank=True)
@@ -452,6 +452,34 @@ class Submission(BaseModel):
 
         bucket = os.getenv('CUSTOM_AWS_STORAGE_BUCKET_NAME')
         return [prepare_image(i) for i in images if i['url'].startswith(f'https://{bucket}.s3.amazonaws.com')]
+
+
+class Testimonial(BaseModel):
+    """Video testimonial of person benefitting from reconstruction `Action`.
+    """
+    location = models.PointField(db_index=True)
+    action = models.ForeignKey('Action')
+    desc = models.TextField()
+    addr = models.TextField(blank=True)
+    video = JSONField()
+    recipient = JSONField()
+    submitted = models.DateTimeField(default=timezone.now, blank=True, db_index=True)
+    published = models.BooleanField(blank=True, default=True, db_index=True)
+    archived = models.BooleanField(blank=True, default=False, db_index=True)
+
+    REPR_FIELDS = ['action_id', 'submitted']
+
+    class Meta:
+        ordering = ('-submitted',)
+
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        from jobs.files import sync_testimonial_meta
+
+        created = self.pk is None
+        super().save(*args, **kwargs)
+        if created:
+            sync_testimonial_meta.delay(self.pk)
 
 
 class Donor(BaseModel):
