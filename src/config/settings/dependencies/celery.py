@@ -36,6 +36,21 @@ CELERYBEAT_SCHEDULE = {
         'args': (1,),
     },
 
+    'refresh_youtube_access_token': {
+        'task': 'refresh_youtube_access_token',
+        'schedule': timedelta(seconds=60 * 10),
+    },
+    'sync_testimonials_video_meta': {
+        'task': 'sync_testimonials_video_meta',
+        'schedule': crontab(hour=[4+5]),
+        'args': (None,),
+    },
+    'sync_testimonials_video_meta_last_hour': {
+        'task': 'sync_testimonials_video_meta',
+        'schedule': timedelta(seconds=60 * 5),
+        'args': (1,),
+    },
+
     'discourse_log_out_users': {
         'task': 'discourse_log_out_users',
         'schedule': crontab(minute=[15, 45], hour=3+5, day_of_month=[1, 15]),

@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 
 from db.config import BaseModel
 from db.choices import SCIAN_GROUP_ID_BY_CODE, ORGANIZATION_SECTOR_CHOICES, DONOR_SECTOR_CHOICES, APP_TYPE_CHOICES
-from db.choices import SUBMISSION_SOURCE_CHOICES, VOLUNTEER_OPPORTUNITY_LOCATION_CHOICES
+from db.choices import SUBMISSION_SOURCE_CHOICES, VOLUNTEER_OPPORTUNITY_LOCATION_CHOICES, ACTION_LABEL_BY_TYPE
 from helpers.location import geos_location_from_coordinates
 from helpers.diceware import diceware
 from helpers.datetime import timediff
@@ -312,6 +312,9 @@ class Action(AbstractAction, BaseModel):
             except IntegrityError as e:
                 self.key += 1
 
+    def action_label(self):
+        return ACTION_LABEL_BY_TYPE.get(self.action_type, '')
+
     def calculate_image_count(self):
         return sum(len(s.synced_images(exclude_hidden=True)) for s in self.submission_set.filter(published=True))
 
@@ -474,12 +477,20 @@ class Testimonial(BaseModel):
 
     @transaction.atomic
     def save(self, *args, **kwargs):
-        from jobs.files import sync_testimonial_meta
+        from jobs.files import sync_testimonial_video_meta
 
         created = self.pk is None
         super().save(*args, **kwargs)
         if created:
-            sync_testimonial_meta.delay(self.pk)
+            sync_testimonial_video_meta.delay(self.pk)
+
+
+class YoutubeAccessToken(BaseModel):
+    """Obtained using `refresh_token`. There should be only one record in this table.
+    """
+    access_token = models.TextField()
+    expires_in = models.IntegerField()
+    token_type = models.TextField(unique=True)
 
 
 class Donor(BaseModel):

@@ -7,7 +7,6 @@ from celery import shared_task
 
 from db.map.models import EmailNotification, Organization, Donation, VolunteerApplication
 from db.users.models import DonorUser
-from db.choices import ACTION_LABEL_BY_TYPE
 from jobs.messages import send_email, send_pretty_email, send_personalized_email
 from helpers.datetime import timediff
 
@@ -16,11 +15,10 @@ from helpers.datetime import timediff
 def send_volunteer_application_email(application_id):
     application = VolunteerApplication.objects.get(id=application_id)
     action = application.opportunity.action
-    action_label = ACTION_LABEL_BY_TYPE.get(action.action_type)
     locality_label = f'{action.locality.name}, {action.locality.state_name}'
 
     subject = '{} quiere ser voluntario para tu proyecto de {} en {}'.format(
-        application.user.full_name, action_label or '-', locality_label,
+        application.user.full_name, action.action_label() or '-', locality_label,
     )
     body = """{} quiere ser voluntario para tu proyecto de {} en {}. Aplicó para el puesto de {}.<br><br>
     Aquí están sus datos de contacto:<br>
@@ -29,7 +27,7 @@ def send_volunteer_application_email(application_id):
     Le gustaría trabajar con ustedes porque: <b>{}</b><br><br>
     Por favor mándale una respuesta. Si esta oportunidad ya no está disponible, <a href="{}/cuenta/proyectos/{}" target="_blank">actualízala aquí</a>.
     """.format(
-        application.user.full_name, action_label or '-', locality_label, application.opportunity.position,
+        application.user.full_name, action.action_label() or '-', locality_label, application.opportunity.position,
         application.user.phone, application.user.email, application.reason_why,
         os.getenv('CUSTOM_SITE_URL'), action.key,
     )
@@ -132,7 +130,7 @@ def donor_unclaimed(n=None, **kwargs):
         return []
 
     public_profile_url = f"{os.getenv('CUSTOM_SITE_URL')}/donadores/{donor.id}"
-    action_label = ACTION_LABEL_BY_TYPE.get(action.action_type)
+    action_label = action.action_label()
 
     subject = 'Encárgate de tu perfil en la plataforma Brigada'
     body = """En Brigada, {} ha dicho que donaste {}a su proyecto {}en {}.<br><br>
@@ -163,7 +161,7 @@ def donation_unapproved(n=None, **kwargs):
         return
 
     action = donation.action
-    action_label = ACTION_LABEL_BY_TYPE.get(action.action_type)
+    action_label = action.action_label()
 
     if notify == 'org':
         name = donation.donor.name
