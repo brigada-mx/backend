@@ -91,9 +91,6 @@ def sync_submission_image_meta(submission_id):
 
 @shared_task(name='sync_testimonial_video_meta', default_retry_delay=30, max_retries=3)
 def sync_testimonial_video_meta(testimonial_id):
-    # supported file formats: https://support.google.com/youtube/troubleshooter/2888402?hl=en
-    testimonial = Testimonial.objects.get(id=testimonial_id)
-
     def update_video_meta(t):
         if video_meta_synced(t.video):
             return
@@ -123,11 +120,6 @@ def sync_testimonial_video_meta(testimonial_id):
                           json=meta, headers=headers, params=params)
         r.raise_for_status()
 
-        if t.video.get('in_flight'):
-            return
-        t.video['in_flight'] = True
-        t.save()
-
         with open(path, 'rb') as data:
             r = requests.post(r.headers['location'], headers=headers, data=data)
             r.raise_for_status()
@@ -139,10 +131,10 @@ def sync_testimonial_video_meta(testimonial_id):
             t.video['url_thumbnail'] = data['snippet']['thumbnails']['high']['url']
         except:
             pass
-        t.video['in_flight'] = False
         t.save()
 
     with transaction.atomic():
+        testimonial = Testimonial.objects.select_for_update().get(id=testimonial_id)
         update_video_meta(testimonial)
 
 
