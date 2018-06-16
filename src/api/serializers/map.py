@@ -3,7 +3,7 @@ from django.db.models import Prefetch
 from rest_framework import serializers
 
 from db.map.models import State, Municipality, Locality, Establishment, VolunteerOpportunity, VolunteerApplication
-from db.map.models import Organization, Action, ActionLog, Submission, Donor, Donation, Share
+from db.map.models import Organization, Action, ActionLog, Submission, Donor, Donation, Share, Testimonial
 from db.users.models import DonorUser, VolunteerUser
 from api.mixins import EagerLoadingMixin, DynamicFieldsMixin
 from api.fields import LatLngField
@@ -171,6 +171,25 @@ class SubmissionMediumSerializer(DynamicFieldsMixin, serializers.ModelSerializer
         return obj.synced_images(exclude_hidden=True)
 
 
+class TestimonialMediumSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    location = LatLngField()
+
+    class Meta:
+        model = Testimonial
+        fields = '__all__'
+
+
+class TestimonialPublicSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    video = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Testimonial
+        fields = '__all__'
+
+    def get_video(self, obj):
+        return obj.public_video()
+
+
 class SubmissionSerializer(SubmissionMediumSerializer):
     _SELECT_RELATED_FIELDS = ['action']
 
@@ -263,6 +282,7 @@ class EstablishmentSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_FUNCTIONS = [
         lambda: Prefetch('submission_set', queryset=Submission.objects.filter(published=True)),
+        lambda: Prefetch('testimonial_set', queryset=Testimonial.objects.filter(published=True)),
         lambda: Prefetch('donation_set', queryset=Donation.objects.select_related('donor').filter(
             approved_by_donor=True, approved_by_org=True)),
         lambda: Prefetch('volunteeropportunity_set', queryset=VolunteerOpportunity.objects.filter(published=True)),
@@ -272,6 +292,7 @@ class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     locality = LocalitySerializer(read_only=True)
     organization = OrganizationMiniSerializer(read_only=True)
     submissions = SubmissionMediumSerializer(source='submission_set', many=True, read_only=True)
+    testimonials = TestimonialPublicSerializer(source='testimonial_set', many=True, read_only=True)
     donations = DonationSerializer(source='donation_set', many=True, read_only=True)
     opportunities = VolunteerOpportunitySerializer(source='volunteeropportunity_set', many=True, read_only=True)
     score = serializers.ReadOnlyField()

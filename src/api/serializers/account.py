@@ -8,7 +8,7 @@ from api.fields import LatLngField
 from api.mixins import EagerLoadingMixin, DynamicFieldsMixin
 from api.serializers.serializers import authenticate
 from api.serializers.map import LocalitySerializer, DonationSerializer, ActionSerializer
-from api.serializers.map import OrganizationMiniSerializer, SubmissionMediumSerializer
+from api.serializers.map import OrganizationMiniSerializer, SubmissionMediumSerializer, TestimonialMediumSerializer
 from api.serializers.map import VolunteerApplicationSerializer, VolunteerOpportunitySerializer
 
 
@@ -109,11 +109,12 @@ class AccountActionCreateSerializer(serializers.ModelSerializer):
 
 class AccountActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_FUNCTIONS = [lambda: Prefetch('donation_set', queryset=Donation.objects.select_related('donor'))]
-    _PREFETCH_RELATED_FIELDS = ['submission_set', 'volunteeropportunity_set']
+    _PREFETCH_RELATED_FIELDS = ['submission_set', 'volunteeropportunity_set', 'testimonial_set']
     _SELECT_RELATED_FIELDS = ['organization']
 
     organization = OrganizationMiniSerializer(read_only=True)
     submissions = SubmissionMediumSerializer(source='submission_set', many=True, read_only=True)
+    testimonials = TestimonialMediumSerializer(source='testimonial_set', many=True, read_only=True)
     donations = DonationSerializer(source='donation_set', many=True, read_only=True)
     opportunities = VolunteerOpportunitySerializer(source='volunteeropportunity_set', many=True, read_only=True)
 
@@ -178,6 +179,7 @@ class AccountTestimonialSerializer(serializers.ModelSerializer, EagerLoadingMixi
 
     class Meta:
         model = Testimonial
+        fields = '__all__'
 
 
 class AccountTestimonialCreateSerializer(serializers.ModelSerializer):

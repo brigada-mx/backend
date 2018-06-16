@@ -475,6 +475,12 @@ class Testimonial(BaseModel):
     class Meta:
         ordering = ('-submitted',)
 
+    def public_video(self):
+        return {
+            'youtube_video_id': self.video.get('youtube_video_id', ''),
+            'url_thumbnail': self.video.get('url_thumbnail', ''),
+        }
+
     @transaction.atomic
     def save(self, *args, **kwargs):
         from jobs.files import sync_testimonial_video_meta
