@@ -100,13 +100,12 @@ def sync_testimonial_video_meta(testimonial_id):
         if path is None:
             return
 
-        name = t.recipient.get('first_name')
-        name_part = f'de {name} ' if name else ''
+        name_part = f'de {t.pretty_recipients(3, "y")} ' if t.recipients else ''
         locality = t.action.locality
         meta = {
             'snippet': {
                 'categoryId': '29',  # nonprofits and activism
-                'description': f'Este es un proyecto de {t.action.action_label()} en {locality.name}, {locality.state_name}, realizado por {t.action.organization.name}.\n\n{os.getenv("CUSTOM_SITE_URL")}/proyectos/{t.action.id}',
+                'description': f'Testimonio de un proyecto de {t.action.action_label()} en {locality.name}, {locality.state_name}, realizado por {t.action.organization.name}.\n\n{os.getenv("CUSTOM_SITE_URL")}/proyectos/{t.action.id}',
                 'title': f'Testimonio {name_part}en {locality.name}',
             },
             'status': {'privacyStatus': 'public'},

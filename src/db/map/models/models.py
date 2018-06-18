@@ -462,10 +462,10 @@ class Testimonial(BaseModel):
     """
     location = models.PointField(db_index=True)
     action = models.ForeignKey('Action')
-    desc = models.TextField()
+    desc = models.TextField(blank=True)
     addr = models.TextField(blank=True)
     video = JSONField()
-    recipient = JSONField()
+    recipients = models.TextField()
     submitted = models.DateTimeField(default=timezone.now, blank=True, db_index=True)
     published = models.BooleanField(blank=True, default=True, db_index=True)
     archived = models.BooleanField(blank=True, default=False, db_index=True)
@@ -481,6 +481,14 @@ class Testimonial(BaseModel):
             'url_thumbnail': self.video.get('url_thumbnail', ''),
             'synced': self.video.get('synced', False),
         }
+
+    def pretty_recipients(self, n=None, _and=''):
+        rs = [r.strip().title() for r in self.recipients.split(',')]
+        if n:
+            rs = rs[:n]
+        if _and and len(rs) > 1:
+            rs[-2] = f'{rs[-2]} {_and} {rs[-1]}'
+        return ', '.join(rs[:-1])
 
     @transaction.atomic
     def save(self, *args, **kwargs):

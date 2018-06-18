@@ -494,6 +494,9 @@ class AccountProfileStrength(APIView):
         submissions = Submission.objects.filter(action__organization_id=organization.id, action__published=True)
         status_by_category['submissions'] = len(submissions) > 0
 
+        testimonials = Testimonial.objects.filter(action__organization_id=organization.id, action__published=True)
+        status_by_category['testimonials'] = len(testimonials) > 0
+
         status_by_category['discourse_post'] = has_created_discourse_post(
             list(organization.organizationuser_set.values_list('email', flat=True))
         )
@@ -523,6 +526,8 @@ class AccountActionStrength(APIView):
         status_by_category['budget'] = bool(action.budget)
 
         status_by_category['image_count'] = action.image_count
+
+        status_by_category['testimonials'] = len(action.testimonial_set.filter(published=True)) > 0
 
         donations = Donation.objects.filter(action=action, approved_by_donor=True, approved_by_org=True)
         status_by_category['donations'] = len(donations)
