@@ -16,7 +16,7 @@ from helpers import get_image_size
 
 
 def video_meta_synced(video):
-    return 'youtube_video_id' in video
+    return video.get('synced') is True
 
 
 def image_meta_synced(image):
@@ -125,6 +125,7 @@ def sync_testimonial_video_meta(testimonial_id):
             r.raise_for_status()
 
         data = r.json()
+        t.video['synced'] = True
         t.video['youtube_response_data'] = data
         t.video['youtube_video_id'] = data['id']
         try:

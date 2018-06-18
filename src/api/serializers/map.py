@@ -181,6 +181,7 @@ class TestimonialMediumSerializer(serializers.ModelSerializer, EagerLoadingMixin
 
 class TestimonialPublicSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     video = serializers.SerializerMethodField()
+    location = LatLngField()
 
     class Meta:
         model = Testimonial
@@ -282,7 +283,7 @@ class EstablishmentSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _PREFETCH_FUNCTIONS = [
         lambda: Prefetch('submission_set', queryset=Submission.objects.filter(published=True)),
-        lambda: Prefetch('testimonial_set', queryset=Testimonial.objects.filter(published=True)),
+        lambda: Prefetch('testimonial_set', queryset=Testimonial.objects.filter(published=True, video__synced=True)),
         lambda: Prefetch('donation_set', queryset=Donation.objects.select_related('donor').filter(
             approved_by_donor=True, approved_by_org=True)),
         lambda: Prefetch('volunteeropportunity_set', queryset=VolunteerOpportunity.objects.filter(published=True)),

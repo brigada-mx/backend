@@ -479,6 +479,7 @@ class Testimonial(BaseModel):
         return {
             'youtube_video_id': self.video.get('youtube_video_id', ''),
             'url_thumbnail': self.video.get('url_thumbnail', ''),
+            'synced': self.video.get('synced', False),
         }
 
     @transaction.atomic
