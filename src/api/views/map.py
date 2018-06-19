@@ -8,12 +8,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from raven.contrib.django.raven_compat.models import client
 
-from db.map.models import State, Municipality, Locality, Action, Organization, Establishment, Submission
+from db.map.models import State, Municipality, Locality, Action, Organization, Establishment, Submission, Testimonial
 from db.map.models import Donor, Donation, VolunteerOpportunity, VolunteerApplication, Share
 from db.users.models import VolunteerUser
 from api.serializers import StateSerializer, MunicipalitySerializer
 from api.serializers import LocalityDetailSerializer, LocalityRawSerializer, LocalitySerializer
-from api.serializers import EstablishmentSerializer, SubmissionSerializer, ActionMiniSerializer
+from api.serializers import SubmissionSerializer, TestimonialPublicSerializer
+from api.serializers import EstablishmentSerializer, ActionMiniSerializer
 from api.serializers import ActionSubmissionsSerializer, ActionLogSerializer, ActionDetailSerializer
 from api.serializers import ActionLocalityOrganizationSerializer
 from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
@@ -149,6 +150,13 @@ class SubmissionList(generics.ListAPIView):
                 Q(action__isnull=True) | Q(action__published=True), published=True
             ).exclude(organization=None)
         )
+
+
+class TestimonialDetail(generics.RetrieveAPIView):
+    serializer_class = TestimonialPublicSerializer
+
+    def get_queryset(self):
+        return Testimonial.objects.filter(published=True, video__synced=True)
 
 
 locality_list_search_query = """
