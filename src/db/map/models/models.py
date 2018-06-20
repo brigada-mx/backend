@@ -483,9 +483,13 @@ class Testimonial(BaseModel):
         }
 
     def pretty_recipients(self, n=None, _and=''):
-        rs = [r.strip().title() for r in self.recipients.split(',')]
+        rs = [r.strip().title() for r in self.recipients.split(',') if r.strip()]
         if n:
             rs = rs[:n]
+        if len(rs) == 0:
+            return ''
+        if len(rs) == 1:
+            return rs[0]
         if _and and len(rs) > 1:
             rs[-2] = f'{rs[-2]} {_and} {rs[-1]}'
         return ', '.join(rs[:-1])

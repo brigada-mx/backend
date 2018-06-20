@@ -181,6 +181,7 @@ class TestimonialMediumSerializer(serializers.ModelSerializer, EagerLoadingMixin
 
 class TestimonialPublicSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     video = serializers.SerializerMethodField()
+    recipients = serializers.SerializerMethodField()
     location = LatLngField()
 
     class Meta:
@@ -189,6 +190,9 @@ class TestimonialPublicSerializer(serializers.ModelSerializer, EagerLoadingMixin
 
     def get_video(self, obj):
         return obj.public_video()
+
+    def get_recipients(self, obj):
+        return obj.pretty_recipients(None, 'y')
 
 
 class SubmissionSerializer(SubmissionMediumSerializer):
