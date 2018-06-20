@@ -16,10 +16,14 @@ class TokenAuth:
 
 
 def download_file(url, dest):
-    r = requests.get(url, allow_redirects=True, timeout=15)
+    # https://stackoverflow.com/questions/16694907/how-to-download-large-file-in-python-with-requests-py
+    r = requests.get(url, stream=True, allow_redirects=True, timeout=15)
     if r.status_code >= 400:
         return None
-    open(dest, 'wb').write(r.content)
+    with open(dest, 'wb') as f:
+        for chunk in r.iter_content(chunk_size=1024):
+            if chunk:  # filter out keep-alive new chunks
+                f.write(chunk)
     return dest
 
 
