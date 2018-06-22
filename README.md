@@ -150,18 +150,23 @@ delete from users_organizationusertoken;
 delete from users_donorusertoken;
 delete from users_organizationuser;
 delete from users_donoruser;
+delete from map_share;
+delete from map_volunteeropportunity;
+delete from map_volunteerapplication;
 delete from map_donation;
 delete from map_submission;
+delete from map_testimonial;
 delete from map_actionlog;
 delete from map_action;
 delete from map_donor;
 delete from map_organization;
+delete from users_volunteeruser;
 ~~~
 
 ~~~sh
 # in EC2 dashboard, find "default VPC security group", and add ingress access to "My IP"
 
-PGPASSWORD=password pg_dump -h pg-919.cexrnsicl0n4.us-west-2.rds.amazonaws.com -U postgres -a -t map_organization -t map_donor -t map_action -t map_submission -t map_donation -t users_organizationuser -t users_donoruser > /tmp/dump.sql
+PGPASSWORD=password pg_dump -h pg-919.cexrnsicl0n4.us-west-2.rds.amazonaws.com -U postgres -a -t users_volunteeruser -t map_organization -t map_donor -t map_action -t map_actionlog -t map_testimonial -t map_submission -t map_donation -t map_volunteerapplication -t map_volunteeropportunity -t map_share -t users_donoruser -t users_organizationuser -t users_donorusertoken -t users_organizationusertoken > /tmp/dump.sql
 
 docker cp /tmp/dump.sql 919_db:/dump.sql
 docker exec -it 919_db psql -h 127.0.0.1 -p 5432 -U postgres -f /dump.sql

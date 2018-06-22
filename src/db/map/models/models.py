@@ -641,8 +641,6 @@ class VolunteerOpportunity(BaseModel):
 
 
 class VolunteerApplication(BaseModel):
-    """Brigadista (shares, volunteers, donates).
-    """
     opportunity = models.ForeignKey('VolunteerOpportunity')
     user = models.ForeignKey('users.VolunteerUser')
     reason_why = models.TextField()

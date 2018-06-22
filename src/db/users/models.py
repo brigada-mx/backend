@@ -230,6 +230,8 @@ class DonorUserToken(TokenBaseModel):
 
 
 class VolunteerUser(CustomAbstractBaseUser):
+    """Brigadista (shares, volunteers, donates).
+    """
     age = models.IntegerField(null=True, blank=True)
     phone = models.TextField(max_length=20, blank=True)
     password = models.CharField(max_length=128, blank=True)

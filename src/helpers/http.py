@@ -18,7 +18,7 @@ class TokenAuth:
 def raise_for_status(r):
     try:
         r.raise_for_status()
-    except Exception as e:
+    except requests.HTTPError as e:
         try:
             json = r.json()
         except:
