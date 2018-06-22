@@ -1,5 +1,6 @@
 import os
 import uuid
+from urllib.parse import quote_plus
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -17,7 +18,8 @@ class GetPresignedUploadUrl(APIView):
         bucket = os.getenv('CUSTOM_AWS_STORAGE_BUCKET_NAME')
         s3 = get_s3_client()
         filename = f'{uuid.uuid4()}-{request.data.get("filename", "")}'
-        key = f'organization/{request.user.organization.id}/{filename}'
+
+        key = f'organization/{request.user.organization.id}/{quote_plus(filename)}'
         post = s3.generate_presigned_post(
             Bucket=bucket,
             Key=key,
