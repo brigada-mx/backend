@@ -11,7 +11,7 @@ from celery import shared_task
 from raven.contrib.django.raven_compat.models import client
 
 from db.map.models import Submission, Testimonial, YoutubeAccessToken
-from helpers.http import download_file
+from helpers.http import download_file, raise_for_status
 from helpers import get_image_size
 
 
@@ -65,7 +65,7 @@ def sync_submission_image_meta(submission_id):
             return image
 
         url = image['url']
-        path = download_file(url, os.path.join(os.sep, 'tmp', url.split('/')[-1]))
+        path = download_file(url, os.path.join(os.sep, 'tmp', url.split('/')[-1]), raise_exception=False)
         if path is None:
             return image
 
@@ -97,8 +97,6 @@ def sync_testimonial_video_meta(testimonial_id):
 
         url = t.video['url']
         path = download_file(url, os.path.join(os.sep, 'tmp', url.split('/')[-1]))
-        if path is None:
-            return
 
         name_part = f'de {t.pretty_recipients(3, "y")} ' if t.recipients else ''
         locality = t.action.locality
@@ -107,7 +105,7 @@ def sync_testimonial_video_meta(testimonial_id):
             'snippet': {
                 'categoryId': '29',  # nonprofits and activism
                 'description': f'Testimonio de un proyecto de {t.action.action_label()} en {locality.name}, {locality.state_name}, realizado por {t.action.organization.name}.\n\n{site_url}',
-                'title': f'Testimonio {name_part}en {locality.name}',
+                'title': f'Testimonio {name_part}en {locality.name}'[:100],  # max title length is 100 chars
             },
             'status': {'privacyStatus': 'public'},
         }
@@ -118,11 +116,11 @@ def sync_testimonial_video_meta(testimonial_id):
 
         r = requests.post('https://www.googleapis.com/upload/youtube/v3/videos',
                           json=meta, headers=headers, params=params)
-        r.raise_for_status()
+        raise_for_status(r)
 
         with open(path, 'rb') as data:
             r = requests.post(r.headers['location'], headers=headers, data=data)
-            r.raise_for_status()
+            raise_for_status(r)
 
         data = r.json()
         t.video['synced'] = True
@@ -163,7 +161,7 @@ def refresh_youtube_access_token():
             'grant_type': 'refresh_token'
         }
     )
-    r.raise_for_status()
+    raise_for_status(r)
     data = r.json()
 
     try:

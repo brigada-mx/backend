@@ -4,6 +4,8 @@ from concurrent import futures
 import requests
 from celery import shared_task
 
+from helpers.http import raise_for_status
+
 
 API_HOST = os.getenv('CUSTOM_DISCOURSE_API_HOST')
 API_KEY = os.getenv('CUSTOM_DISCOURSE_API_KEY')
@@ -13,7 +15,7 @@ TIMEOUT = 30
 
 def get_user_ids(exclude_emails=None):
     r = requests.get(API_HOST + '/admin/users.json', params={**AUTH_PARAMS, **{'show_emails': 'true'}}, timeout=TIMEOUT)
-    r.raise_for_status()
+    raise_for_status(r)
     exclude_emails = exclude_emails or []
     return [user['id'] for user in r.json() if user['email'] not in exclude_emails]
 
@@ -31,7 +33,7 @@ def discourse_log_out_users():
     def log_out_user(user_id):
         try:
             r = requests.post(API_HOST + f'/admin/users/{user_id}/log_out', params=AUTH_PARAMS, timeout=TIMEOUT)
-            r.raise_for_status()
+            raise_for_status(r)
         except requests.exceptions.RequestException as e:
             return {'exception': str(e)}
         return r.json()

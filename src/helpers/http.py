@@ -15,10 +15,25 @@ class TokenAuth:
         return r
 
 
-def download_file(url, dest):
+def raise_for_status(r):
+    try:
+        r.raise_for_status()
+    except Exception as e:
+        try:
+            json = r.json()
+        except:
+            pass
+        else:
+            raise requests.HTTPError(json) from e
+        raise e
+
+
+def download_file(url, dest, raise_exception=True):
     # https://stackoverflow.com/questions/16694907/how-to-download-large-file-in-python-with-requests-py
     r = requests.get(url, stream=True, allow_redirects=True, timeout=15)
     if r.status_code >= 400:
+        if raise_exception:
+            raise_for_status(r)
         return None
     with open(dest, 'wb') as f:
         for chunk in r.iter_content(chunk_size=1024):

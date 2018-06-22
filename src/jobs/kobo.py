@@ -12,6 +12,7 @@ import requests
 
 from db.map.models import Organization, Submission
 from helpers.http import TokenAuth, download_file, get_s3_client
+from helpers.http import raise_for_status
 from helpers.location import geos_location_from_coordinates
 from helpers.diceware import diceware_transform
 
@@ -23,7 +24,7 @@ TIMEOUT = 30
 
 def get_form_ids():
     r = requests.get(API_HOST + '/data', auth=TokenAuth('Token', AUTH_TOKEN), timeout=TIMEOUT)
-    r.raise_for_status()
+    raise_for_status(r)
     return [form['id'] for form in r.json()]
 
 
@@ -35,7 +36,7 @@ def get_recent_form_submissions(form_id, past_days=1):
         auth=TokenAuth('Token', AUTH_TOKEN),
         timeout=TIMEOUT,
     )
-    r.raise_for_status()
+    raise_for_status(r)
     return r.json()
 
 
@@ -101,7 +102,7 @@ def upload_submission_images(submission_id):
             continue
         save = True
         filename = f'{uuid.uuid4()}-{url.split("/")[-1].split("?")[0]}'
-        path = download_file(url, os.path.join(os.sep, 'tmp', filename))
+        path = download_file(url, os.path.join(os.sep, 'tmp', filename), raise_exception=False)
         if path is None:
             continue
 
