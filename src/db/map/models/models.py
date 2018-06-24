@@ -622,6 +622,7 @@ class Donation(BaseModel):
 
 class VolunteerOpportunity(BaseModel):
     action = models.ForeignKey('Action')
+    preview = JSONField(default={}, blank=True)
     position = models.TextField()
     required_skills = ArrayField(models.TextField())
     desc = models.TextField()
