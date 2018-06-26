@@ -48,7 +48,7 @@ class VolunteerUserApplicationCreateSerializer(serializers.Serializer):
     email = serializers.EmailField(allow_blank=False)
 
     opportunity_id = serializers.IntegerField(required=False)
-    reason_why = serializers.CharField(max_length=280, allow_blank=False, trim_whitespace=True)
+    reason_why = serializers.CharField(max_length=560, allow_blank=False, trim_whitespace=True)
 
 
 class VolunteerApplicationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
