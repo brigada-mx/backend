@@ -2,7 +2,7 @@
 import os
 import uuid
 from concurrent import futures
-from urllib.parse import quote_plus
+from urllib.parse import quote
 from datetime import datetime, timedelta
 
 from django.utils import timezone
@@ -11,8 +11,7 @@ from celery import shared_task
 import requests
 
 from db.map.models import Organization, Submission
-from helpers.http import TokenAuth, download_file, get_s3_client
-from helpers.http import raise_for_status
+from helpers.http import TokenAuth, download_file, get_s3_client, s3_safe_filename, raise_for_status
 from helpers.location import geos_location_from_coordinates
 from helpers.diceware import diceware_transform
 
@@ -101,13 +100,12 @@ def upload_submission_images(submission_id):
         if url.startswith(f'https://{bucket}.s3.amazonaws.com'):
             continue
         save = True
-        filename = f'{uuid.uuid4()}-{url.split("/")[-1].split("?")[0]}'
+        filename = s3_safe_filename(f'{uuid.uuid4()}-{url.split("/")[-1].split("?")[0]}')
         path = download_file(url, os.path.join(os.sep, 'tmp', filename), raise_exception=False)
         if path is None:
             continue
 
-        bucket_key = f'kobo/{org_id}/{filename}'  # this will get URL encoded when it's uploaded to S3
-        encoded_bucket_key = f'kobo/{org_id}/{quote_plus(filename)}'
+        bucket_key = f'kobo/{org_id}/{filename}'
 
         try:
             with open(path, 'rb') as data:
@@ -115,7 +113,7 @@ def upload_submission_images(submission_id):
         except:
             continue
         else:
-            submission.images[i] = {'url': f'https://{bucket}.s3.amazonaws.com/{encoded_bucket_key}'}
+            submission.images[i] = {'url': f'https://{bucket}.s3.amazonaws.com/{bucket_key}'}
     if save:
         submission.save()
         sync_submission_image_meta.delay(submission.id)

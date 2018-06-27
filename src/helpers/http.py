@@ -1,4 +1,5 @@
 import os
+import re
 import requests
 from urllib.parse import urlparse
 
@@ -63,3 +64,11 @@ def s3_thumbnail_url(url, width=0, height=0, crop=False):
     base_url = os.getenv('CUSTOM_THUMBOR_SERVER')
     path = urlparse(url).path
     return f'{base_url}/{"" if crop else "fit-in/"}{width}x{height}{path}'
+
+
+def s3_safe_filename(filename):
+    """The S3 `key` gets URL encoded when it's uploaded to S3. The value returned
+    by this function is URL-safe; it suffers no modifications on upload. This
+    value can be used in both S3 key and in S3 URL saved to database.
+    """
+    return re.sub(r'[^a-zA-Z0-9_.-]+', '', filename.replace(' ', '_'))
