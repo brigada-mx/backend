@@ -11,6 +11,7 @@ from rest_framework.serializers import ValidationError
 from rest_framework.response import Response
 from raven.contrib.django.raven_compat.models import client
 
+from jobs.maintenance import get_status_by_category
 from db.map.models import Action, Submission, Donor, Donation, Testimonial, Organization, VolunteerOpportunity
 from db.map.models import DiscourseUser, DiscoursePostEvent
 from db.users.models import OrganizationUser, OrganizationUserToken
@@ -514,33 +515,17 @@ class AccountActionStrength(APIView):
 
     def get(self, request, *args, **kwargs):
         action = get_object_or_404(Action, pk=kwargs['pk'])
-        status_by_category = {}
 
-        status_by_category['desc'] = bool(action.desc)
-
-        status_by_category['dates'] = bool(action.start_date and action.end_date)
-
-        status_by_category['progress'] = bool(action.unit_of_measurement) \
-            and action.target is not None and action.progress is not None
-
-        status_by_category['budget'] = bool(action.budget)
-
-        status_by_category['image_count'] = action.image_count
-
-        status_by_category['testimonials'] = len(action.testimonial_set.filter(published=True)) > 0
-
-        donations = Donation.objects.filter(action=action, approved_by_donor=True, approved_by_org=True)
-        status_by_category['donations'] = len(donations)
-
-        verified_donations = Donation.objects.filter(
-            action=action, approved_by_donor=True, approved_by_org=True, donor__donoruser__isnull=False
-        ).distinct()
-        status_by_category['verified_donations'] = len(verified_donations)
+        status_by_category = get_status_by_category(action)
+        action.status_by_category = {**action.status_by_category, **status_by_category}
+        action.save()  # supplement `maintenance` job to keep this metric more recent
 
         count = sum(1 if status_by_category[k] else 0 for k in status_by_category.keys())
         return Response({
             'ratio': count / len(status_by_category.keys()),
             'status_by_category': status_by_category,
+            'score': action.score,
+            'level': action.level,
         })
 
 

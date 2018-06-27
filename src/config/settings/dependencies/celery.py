@@ -7,6 +7,7 @@ CELERY_IMPORTS = (
     'jobs.kobo',
     'jobs.files',
     'jobs.discourse',
+    'jobs.maintenance',
     'jobs.notifications',
 )
 
@@ -16,6 +17,11 @@ CELERY_ACCEPT_CONTENT = ['json', 'msgpack', 'yaml']
 
 CELERYBEAT_SCHEDULE = {
     # http://docs.celeryproject.org/en/latest/reference/celery.schedules.html
+    'sync_status_by_category': {
+        'task': 'sync_status_by_category',
+        'schedule': timedelta(seconds=60 * 15),
+    },
+
     'sync_submissions': {
         'task': 'sync_submissions',
         'schedule': timedelta(seconds=60 * 10),

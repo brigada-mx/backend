@@ -245,10 +245,12 @@ class ActionLocalityOrganizationSerializer(ActionLocalitySerializer):
 
     locality = LocalitySerializer(read_only=True)
     organization = OrganizationMiniSerializer(read_only=True, _include_fields=('id', 'name', 'sector'))
+    level = serializers.ReadOnlyField()
+    score = serializers.ReadOnlyField()
 
     class Meta:
         model = Action
-        fields = ('id', 'locality', 'action_type', 'budget', 'organization')
+        fields = ('id', 'locality', 'action_type', 'budget', 'organization', 'level', 'score')
 
 
 class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
@@ -301,6 +303,7 @@ class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     donations = DonationSerializer(source='donation_set', many=True, read_only=True)
     opportunities = VolunteerOpportunitySerializer(source='volunteeropportunity_set', many=True, read_only=True)
     score = serializers.ReadOnlyField()
+    level = serializers.ReadOnlyField()
 
     class Meta:
         model = Action
@@ -322,6 +325,7 @@ class ActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin
     submissions = SubmissionMiniSerializer(source='submission_set', many=True, read_only=True)
     donations = DonationSerializer(source='donation_set', many=True, read_only=True)
     score = serializers.ReadOnlyField()
+    level = serializers.ReadOnlyField()
 
     class Meta:
         model = Action

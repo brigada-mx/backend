@@ -294,6 +294,7 @@ class Action(AbstractAction, BaseModel):
     key = models.IntegerField(blank=True, help_text="Auto-incremented number for actions in organization")
     organization = models.ForeignKey('Organization', help_text='Frozen after first read')
     image_count = models.IntegerField(default=0, blank=True)
+    status_by_category = JSONField(default={}, blank=True, help_text='For caching transparency score information')
 
     STR_FIELDS = ['locality_id', 'organization_id', 'action_type']
 
@@ -326,24 +327,34 @@ class Action(AbstractAction, BaseModel):
 
     @property
     def score(self):
-        if not self.published:
-            return 0
+        dates = self.status_by_category.get('dates', False)
+        progress = self.status_by_category.get('progress', False)
+        budget = self.status_by_category.get('budget', False)
+        image_count = self.status_by_category.get('image_count', 0)
+        testimonials = self.status_by_category.get('image_count', 0)
+        donations = self.status_by_category.get('donations', 0)
+        verified_donations = self.status_by_category.get('verified_donations', 0)
 
-        def budget_multiplier():
-            if self.budget is None:
-                return 0
-            levels = [30000, 100000, 300000, 1000000, 3000000, 10000000, 30000000, 100000000]
-            for i, l in enumerate(levels):
-                if self.budget < l:
-                    return i
-            return len(levels)
-
-        return pow(self.image_count, 0.6) * (
-            1 +
-            budget_multiplier() +
-            1 if self.target is not None and self.progress is not None and self.unit_of_measurement else 0 +
-            1 if self.start_date and self.end_date else 0
+        return (image_count + testimonials * 5) * (
+            1 if dates else 0 +
+            1 if progress else 0 +
+            1 if budget else 0 +
+            1 if donations > 0 else 0 +
+            1 if verified_donations > 0 else 0
         )
+
+    @property
+    def level(self):
+        desc = self.status_by_category.get('desc', False)
+        progress = self.status_by_category.get('progress', False)
+        budget = self.status_by_category.get('budget', False)
+
+        if not desc or not progress or not budget:
+            return 0
+        score = self.score
+        if score < 40:
+            return 1
+        return 2
 
 
 class ActionLog(AbstractAction, BaseModel):
