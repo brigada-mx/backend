@@ -36,10 +36,11 @@ class ActionFilter(filters.FilterSet):
 class VolunteerOpportunityFilter(filters.FilterSet):
     action_id = django_filters.NumberFilter(name='action')
     published = BooleanFilter(name='published')
+    transparency_level = django_filters.NumberFilter(name='action__level')
 
     class Meta:
         model = VolunteerOpportunity
-        fields = ['action_id', 'published']
+        fields = ['action_id', 'published', 'transparency_level']
 
 
 class EstablishmentFilter(filters.FilterSet):

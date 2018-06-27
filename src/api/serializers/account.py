@@ -104,7 +104,7 @@ class AccountActionCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Action
         fields = '__all__'
-        read_only_fields = ('key', 'organization')
+        read_only_fields = ('key', 'organization', 'status_by_category', 'score', 'level')
 
 
 class AccountActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
@@ -121,7 +121,7 @@ class AccountActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMix
     class Meta:
         model = Action
         fields = '__all__'
-        read_only_fields = ('key', 'deleted')
+        read_only_fields = ('key', 'deleted', 'status_by_category', 'score', 'level')
 
 
 class AccountActionDetailReadSerializer(AccountActionDetailSerializer):

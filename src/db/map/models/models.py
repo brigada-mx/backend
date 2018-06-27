@@ -294,7 +294,10 @@ class Action(AbstractAction, BaseModel):
     key = models.IntegerField(blank=True, help_text="Auto-incremented number for actions in organization")
     organization = models.ForeignKey('Organization', help_text='Frozen after first read')
     image_count = models.IntegerField(default=0, blank=True)
+    # transparency fields
     status_by_category = JSONField(default={}, blank=True, help_text='For caching transparency score information')
+    score = models.FloatField(default=0, blank=True)
+    level = models.IntegerField(default=0, blank=True, db_index=True)
 
     STR_FIELDS = ['locality_id', 'organization_id', 'action_type']
 
@@ -324,37 +327,6 @@ class Action(AbstractAction, BaseModel):
             s.synced_images(*args, **kwargs) for s in self.submission_set.filter(published=True).order_by('-created')
         ]
         return [image for s in images for image in s]
-
-    @property
-    def score(self):
-        dates = self.status_by_category.get('dates', False)
-        progress = self.status_by_category.get('progress', False)
-        budget = self.status_by_category.get('budget', False)
-        image_count = self.status_by_category.get('image_count', 0)
-        testimonials = self.status_by_category.get('image_count', 0)
-        donations = self.status_by_category.get('donations', 0)
-        verified_donations = self.status_by_category.get('verified_donations', 0)
-
-        return (image_count + testimonials * 5) * (
-            1 if dates else 0 +
-            1 if progress else 0 +
-            1 if budget else 0 +
-            1 if donations > 0 else 0 +
-            1 if verified_donations > 0 else 0
-        )
-
-    @property
-    def level(self):
-        desc = self.status_by_category.get('desc', False)
-        progress = self.status_by_category.get('progress', False)
-        budget = self.status_by_category.get('budget', False)
-
-        if not desc or not progress or not budget:
-            return 0
-        score = self.score
-        if score < 40:
-            return 1
-        return 2
 
 
 class ActionLog(AbstractAction, BaseModel):

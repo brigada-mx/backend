@@ -24,6 +24,7 @@ from api.serializers import ShareSerializer, ShareCreateSerializer, ShareSetUser
 from api.paginators import LargeNoCountPagination
 from api.throttles import SearchBurstRateScopedThrottle
 from api.filters import parse_boolean, ActionFilter, EstablishmentFilter, SubmissionFilter, DonationFilter
+from api.filters import VolunteerOpportunityFilter
 from jobs.notifications import send_volunteer_application_email
 
 
@@ -232,6 +233,7 @@ class VolunteerOpportunityDetail(generics.RetrieveAPIView):
 
 class VolunteerOpportunityList(generics.ListAPIView):
     serializer_class = VolunteerOpportunityDetailSerializer
+    filter_class = VolunteerOpportunityFilter
 
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(

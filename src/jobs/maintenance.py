@@ -37,12 +37,42 @@ def get_status_by_category(action, prefetched=False):
     return d
 
 
+def get_score(status_by_category):
+    dates = status_by_category.get('dates', False)
+    progress = status_by_category.get('progress', False)
+    budget = status_by_category.get('budget', False)
+    image_count = status_by_category.get('image_count', 0)
+    testimonials = status_by_category.get('image_count', 0)
+    donations = status_by_category.get('donations', 0)
+    verified_donations = status_by_category.get('verified_donations', 0)
+
+    return (image_count + testimonials * 5) * (
+        1 if dates else 0 +
+        1 if progress else 0 +
+        1 if budget else 0 +
+        1 if donations > 0 else 0 +
+        1 if verified_donations > 0 else 0
+    )
+
+
+def get_level(status_by_category, score):
+    desc = status_by_category.get('desc', False)
+    progress = status_by_category.get('progress', False)
+    budget = status_by_category.get('budget', False)
+
+    if not desc or not progress or not budget:
+        return 0
+    if score < 40:
+        return 1
+    return 2
+
+
 query = """
-UPDATE map_action SET modified = %s::timestamptz, status_by_category = %s WHERE id = %s"""
+UPDATE map_action SET modified = %s::timestamptz, status_by_category = %s, score = %s, level = %s WHERE id = %s"""
 
 
-@shared_task(name='sync_status_by_category')
-def sync_status_by_category():
+@shared_task(name='sync_action_transparency')
+def sync_action_transparency():
     with transaction.atomic():
         with connection.cursor() as cursor:
             for action in Action.objects.prefetch_related(
@@ -57,4 +87,8 @@ def sync_status_by_category():
                 ).distinct(), to_attr='verified_donations'),
             ):
                 status_by_category = {**action.status_by_category, **get_status_by_category(action, prefetched=True)}
-                cursor.execute(query, [timezone.now().isoformat(), json.dumps(status_by_category), action.id])
+                score = get_score(status_by_category)
+                level = get_level(status_by_category, score)
+                cursor.execute(query, [
+                    timezone.now().isoformat(), json.dumps(status_by_category), score, level, action.id]
+                )
