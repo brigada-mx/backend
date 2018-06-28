@@ -40,6 +40,14 @@ class ShareSetUserSerializer(serializers.Serializer):
     share_id = serializers.IntegerField()
 
 
+class SupportTicketSerializer(serializers.Serializer):
+    email = serializers.EmailField(allow_blank=False)
+    phone = serializers.CharField(max_length=20, allow_blank=False, trim_whitespace=True)
+    name = serializers.CharField(max_length=150, allow_blank=False, trim_whitespace=True)
+    reason = serializers.CharField(max_length=560, allow_blank=False, trim_whitespace=True)
+    meta = serializers.CharField(max_length=100, allow_blank=True, trim_whitespace=True)
+
+
 class VolunteerUserApplicationCreateSerializer(serializers.Serializer):
     phone = serializers.CharField(max_length=20, allow_blank=False, trim_whitespace=True)
     first_name = serializers.CharField(max_length=100, allow_blank=False, trim_whitespace=True)

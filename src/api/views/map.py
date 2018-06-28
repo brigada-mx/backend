@@ -20,12 +20,13 @@ from api.serializers import ActionLocalityOrganizationSerializer
 from api.serializers import OrganizationSerializer, OrganizationDetailSerializer
 from api.serializers import DonorSerializer, DonorHasUserSerializer, DonationActionSubmissionsSerializer
 from api.serializers import VolunteerOpportunityDetailSerializer, VolunteerUserApplicationCreateSerializer
-from api.serializers import ShareSerializer, ShareCreateSerializer, ShareSetUserSerializer
+from api.serializers import ShareSerializer, ShareCreateSerializer, ShareSetUserSerializer, SupportTicketSerializer
 from api.paginators import LargeNoCountPagination
 from api.throttles import SearchBurstRateScopedThrottle
 from api.filters import parse_boolean, ActionFilter, EstablishmentFilter, SubmissionFilter, DonationFilter
 from api.filters import VolunteerOpportunityFilter
 from jobs.notifications import send_volunteer_application_email
+from jobs.messages import send_email
 
 
 class StateList(generics.ListAPIView):
@@ -342,4 +343,31 @@ class ShareSetUser(APIView):
             share.save()
         except ValidationError as e:
             return Response({'error': str(e)}, status=400)
+        return Response({}, status=200)
+
+
+class SupportTicketCreate(APIView):
+    throttle_scope = 'authentication'
+
+    def post(self, request, *args, **kwargs):
+        serializer = SupportTicketSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email']
+        phone = serializer.validated_data['phone']
+        name = serializer.validated_data['name']
+        reason = serializer.validated_data['reason']
+        meta = serializer.validated_data['meta']
+
+        body = """Support request from{}:<br><br>
+        name: {}<br>
+        email: {}<br>
+        phone: {}<br><br>
+        {}
+        """.format(f' {meta}' if meta else '', name, email, phone, reason)
+
+        send_email.delay(
+            ['kyle@fortana.co', 'eduardo@brigada.mx'],
+            f'Support Request - {name}, {email}',
+            body,
+        )
         return Response({}, status=200)

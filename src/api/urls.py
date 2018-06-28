@@ -48,6 +48,8 @@ urlpatterns = [
     url(r'^action_share/(?P<pk>[0-9]+)/$',
         cache_page(60 * 0.5)(views.ActionShare.as_view()), name='action-share'),
 
+    url(r'^support_ticket_create/$', views.SupportTicketCreate.as_view(), name='support-ticket-create'),
+
     url(r'^submissions/$', views.SubmissionList.as_view(), name='submission-list'),
     url(r'^testimonials/(?P<pk>[0-9]+)/$', views.TestimonialDetail.as_view(), name='testimonial-detail'),
 
