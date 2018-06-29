@@ -369,5 +369,6 @@ class SupportTicketCreate(APIView):
             ['kyle@fortana.co', 'eduardo@brigada.mx'],
             f'Support Request - {name}, {email}',
             body,
+            'Brigada Support <soporte@brigada.mx>',
         )
         return Response({}, status=200)

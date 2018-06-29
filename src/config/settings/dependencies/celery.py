@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from celery.schedules import crontab
 from datetime import timedelta
 
+
 CELERY_IMPORTS = (
     'jobs.kobo',
     'jobs.files',
