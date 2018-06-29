@@ -296,7 +296,7 @@ class Action(AbstractAction, BaseModel):
     image_count = models.IntegerField(default=0, blank=True)
     # transparency fields
     status_by_category = JSONField(default={}, blank=True, help_text='For caching transparency score information')
-    score = models.FloatField(default=0, blank=True)
+    score = models.FloatField(default=0, blank=True, db_index=True)
     level = models.IntegerField(default=0, blank=True, db_index=True)
 
     STR_FIELDS = ['locality_id', 'organization_id', 'action_type']

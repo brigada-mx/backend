@@ -208,7 +208,7 @@ class AccountDonationCreateSerializer(serializers.ModelSerializer):
         exclude = ('donor', 'approved_by_donor')
 
 
-class AccountDonationUpdateSerializer(serializers.ModelSerializer):
+class AccountDonationUpdateSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     class Meta:
         model = Donation
         fields = '__all__'

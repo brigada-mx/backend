@@ -37,6 +37,8 @@ class VolunteerOpportunityFilter(filters.FilterSet):
     action_id = django_filters.NumberFilter(name='action')
     published = BooleanFilter(name='published')
     transparency_level = django_filters.NumberFilter(name='action__level')
+    transparency_level__gte = django_filters.NumberFilter(name='action__level', lookup_expr='gte')
+    transparency_level__lte = django_filters.NumberFilter(name='action__level', lookup_expr='lte')
 
     class Meta:
         model = VolunteerOpportunity

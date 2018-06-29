@@ -238,7 +238,7 @@ class VolunteerOpportunityList(generics.ListAPIView):
 
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
-            VolunteerOpportunity.objects.filter(published=True)
+            VolunteerOpportunity.objects.filter(published=True).order_by('-action__score')
         )
 
 
