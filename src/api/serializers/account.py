@@ -5,18 +5,18 @@ from db.map.models import Organization, Action, Submission, Testimonial, Donatio
 from db.map.models import VolunteerOpportunity, VolunteerApplication
 from db.users.models import VolunteerUser, OrganizationUser
 from api.fields import LatLngField
-from api.mixins import EagerLoadingMixin, DynamicFieldsMixin
-from api.serializers.serializers import authenticate
+from api.mixins import DynamicFieldsMixin
+from api.serializers import authenticate, Serializer, ModelSerializer
 from api.serializers.map import LocalitySerializer, DonationSerializer, ActionSerializer
 from api.serializers.map import OrganizationMiniSerializer, SubmissionMediumSerializer, TestimonialMediumSerializer
 from api.serializers.map import VolunteerApplicationSerializer, VolunteerOpportunitySerializer
 
 
-class ArchiveSerializer(serializers.Serializer):
+class ArchiveSerializer(Serializer):
     archived = serializers.BooleanField()
 
 
-class OrganizationUserTokenSerializer(serializers.Serializer):
+class OrganizationUserTokenSerializer(Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
 
@@ -32,22 +32,22 @@ class OrganizationUserTokenSerializer(serializers.Serializer):
         return attrs
 
 
-class SendSetPasswordEmailSerializer(serializers.Serializer):
+class SendSetPasswordEmailSerializer(Serializer):
     email = serializers.EmailField()
 
 
-class PasswordSerializer(serializers.Serializer):
+class PasswordSerializer(Serializer):
     old_password = serializers.CharField(allow_blank=False, trim_whitespace=True)
     password = serializers.CharField(min_length=8, max_length=None, allow_blank=False, trim_whitespace=True)
 
 
-class PasswordTokenSerializer(serializers.Serializer):
+class PasswordTokenSerializer(Serializer):
     password = serializers.CharField(min_length=8, max_length=None, allow_blank=False, trim_whitespace=True)
     token = serializers.CharField(min_length=20, max_length=None, allow_blank=False, trim_whitespace=True)
     created = serializers.BooleanField(required=False, default=False)
 
 
-class OrganizationCreateSerializer(serializers.Serializer):
+class OrganizationCreateSerializer(Serializer):
     sector = serializers.CharField(allow_blank=False)
     name = serializers.CharField(allow_blank=False, trim_whitespace=True)
 
@@ -56,7 +56,7 @@ class OrganizationCreateSerializer(serializers.Serializer):
     surnames = serializers.CharField(max_length=100, allow_blank=False, trim_whitespace=True)
 
 
-class OrganizationUserSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class OrganizationUserSerializer(ModelSerializer):
     _SELECT_RELATED_FIELDS = ['organization']
 
     organization = OrganizationMiniSerializer(read_only=True)
@@ -67,19 +67,19 @@ class OrganizationUserSerializer(serializers.ModelSerializer, EagerLoadingMixin)
         read_only_fields = ('email', 'is_active', 'full_name')
 
 
-class VolunteerUserSerializer(serializers.ModelSerializer):
+class VolunteerUserSerializer(ModelSerializer):
     class Meta:
         model = VolunteerUser
         exclude = ('password',)
 
 
-class OrganizationUpdateSerializer(serializers.ModelSerializer):
+class OrganizationUpdateSerializer(ModelSerializer):
     class Meta:
         model = Organization
         fields = ('sector', 'name', 'desc', 'year_established', 'contact')
 
 
-class OrganizationReadSerializer(serializers.ModelSerializer):
+class OrganizationReadSerializer(ModelSerializer):
     score = serializers.SerializerMethodField()
 
     class Meta:
@@ -90,7 +90,7 @@ class OrganizationReadSerializer(serializers.ModelSerializer):
         return obj.score()
 
 
-class AccountActionListSerializer(DynamicFieldsMixin, serializers.ModelSerializer, EagerLoadingMixin):
+class AccountActionListSerializer(DynamicFieldsMixin, ModelSerializer):
     _SELECT_RELATED_FIELDS = ['locality']
 
     locality = LocalitySerializer(read_only=True)
@@ -100,14 +100,14 @@ class AccountActionListSerializer(DynamicFieldsMixin, serializers.ModelSerialize
         fields = '__all__'
 
 
-class AccountActionCreateSerializer(serializers.ModelSerializer):
+class AccountActionCreateSerializer(ModelSerializer):
     class Meta:
         model = Action
         fields = '__all__'
         read_only_fields = ('key', 'organization', 'status_by_category', 'score', 'level')
 
 
-class AccountActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class AccountActionDetailSerializer(ModelSerializer):
     _PREFETCH_FUNCTIONS = [lambda: Prefetch('donation_set', queryset=Donation.objects.select_related('donor'))]
     _PREFETCH_RELATED_FIELDS = ['submission_set', 'volunteeropportunity_set', 'testimonial_set']
     _SELECT_RELATED_FIELDS = ['organization']
@@ -130,7 +130,7 @@ class AccountActionDetailReadSerializer(AccountActionDetailSerializer):
     locality = LocalitySerializer(read_only=True)
 
 
-class AccountSubmissionSerializer(DynamicFieldsMixin, serializers.ModelSerializer, EagerLoadingMixin):
+class AccountSubmissionSerializer(DynamicFieldsMixin, ModelSerializer):
     _SELECT_RELATED_FIELDS = ['action']
 
     action = ActionSerializer(read_only=True)
@@ -148,7 +148,7 @@ class AccountSubmissionSerializer(DynamicFieldsMixin, serializers.ModelSerialize
         return obj.synced_images()
 
 
-class AccountSubmissionCreateSerializer(serializers.ModelSerializer):
+class AccountSubmissionCreateSerializer(ModelSerializer):
     location = LatLngField()
 
     class Meta:
@@ -157,7 +157,7 @@ class AccountSubmissionCreateSerializer(serializers.ModelSerializer):
         read_only_fields = ('organization', 'source', 'source_id', 'data')
 
 
-class AccountSubmissionUpdateSerializer(serializers.ModelSerializer):
+class AccountSubmissionUpdateSerializer(ModelSerializer):
     location = LatLngField()
 
     class Meta:
@@ -165,13 +165,13 @@ class AccountSubmissionUpdateSerializer(serializers.ModelSerializer):
         fields = ('action', 'desc', 'addr', 'published', 'submitted', 'location')
 
 
-class AccountSubmissionImageUpdateSerializer(serializers.Serializer):
+class AccountSubmissionImageUpdateSerializer(Serializer):
     url = serializers.URLField()
     published = serializers.BooleanField(required=False)
     rotate = serializers.RegexField(regex=r'^left|right$', required=False)
 
 
-class AccountTestimonialSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class AccountTestimonialSerializer(ModelSerializer):
     _SELECT_RELATED_FIELDS = ['action']
 
     action = ActionSerializer(read_only=True)
@@ -182,7 +182,7 @@ class AccountTestimonialSerializer(serializers.ModelSerializer, EagerLoadingMixi
         fields = '__all__'
 
 
-class AccountTestimonialCreateSerializer(serializers.ModelSerializer):
+class AccountTestimonialCreateSerializer(ModelSerializer):
     location = LatLngField()
 
     class Meta:
@@ -190,7 +190,7 @@ class AccountTestimonialCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class AccountTestimonialUpdateSerializer(serializers.ModelSerializer):
+class AccountTestimonialUpdateSerializer(ModelSerializer):
     location = LatLngField()
 
     class Meta:
@@ -198,7 +198,7 @@ class AccountTestimonialUpdateSerializer(serializers.ModelSerializer):
         exclude = ('video',)
 
 
-class AccountDonationCreateSerializer(serializers.ModelSerializer):
+class AccountDonationCreateSerializer(ModelSerializer):
     donor_id = serializers.IntegerField(required=False)
     donor_name = serializers.CharField(required=False)
     contact_email = serializers.EmailField(required=False)
@@ -208,20 +208,20 @@ class AccountDonationCreateSerializer(serializers.ModelSerializer):
         exclude = ('donor', 'approved_by_donor')
 
 
-class AccountDonationUpdateSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class AccountDonationUpdateSerializer(ModelSerializer):
     class Meta:
         model = Donation
         fields = '__all__'
         read_only_fields = ('action', 'approved_by_donor')
 
 
-class VolunteerOpportunityCreateSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class VolunteerOpportunityCreateSerializer(ModelSerializer):
     class Meta:
         model = VolunteerOpportunity
         fields = '__all__'
 
 
-class AccountVolunteerOpportunityDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class AccountVolunteerOpportunityDetailSerializer(ModelSerializer):
     _PREFETCH_FUNCTIONS = [
         lambda: Prefetch('volunteerapplication_set', queryset=VolunteerApplication.objects.select_related('user'))
     ]

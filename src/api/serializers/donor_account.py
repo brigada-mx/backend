@@ -2,12 +2,11 @@ from rest_framework import serializers
 
 from db.map.models import Donor, Donation
 from db.users.models import DonorUser
-from api.mixins import EagerLoadingMixin
-from api.serializers.serializers import authenticate
+from api.serializers import authenticate, Serializer, ModelSerializer
 from api.serializers.map import DonorMiniSerializer
 
 
-class DonorUserTokenSerializer(serializers.Serializer):
+class DonorUserTokenSerializer(Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
 
@@ -23,7 +22,7 @@ class DonorUserTokenSerializer(serializers.Serializer):
         return attrs
 
 
-class DonorUserSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class DonorUserSerializer(ModelSerializer):
     _SELECT_RELATED_FIELDS = ['donor']
 
     donor = DonorMiniSerializer(read_only=True)
@@ -34,32 +33,32 @@ class DonorUserSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         read_only_fields = ('email', 'is_active', 'full_name')
 
 
-class DonorUpdateSerializer(serializers.ModelSerializer):
+class DonorUpdateSerializer(ModelSerializer):
     class Meta:
         model = Donor
         fields = ('sector', 'name', 'desc', 'year_established', 'contact', 'donating', 'donating_desc')
 
 
-class DonorReadSerializer(serializers.ModelSerializer):
+class DonorReadSerializer(ModelSerializer):
     class Meta:
         model = Donor
         fields = '__all__'
 
 
-class DonorDonationCreateSerializer(serializers.ModelSerializer):
+class DonorDonationCreateSerializer(ModelSerializer):
     class Meta:
         model = Donation
         exclude = ('donor', 'approved_by_org')
 
 
-class DonorDonationUpdateSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class DonorDonationUpdateSerializer(ModelSerializer):
     class Meta:
         model = Donation
         fields = '__all__'
         read_only_fields = ('donor', 'approved_by_org')
 
 
-class DonorCreateSerializer(serializers.Serializer):
+class DonorCreateSerializer(Serializer):
     sector = serializers.CharField(allow_blank=False)
     donor_id = serializers.IntegerField(required=False)
     donor_name = serializers.CharField(required=False, trim_whitespace=True)

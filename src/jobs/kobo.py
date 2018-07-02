@@ -2,7 +2,6 @@
 import os
 import uuid
 from concurrent import futures
-from urllib.parse import quote
 from datetime import datetime, timedelta
 
 from django.utils import timezone

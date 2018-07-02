@@ -5,17 +5,18 @@ from rest_framework import serializers
 from db.map.models import State, Municipality, Locality, Establishment, VolunteerOpportunity, VolunteerApplication
 from db.map.models import Organization, Action, ActionLog, Submission, Donor, Donation, Share, Testimonial
 from db.users.models import DonorUser, VolunteerUser
-from api.mixins import EagerLoadingMixin, DynamicFieldsMixin
+from api.serializers import Serializer, ModelSerializer
+from api.mixins import DynamicFieldsMixin
 from api.fields import LatLngField
 
 
-class VolunteerOpportunitySerializer(serializers.ModelSerializer):
+class VolunteerOpportunitySerializer(ModelSerializer):
     class Meta:
         model = VolunteerOpportunity
         fields = '__all__'
 
 
-class VolunteerUserSerializer(serializers.ModelSerializer):
+class VolunteerUserSerializer(ModelSerializer):
     full_name = serializers.ReadOnlyField()
 
     class Meta:
@@ -23,24 +24,24 @@ class VolunteerUserSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ShareSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class ShareSerializer(ModelSerializer):
     class Meta:
         model = Share
         fields = '__all__'
 
 
-class ShareCreateSerializer(serializers.ModelSerializer):
+class ShareCreateSerializer(ModelSerializer):
     class Meta:
         model = Share
         exclude = ('user',)
 
 
-class ShareSetUserSerializer(serializers.Serializer):
+class ShareSetUserSerializer(Serializer):
     email = serializers.EmailField(allow_blank=False)
     share_id = serializers.IntegerField()
 
 
-class SupportTicketSerializer(serializers.Serializer):
+class SupportTicketSerializer(Serializer):
     email = serializers.EmailField(allow_blank=False)
     phone = serializers.CharField(max_length=20, allow_blank=False, trim_whitespace=True)
     name = serializers.CharField(max_length=150, allow_blank=False, trim_whitespace=True)
@@ -48,7 +49,7 @@ class SupportTicketSerializer(serializers.Serializer):
     meta = serializers.CharField(max_length=100, allow_blank=True, trim_whitespace=True)
 
 
-class VolunteerUserApplicationCreateSerializer(serializers.Serializer):
+class VolunteerUserApplicationCreateSerializer(Serializer):
     phone = serializers.CharField(max_length=20, allow_blank=False, trim_whitespace=True)
     first_name = serializers.CharField(max_length=100, allow_blank=False, trim_whitespace=True)
     surnames = serializers.CharField(max_length=100, allow_blank=False, trim_whitespace=True)
@@ -59,7 +60,7 @@ class VolunteerUserApplicationCreateSerializer(serializers.Serializer):
     reason_why = serializers.CharField(max_length=560, allow_blank=False, trim_whitespace=True)
 
 
-class VolunteerApplicationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class VolunteerApplicationSerializer(ModelSerializer):
     _SELECT_RELATED_FIELDS = ['user']
 
     user = VolunteerUserSerializer(read_only=True)
@@ -69,7 +70,7 @@ class VolunteerApplicationSerializer(serializers.ModelSerializer, EagerLoadingMi
         fields = '__all__'
 
 
-class DonorHasUserSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class DonorHasUserSerializer(ModelSerializer):
     _PREFETCH_FUNCTIONS = [lambda: Prefetch('donoruser_set', queryset=DonorUser.objects.filter(is_active=True))]
 
     has_user = serializers.SerializerMethodField()
@@ -82,13 +83,13 @@ class DonorHasUserSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         return len(obj.donoruser_set.all()) > 0
 
 
-class DonorMiniSerializer(serializers.ModelSerializer):
+class DonorMiniSerializer(ModelSerializer):
     class Meta:
         model = Donor
         fields = '__all__'
 
 
-class DonationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class DonationSerializer(ModelSerializer):
     _SELECT_RELATED_FIELDS = ['donor']
 
     donor = DonorMiniSerializer(read_only=True)
@@ -99,7 +100,7 @@ class DonationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         read_only_fields = ('action',)
 
 
-class StateSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class StateSerializer(ModelSerializer):
     meta = serializers.JSONField()
 
     class Meta:
@@ -107,7 +108,7 @@ class StateSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = '__all__'
 
 
-class MunicipalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class MunicipalitySerializer(ModelSerializer):
     meta = serializers.JSONField()
 
     class Meta:
@@ -115,7 +116,7 @@ class MunicipalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = '__all__'
 
 
-class LocalitySerializer(DynamicFieldsMixin, serializers.ModelSerializer, EagerLoadingMixin):
+class LocalitySerializer(DynamicFieldsMixin, ModelSerializer):
     location = LatLngField()
 
     class Meta:
@@ -126,7 +127,7 @@ class LocalitySerializer(DynamicFieldsMixin, serializers.ModelSerializer, EagerL
         )
 
 
-class LocalityRawSerializer(serializers.ModelSerializer):
+class LocalityRawSerializer(ModelSerializer):
     meta = serializers.SerializerMethodField()
     location = LatLngField()
     action_count = serializers.SerializerMethodField()
@@ -144,7 +145,7 @@ class LocalityRawSerializer(serializers.ModelSerializer):
         return obj.action_count
 
 
-class LocalityDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class LocalityDetailSerializer(ModelSerializer):
     _PREFETCH_RELATED_FIELDS = ['action_set']
 
     meta = serializers.JSONField()
@@ -159,13 +160,13 @@ class LocalityDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         return obj.action_set.filter(published=True).count()
 
 
-class ActionSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class ActionSerializer(ModelSerializer):
     class Meta:
         model = Action
         fields = '__all__'
 
 
-class SubmissionMediumSerializer(DynamicFieldsMixin, serializers.ModelSerializer, EagerLoadingMixin):
+class SubmissionMediumSerializer(DynamicFieldsMixin, ModelSerializer):
     images = serializers.SerializerMethodField()
     location = LatLngField()
     description = serializers.ReadOnlyField()
@@ -179,7 +180,7 @@ class SubmissionMediumSerializer(DynamicFieldsMixin, serializers.ModelSerializer
         return obj.synced_images(exclude_hidden=True)
 
 
-class TestimonialMediumSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class TestimonialMediumSerializer(ModelSerializer):
     location = LatLngField()
 
     class Meta:
@@ -187,7 +188,7 @@ class TestimonialMediumSerializer(serializers.ModelSerializer, EagerLoadingMixin
         fields = '__all__'
 
 
-class TestimonialPublicSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class TestimonialPublicSerializer(ModelSerializer):
     video = serializers.SerializerMethodField()
     recipients = serializers.SerializerMethodField()
     location = LatLngField()
@@ -209,7 +210,7 @@ class SubmissionSerializer(SubmissionMediumSerializer):
     action = ActionSerializer(read_only=True)
 
 
-class SubmissionMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class SubmissionMiniSerializer(ModelSerializer):
     location = LatLngField()
     images = serializers.SerializerMethodField()
 
@@ -221,7 +222,7 @@ class SubmissionMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         return obj.synced_images(exclude_hidden=True)
 
 
-class ActionLocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class ActionLocalitySerializer(ModelSerializer):
     _SELECT_RELATED_FIELDS = ['locality']
 
     locality = LocalitySerializer(read_only=True)
@@ -231,13 +232,13 @@ class ActionLocalitySerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = ('id', 'locality', 'action_type', 'budget', 'organization_id')
 
 
-class OrganizationMiniSerializer(DynamicFieldsMixin, serializers.ModelSerializer, EagerLoadingMixin):
+class OrganizationMiniSerializer(DynamicFieldsMixin, ModelSerializer):
     class Meta:
         model = Organization
         exclude = ('secret_key',)
 
 
-class ActionMiniSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class ActionMiniSerializer(ModelSerializer):
     _SELECT_RELATED_FIELDS = ['locality', 'organization']
 
     locality = LocalitySerializer(read_only=True, _include_fields=('id', 'name', 'municipality_name', 'state_name'))
@@ -259,7 +260,7 @@ class ActionLocalityOrganizationSerializer(ActionLocalitySerializer):
         fields = ('id', 'locality', 'action_type', 'budget', 'organization', 'level', 'score')
 
 
-class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class OrganizationSerializer(ModelSerializer):
     _PREFETCH_FUNCTIONS = [
         lambda: Prefetch('action_set', queryset=Action.objects.select_related('locality').filter(published=True))
     ]
@@ -284,7 +285,7 @@ class OrganizationSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         return obj.score()
 
 
-class EstablishmentSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class EstablishmentSerializer(ModelSerializer):
     location = LatLngField()
 
     class Meta:
@@ -292,7 +293,7 @@ class EstablishmentSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = '__all__'
 
 
-class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class ActionDetailSerializer(ModelSerializer):
     _PREFETCH_FUNCTIONS = [
         lambda: Prefetch('submission_set', queryset=Submission.objects.filter(published=True)),
         lambda: Prefetch('testimonial_set', queryset=Testimonial.objects.filter(published=True, video__synced=True)),
@@ -314,7 +315,7 @@ class ActionDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = '__all__'
 
 
-class ActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class ActionSubmissionsSerializer(ModelSerializer):
     _PREFETCH_FUNCTIONS = [
         lambda: Prefetch('volunteeropportunity_set', queryset=VolunteerOpportunity.objects.filter(published=True)),
         lambda: Prefetch('submission_set', queryset=Submission.objects.filter(published=True)),
@@ -334,7 +335,7 @@ class ActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin
         fields = '__all__'
 
 
-class OrganizationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class OrganizationDetailSerializer(ModelSerializer):
     _PREFETCH_FUNCTIONS = [
         lambda: Prefetch('action_set', queryset=Action.objects.select_related(
             'locality', 'organization'
@@ -365,13 +366,13 @@ class OrganizationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixi
         return obj.score()
 
 
-class ActionLogSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class ActionLogSerializer(ModelSerializer):
     class Meta:
         model = ActionLog
         fields = '__all__'
 
 
-class DonationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class DonationDetailSerializer(ModelSerializer):
     _SELECT_RELATED_FIELDS = ['action__locality', 'action__organization']
 
     action = ActionMiniSerializer(read_only=True)
@@ -381,7 +382,7 @@ class DonationDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         fields = '__all__'
 
 
-class DonationActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class DonationActionSubmissionsSerializer(ModelSerializer):
     _PREFETCH_FUNCTIONS = [
         lambda: Prefetch('action__volunteeropportunity_set',
                          queryset=VolunteerOpportunity.objects.filter(published=True)),
@@ -398,7 +399,7 @@ class DonationActionSubmissionsSerializer(serializers.ModelSerializer, EagerLoad
         fields = '__all__'
 
 
-class DonorSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class DonorSerializer(ModelSerializer):
     _PREFETCH_FUNCTIONS = [
         lambda: Prefetch('donation_set', queryset=Donation.objects.select_related(
             'action__locality', 'action__organization'
@@ -427,7 +428,7 @@ class DonorSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         return {'action_count': len(actions), 'org_count': len(orgs), 'total_donated': total_donated}
 
 
-class VolunteerOpportunityDetailSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class VolunteerOpportunityDetailSerializer(ModelSerializer):
     _SELECT_RELATED_FIELDS = ['action__locality', 'action__organization']
 
     action = ActionLocalityOrganizationSerializer(read_only=True)
