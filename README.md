@@ -251,7 +251,7 @@ A much better way, running in a multi-container, single instance docker env. Use
 Lives at <pgweb.brigada.mx>. The connection is read-only, password protected and runs over SSL. This solution is safe and decoupled from the API.
 
 
-## Code Style
+## Linting and Code Style
 Enforced by `flake8` linter.
 
 ~~~sh
@@ -260,3 +260,18 @@ pip install flake8-commas
 ~~~
 
 Check `.flake8` for rules. Run linter on all files, ignoring line length warnings: `flake8 . | grep -v E501`.
+
+
+### Type Checking with Mypy
+~~~sh
+pip install mypy
+~~~
+
+Check `mypy.ini` for [config options](http://mypy.readthedocs.io/en/latest/config_file.html).
+
+Mypy cheat sheet: <http://mypy.readthedocs.io/en/latest/cheat_sheet_py3.html>.
+
+- `mypy --no-incremental src`
+- `mypy src --no-incremental --check-untyped-defs`
+
+The `--no-incremental` flag disables cache. This is a bit slower, but necessary until [this bug](https://github.com/python/mypy/issues/4287) is fixed.

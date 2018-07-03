@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from pytz import NonExistentTimeError, AmbiguousTimeError
+from pytz import NonExistentTimeError, AmbiguousTimeError  # type: ignore
 
 from django.utils import timezone
 

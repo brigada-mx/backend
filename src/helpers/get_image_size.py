@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 from __future__ import print_function
 """
 get_image_size.py
@@ -11,7 +9,7 @@ get_image_size.py
     :Copyright:   (c) Paulo Scardine 2013
     :Licence:     MIT
 """
-import collections
+from collections import namedtuple, OrderedDict
 import json
 import os
 import struct
@@ -24,7 +22,7 @@ class UnknownImageFormat(Exception):
     pass
 
 
-types = collections.OrderedDict()
+types = OrderedDict()
 BMP = types['BMP'] = 'BMP'
 GIF = types['GIF'] = 'GIF'
 ICO = types['ICO'] = 'ICO'
@@ -35,7 +33,7 @@ TIFF = types['TIFF'] = 'TIFF'
 image_fields = ['path', 'type', 'file_size', 'width', 'height']
 
 
-class Image(collections.namedtuple('Image', image_fields)):
+class Image(namedtuple('Image', image_fields)):
 
     def to_str_row(self):
         return ("%d\t%d\t%d\t%s\t%s" % (
@@ -69,13 +67,8 @@ def get_image_size(file_path):
 
 
 def get_image_metadata(file_path):
-    """
-    Return an `Image` object for a given img file content - no external
+    """Return an `Image` object for a given img file content - no external
     dependencies except the os and struct builtin modules
-    Args:
-        file_path (str): path to an image file
-    Returns:
-        Image: (path, type, file_size, width, height)
     """
     size = os.path.getsize(file_path)
 
@@ -281,12 +274,7 @@ class Test_get_image_size(unittest.TestCase):
 
 
 def main(argv=None):
-    """
-    Print image metadata fields for the given file path.
-    Keyword Arguments:
-        argv (list): commandline arguments (e.g. sys.argv[1:])
-    Returns:
-        int: zero for OK
+    """Print image metadata fields for the given file path.
     """
     import logging
     import optparse

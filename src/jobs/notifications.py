@@ -1,3 +1,4 @@
+from typing import Dict, Callable
 import os
 import random
 
@@ -188,7 +189,7 @@ def donation_unapproved(n=None, **kwargs):
     return [{'to': [email], 'subject': subject, 'body': body} for email in emails]
 
 
-notification_function_by_email_type = {
+notification_function_by_email_type: Dict[str, Callable] = {
     'organization_no_projects': organization_no_projects,
     'organization_no_photos': organization_no_photos,
     'organization_no_donations': organization_no_donations,
@@ -197,7 +198,7 @@ notification_function_by_email_type = {
 }
 
 
-def balance_schedule():
+def balance_schedule() -> bool:
     weekday = timezone.now().isoweekday()
     r = random.random()
     if weekday == 1:
@@ -210,7 +211,7 @@ def balance_schedule():
 
 
 @shared_task(name='send_email_notification')
-def send_email_notification(notification_id):
+def send_email_notification(notification_id) -> Dict:
     n = EmailNotification.objects.get(id=notification_id)
     r_base = {'args': n.args, 'type': n.email_type}
     if not balance_schedule():

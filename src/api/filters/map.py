@@ -2,7 +2,7 @@ import django_filters
 from django_filters import rest_framework as filters
 
 from db.map.models import Action, Establishment, Submission, Donation, Testimonial, VolunteerOpportunity
-from api.filters import parse_boolean, BooleanFilter
+from .base import parse_boolean, BooleanFilter
 
 
 def scian_category_filter(queryset, name, value):

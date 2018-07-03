@@ -1,3 +1,4 @@
+from typing import Optional
 import os
 import re
 import requests
@@ -16,7 +17,7 @@ class TokenAuth:
         return r
 
 
-def raise_for_status(r):
+def raise_for_status(r: requests.models.Response) -> None:
     try:
         r.raise_for_status()
     except requests.HTTPError as e:
@@ -29,7 +30,7 @@ def raise_for_status(r):
         raise e
 
 
-def download_file(url, dest, raise_exception=True):
+def download_file(url: str, dest: str, raise_exception=True) -> Optional[str]:
     # https://stackoverflow.com/questions/16694907/how-to-download-large-file-in-python-with-requests-py
     r = requests.get(url, stream=True, allow_redirects=True, timeout=15)
     if r.status_code >= 400:
@@ -60,13 +61,13 @@ def get_ses_client():
     )
 
 
-def s3_thumbnail_url(url, width=0, height=0, crop=False):
+def s3_thumbnail_url(url: str, width: int = 0, height: int = 0, crop: bool = False) -> str:
     base_url = os.getenv('CUSTOM_THUMBOR_SERVER')
     path = urlparse(url).path
     return f'{base_url}/{"" if crop else "fit-in/"}{width}x{height}{path}'
 
 
-def s3_safe_filename(filename):
+def s3_safe_filename(filename: str) -> str:
     """The S3 `key` gets URL encoded when it's uploaded to S3. The value returned
     by this function is URL-safe; it suffers no modifications on upload. This
     value can be used in both S3 key and in S3 URL saved to database.

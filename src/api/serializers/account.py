@@ -6,10 +6,10 @@ from db.map.models import VolunteerOpportunity, VolunteerApplication
 from db.users.models import VolunteerUser, OrganizationUser
 from api.fields import LatLngField
 from api.mixins import DynamicFieldsMixin
-from api.serializers import authenticate, Serializer, ModelSerializer
 from api.serializers.map import LocalitySerializer, DonationSerializer, ActionSerializer
 from api.serializers.map import OrganizationMiniSerializer, SubmissionMediumSerializer, TestimonialMediumSerializer
 from api.serializers.map import VolunteerApplicationSerializer, VolunteerOpportunitySerializer
+from .base import authenticate, Serializer, ModelSerializer
 
 
 class ArchiveSerializer(Serializer):

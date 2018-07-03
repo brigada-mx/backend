@@ -2,8 +2,8 @@ from rest_framework import serializers
 
 from db.map.models import Donor, Donation
 from db.users.models import DonorUser
-from api.serializers import authenticate, Serializer, ModelSerializer
 from api.serializers.map import DonorMiniSerializer
+from .base import authenticate, Serializer, ModelSerializer
 
 
 class DonorUserTokenSerializer(Serializer):

@@ -288,7 +288,7 @@ class AbstractAction(models.Model):
         abstract = True
 
 
-class Action(AbstractAction, BaseModel):
+class Action(AbstractAction, BaseModel):  # type: ignore
     """Action related to reconstruction.
     """
     key = models.IntegerField(blank=True, help_text="Auto-incremented number for actions in organization")
@@ -329,7 +329,7 @@ class Action(AbstractAction, BaseModel):
         return [image for s in images for image in s]
 
 
-class ActionLog(AbstractAction, BaseModel):
+class ActionLog(AbstractAction, BaseModel):  # type: ignore
     """Log that tracks state of `Action`s. Each time we read a record from action
     source (e.g. spreadsheet), we add another record to this table.
     """

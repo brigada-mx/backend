@@ -5,9 +5,9 @@ from rest_framework import serializers
 from db.map.models import State, Municipality, Locality, Establishment, VolunteerOpportunity, VolunteerApplication
 from db.map.models import Organization, Action, ActionLog, Submission, Donor, Donation, Share, Testimonial
 from db.users.models import DonorUser, VolunteerUser
-from api.serializers import Serializer, ModelSerializer
 from api.mixins import DynamicFieldsMixin
 from api.fields import LatLngField
+from .base import Serializer, ModelSerializer
 
 
 class VolunteerOpportunitySerializer(ModelSerializer):

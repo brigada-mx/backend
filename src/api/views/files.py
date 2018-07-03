@@ -1,3 +1,4 @@
+from typing import Any
 import os
 import uuid
 
@@ -13,7 +14,7 @@ class GetPresignedUploadUrl(APIView):
     authentication_classes = (OrganizationUserAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs) -> Any:
         bucket = os.getenv('CUSTOM_AWS_STORAGE_BUCKET_NAME')
         s3 = get_s3_client()
         filename = s3_safe_filename(f'{uuid.uuid4()}-{request.data.get("filename", "")}')

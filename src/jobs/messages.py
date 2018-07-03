@@ -1,10 +1,19 @@
+from typing import List
+
 from celery import shared_task
 
 from helpers.http import get_ses_client
 
 
 @shared_task(name='send_email', default_retry_delay=60, max_retries=3)
-def send_email(to, subject, body, source='Brigada <contacto@brigada.mx>', reply_to=None, **kwargs):
+def send_email(
+    to: List[str],
+    subject: str,
+    body: str,
+    source: str = 'Brigada <contacto@brigada.mx>',
+    reply_to: List[str] = None,
+    **kwargs,
+):
     return get_ses_client().send_email(
         Source=source,
         Destination={

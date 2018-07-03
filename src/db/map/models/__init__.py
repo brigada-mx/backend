@@ -1,3 +1,3 @@
 # flake8: noqa
-from .models import *
+from .base import *
 from .discourse import *

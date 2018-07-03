@@ -1,3 +1,3 @@
 # flake8: noqa
-from .filters import *
+from .base import *
 from .map import *
