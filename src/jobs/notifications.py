@@ -5,6 +5,7 @@ import random
 from django.utils import timezone
 
 from celery import shared_task
+from raven.contrib.django.raven_compat.models import client
 
 from db.map.models import EmailNotification, Organization, Donation, VolunteerApplication
 from db.users.models import DonorUser
@@ -39,7 +40,12 @@ def send_volunteer_application_email(application_id):
 
 
 def organization_no_projects(n):
-    organization = Organization.objects.get(id=n.args['organization_id'])
+    try:
+        organization = Organization.objects.get(id=n.args['organization_id'])
+    except Organization.DoesNotExist:
+        client.captureException(None, level='warning')
+        return
+
     actions = organization.action_set.filter(published=True)
     if len(actions) > 0:
         n.done = True
@@ -58,7 +64,14 @@ def organization_no_projects(n):
 
 
 def organization_no_donations(n):
-    organization = Organization.objects.prefetch_related('action_set__donation_set').get(id=n.args['organization_id'])
+    try:
+        organization = Organization.objects.prefetch_related(
+            'action_set__donation_set'
+        ).get(id=n.args['organization_id'])
+    except Organization.DoesNotExist:
+        client.captureException(None, level='warning')
+        return
+
     actions = organization.action_set.all()
     action = actions.first()
     if action is None:
@@ -87,7 +100,14 @@ def organization_no_donations(n):
 
 
 def organization_no_photos(n):
-    organization = Organization.objects.prefetch_related('action_set__submission_set').get(id=n.args['organization_id'])
+    try:
+        organization = Organization.objects.prefetch_related(
+            'action_set__submission_set'
+        ).get(id=n.args['organization_id'])
+    except Organization.DoesNotExist:
+        client.captureException(None, level='warning')
+        return
+
     actions = organization.action_set.all()
     action = actions.first()
     if action is None:
@@ -116,7 +136,11 @@ def organization_no_photos(n):
 
 def donor_unclaimed(n=None, **kwargs):
     donation_id = n.args['donation_id'] if n else kwargs['donation_id']
-    donation = Donation.objects.get(id=donation_id)
+    try:
+        donation = Donation.objects.get(id=donation_id)
+    except Donation.DoesNotExist:
+        client.captureException(None, level='warning')
+        return
 
     donor = donation.donor
     action = donation.action
@@ -155,7 +179,12 @@ def donation_unapproved(n=None, **kwargs):
     notify = n.args['notify'] if n else kwargs['notify']
     # we also have a 'created' arg we might want to use
 
-    donation = Donation.objects.get(id=donation_id)
+    try:
+        donation = Donation.objects.get(id=donation_id)
+    except Donation.DoesNotExist:
+        client.captureException(None, level='warning')
+        return
+
     if n and donation.approved_by_org and donation.approved_by_donor:
         n.done = True
         n.save()
