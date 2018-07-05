@@ -184,7 +184,7 @@ Make sure you have the `.vault-password` file, with the correct password, in the
 
 
 ### Committing
-To make sure unencrypted env vars don't get committed, run `cp pre-commit .git/hooks` from the root of this repo. The `pre-commit` hook fails if any env files are not encrypted.
+To make sure unencrypted env vars don't get committed, run `cp pre-commit .git/hooks` from the root of this repo. The `pre-commit` hook fails if env files are not encrypted, or if code doesn't pass `mypy` checks.
 
 
 ## ngrok

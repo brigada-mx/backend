@@ -1,4 +1,3 @@
-from __future__ import print_function
 """
 get_image_size.py
 ====================
@@ -9,11 +8,10 @@ get_image_size.py
     :Copyright:   (c) Paulo Scardine 2013
     :Licence:     MIT
 """
-from collections import namedtuple, OrderedDict
-import json
+from typing import Tuple
 import os
 import struct
-import unittest
+
 
 FILE_UNKNOWN = "Sorry, don't know how to get size for this file."
 
@@ -22,7 +20,7 @@ class UnknownImageFormat(Exception):
     pass
 
 
-types = OrderedDict()
+types = {}
 BMP = types['BMP'] = 'BMP'
 GIF = types['GIF'] = 'GIF'
 ICO = types['ICO'] = 'ICO'
@@ -33,31 +31,16 @@ TIFF = types['TIFF'] = 'TIFF'
 image_fields = ['path', 'type', 'file_size', 'width', 'height']
 
 
-class Image(namedtuple('Image', image_fields)):
-
-    def to_str_row(self):
-        return ("%d\t%d\t%d\t%s\t%s" % (
-            self.width,
-            self.height,
-            self.file_size,
-            self.type,
-            self.path.replace('\t', '\\t'),
-        ))
-
-    def to_str_row_verbose(self):
-        return ("%d\t%d\t%d\t%s\t%s\t##%s" % (
-            self.width,
-            self.height,
-            self.file_size,
-            self.type,
-            self.path.replace('\t', '\\t'),
-            self))
-
-    def to_str_json(self, indent=None):
-        return json.dumps(self._asdict(), indent=indent)
+class Image:
+    def __init__(self, path, type, file_size, width, height):
+        self.path: str = path
+        self.type: str = type
+        self.file_size: int = file_size
+        self.width: int = width
+        self.height: int = height
 
 
-def get_image_size(file_path):
+def get_image_size(file_path: str) -> Tuple[int, int]:
     """
     Return (width, height) for a given img file content - no external
     dependencies except the os and struct builtin modules
@@ -66,7 +49,7 @@ def get_image_size(file_path):
     return (img.width, img.height)
 
 
-def get_image_metadata(file_path):
+def get_image_metadata(file_path: str) -> Image:
     """Return an `Image` object for a given img file content - no external
     dependencies except the os and struct builtin modules
     """
@@ -223,144 +206,4 @@ def get_image_metadata(file_path):
         else:
             raise UnknownImageFormat(FILE_UNKNOWN)
 
-    return Image(path=file_path,
-                 type=imgtype,
-                 file_size=size,
-                 width=width,
-                 height=height)
-
-
-class Test_get_image_size(unittest.TestCase):
-    data = [{
-        'path': 'lookmanodeps.png',
-        'width': 251,
-        'height': 208,
-        'file_size': 22228,
-        'type': 'PNG'}]
-
-    def setUp(self):
-        pass
-
-    def test_get_image_metadata(self):
-        img = self.data[0]
-        output = get_image_metadata(img['path'])
-        self.assertTrue(output)
-        self.assertEqual(output.path, img['path'])
-        self.assertEqual(output.width, img['width'])
-        self.assertEqual(output.height, img['height'])
-        self.assertEqual(output.type, img['type'])
-        self.assertEqual(output.file_size, img['file_size'])
-        for field in image_fields:
-            self.assertEqual(getattr(output, field), img[field])
-
-    def test_get_image_metadata__ENOENT_OSError(self):
-        with self.assertRaises(OSError):
-            get_image_metadata('THIS_DOES_NOT_EXIST')
-
-    def test_get_image_metadata__not_an_image_UnknownImageFormat(self):
-        with self.assertRaises(UnknownImageFormat):
-            get_image_metadata('README.rst')
-
-    def test_get_image_size(self):
-        img = self.data[0]
-        output = get_image_size(img['path'])
-        self.assertTrue(output)
-        self.assertEqual(output,
-                         (img['width'],
-                          img['height']))
-
-    def tearDown(self):
-        pass
-
-
-def main(argv=None):
-    """Print image metadata fields for the given file path.
-    """
-    import logging
-    import optparse
-    import sys
-
-    prs = optparse.OptionParser(
-        usage="%prog [-v|--verbose] [--json|--json-indent] <path0> [<pathN>]",
-        description="Print metadata for the given image paths "
-                    "(without image library bindings).")
-
-    prs.add_option('--json',
-                   dest='json',
-                   action='store_true')
-    prs.add_option('--json-indent',
-                   dest='json_indent',
-                   action='store_true')
-
-    prs.add_option('-v', '--verbose',
-                   dest='verbose',
-                   action='store_true')
-    prs.add_option('-q', '--quiet',
-                   dest='quiet',
-                   action='store_true')
-    prs.add_option('-t', '--test',
-                   dest='run_tests',
-                   action='store_true')
-
-    argv = list(argv) if argv is not None else sys.argv[1:]
-    (opts, args) = prs.parse_args(args=argv)
-    loglevel = logging.INFO
-    if opts.verbose:
-        loglevel = logging.DEBUG
-    elif opts.quiet:
-        loglevel = logging.ERROR
-    logging.basicConfig(level=loglevel)
-    log = logging.getLogger()
-    log.debug('argv: %r', argv)
-    log.debug('opts: %r', opts)
-    log.debug('args: %r', args)
-
-    if opts.run_tests:
-        import sys
-        sys.argv = [sys.argv[0]] + args
-        import unittest
-        return unittest.main()
-
-    output_func = Image.to_str_row
-    if opts.json_indent:
-        import functools
-        output_func = functools.partial(Image.to_str_json, indent=2)
-    elif opts.json:
-        output_func = Image.to_str_json
-    elif opts.verbose:
-        output_func = Image.to_str_row_verbose
-
-    EX_OK = 0
-    EX_NOT_OK = 2
-
-    if len(args) < 1:
-        prs.print_help()
-        print('')
-        prs.error("You must specify one or more paths to image files")
-
-    errors = []
-    for path_arg in args:
-        try:
-            img = get_image_metadata(path_arg)
-            print(output_func(img))
-        except KeyboardInterrupt:
-            raise
-        except OSError as e:
-            log.error((path_arg, e))
-            errors.append((path_arg, e))
-        except Exception as e:
-            log.exception(e)
-            errors.append((path_arg, e))
-            pass
-    if len(errors):
-        import pprint
-        print("ERRORS", file=sys.stderr)
-        print("======", file=sys.stderr)
-        print(pprint.pformat(errors, indent=2), file=sys.stderr)
-        return EX_NOT_OK
-    return EX_OK
-
-
-if __name__ == "__main__":
-    import sys
-    sys.exit(main(argv=sys.argv[1:]))
+    return Image(path=file_path, type=imgtype, file_size=size, width=width, height=height)

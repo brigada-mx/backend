@@ -1,3 +1,4 @@
+from typing import Any
 import os
 from concurrent import futures
 from datetime import timedelta
@@ -60,7 +61,7 @@ def sync_submission_image_meta(submission_id):
     MAX_WORKERS = 10
     submission = Submission.objects.get(id=submission_id)
 
-    def get_image_meta(image):
+    def get_image_meta(image) -> Any:
         if image_meta_synced(image) or not in_s3(image['url']):
             return image
 
@@ -71,10 +72,11 @@ def sync_submission_image_meta(submission_id):
 
         try:
             meta = get_image_size.get_image_metadata(path)
-            width, height, extension = meta.width, meta.height, meta.type
         except:
             client.captureException()
             width, height, extension = None, None, None
+        else:
+            width, height, extension = meta.width, meta.height, meta.type
 
         image['exif'] = exif_data(path)  # pass this string to `ast.literal_eval` to recover exif dict
         image['width'] = width
