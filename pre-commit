@@ -35,5 +35,5 @@ done
 
 printf "\nall sensitive files encrypted correctly\n"
 
-mypy --no-incremental src
+mypy src
 exit $?

@@ -294,6 +294,7 @@ class Action(AbstractAction, BaseModel):  # type: ignore
     key = models.IntegerField(blank=True, help_text="Auto-incremented number for actions in organization")
     organization = models.ForeignKey('Organization', help_text='Frozen after first read')
     image_count = models.IntegerField(default=0, blank=True)
+    preview = JSONField(default={}, blank=True)
     # transparency fields
     status_by_category = JSONField(default={}, blank=True, help_text='For caching transparency score information')
     score = models.FloatField(default=0, blank=True, db_index=True)
@@ -463,6 +464,7 @@ class Testimonial(BaseModel):
             'youtube_video_id': self.video.get('youtube_video_id', ''),
             'url_thumbnail': self.video.get('url_thumbnail', ''),
             'synced': self.video.get('synced', False),
+            'url': self.video.get('url_thumbnail', ''),  # don't remove this
         }
 
     def pretty_recipients(self, n=None, _and=''):

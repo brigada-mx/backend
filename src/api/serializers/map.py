@@ -315,7 +315,7 @@ class ActionDetailSerializer(ModelSerializer):
         fields = '__all__'
 
 
-class ActionSubmissionsSerializer(ModelSerializer):
+class ActionSubmissionsSerializer(DynamicFieldsMixin, ModelSerializer):
     _PREFETCH_FUNCTIONS = [
         lambda: Prefetch('volunteeropportunity_set', queryset=VolunteerOpportunity.objects.filter(published=True)),
         lambda: Prefetch('submission_set', queryset=Submission.objects.filter(published=True)),

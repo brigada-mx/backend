@@ -1,5 +1,5 @@
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 
@@ -65,6 +65,14 @@ class LocalityList(generics.ListAPIView):
 
     def get_queryset(self):
         return Locality.objects.raw(locality_list_raw_query)
+
+
+class LocalityWithActionList(generics.ListAPIView):
+    serializer_class = LocalitySerializer
+    pagination_class = LargeNoCountPagination
+
+    def get_queryset(self):
+        return Locality.objects.filter(action__isnull=False).distinct()
 
 
 class LocalityDetail(generics.RetrieveAPIView):
@@ -372,3 +380,19 @@ class SupportTicketCreate(APIView):
             'Brigada Support <soporte@brigada.mx>',
         )
         return Response({}, status=200)
+
+
+class LandingMetrics(APIView):
+    def get(self, request, *args, **kwargs):
+        groups = (
+            Organization.objects.filter(action__isnull=False).distinct().count() +
+            Donor.objects.filter(donation__isnull=False).distinct().count()
+        )
+        return Response({
+            'groups': groups,
+            'actions': Action.objects.filter(published=True).count(),
+            'total_spent': (
+                Action.objects.filter(published=True).aggregate(t=Sum('budget'))['t'] +
+                Donation.objects.filter(approved_by_donor=True, approved_by_org=True).aggregate(t=Sum('amount'))['t']
+            )
+        }, status=200)

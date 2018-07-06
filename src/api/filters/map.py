@@ -27,6 +27,8 @@ class ActionFilter(filters.FilterSet):
     locality_id = django_filters.NumberFilter(name='locality')
     organization_id = django_filters.NumberFilter(name='organization')
     archived = BooleanFilter(name='archived')
+    level__gte = django_filters.NumberFilter(name='level', lookup_expr='gte')
+    level__lte = django_filters.NumberFilter(name='level', lookup_expr='lte')
 
     class Meta:
         model = Action
