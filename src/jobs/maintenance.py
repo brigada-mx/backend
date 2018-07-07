@@ -1,11 +1,15 @@
+from typing import Any
 import json
+import gzip
 
 from django.db.models import Prefetch
 from django.db import transaction, connection
 from django.utils import timezone
 
 from celery import shared_task
+import requests
 
+from helpers.http import get_s3_client, raise_for_status
 from db.map.models import Action, Donation, Testimonial
 
 
@@ -92,3 +96,34 @@ def sync_action_transparency():
                 cursor.execute(query, [
                     timezone.now().isoformat(), json.dumps(status_by_category), score, level, action.id]
                 )
+
+
+@shared_task(name='sync_landing_page_data')
+def sync_landing_page_data() -> Any:
+    data_file_path = '/tmp/landing_data.json.gz'
+    base_url = 'https://api.brigada.mx/api'
+
+    paths = [
+        ('metrics', '/landing_metrics/'),
+        ('localities', '/localities_with_actions/'),
+        ('opportunities', '/volunteer_opportunities_cached/?transparency_level__gte=2'),
+        ('actions', '/actions_cached/?level__gte=2&fields=id,locality,organization,donations,action_type,target,unit_of_measurement'),
+    ]
+    data = {}
+
+    for key, path in paths:
+        r = requests.get(f'{base_url}{path}')
+        raise_for_status(r)
+        data[key] = r.json()
+
+    with gzip.open(data_file_path, 'wb') as f:
+        f.write(bytes(json.dumps(data), 'utf-8'))
+
+    s3 = get_s3_client()
+    with open(data_file_path, 'rb') as _data:
+        s3.upload_fileobj(_data, 'brigada.mx', 'landing_data.json', ExtraArgs={
+            'ACL': 'public-read',
+            'CacheControl': 'max-age=86400',
+            'ContentType': 'application/json',
+            'ContentEncoding': 'gzip',
+        })

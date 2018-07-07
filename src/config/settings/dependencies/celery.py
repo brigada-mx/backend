@@ -18,6 +18,10 @@ CELERY_ACCEPT_CONTENT = ['json', 'msgpack', 'yaml']
 
 CELERYBEAT_SCHEDULE = {
     # http://docs.celeryproject.org/en/latest/reference/celery.schedules.html
+    'sync_landing_page_data': {
+        'task': 'sync_landing_page_data',
+        'schedule': timedelta(seconds=60 * 60 * 24),
+    },
     'sync_action_transparency': {
         'task': 'sync_action_transparency',
         'schedule': timedelta(seconds=60 * 15),

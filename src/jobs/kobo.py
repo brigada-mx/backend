@@ -1,4 +1,5 @@
 # https://kc.humanitarianresponse.info/edumancera/api-token
+from typing import Any
 import os
 import uuid
 from concurrent import futures
@@ -80,7 +81,7 @@ def sync_submission(s):
 
 
 @shared_task(name='upload_submission_images')
-def upload_submission_images(submission_id):
+def upload_submission_images(submission_id) -> Any:
     from jobs.files import sync_submission_image_meta
     from django.conf import settings
     if not settings.ENVIRONMENT == 'production':
