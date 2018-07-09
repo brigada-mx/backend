@@ -98,26 +98,14 @@ def sync_action_transparency() -> None:
                 )
 
 
-@shared_task(name='sync_landing_page_data')
+@shared_task(name='sync_landing_page_data', default_retry_delay=30, max_retries=3)
 def sync_landing_page_data() -> None:
     data_file_path = '/tmp/landing_data.json.gz'
-    base_url = 'https://api.brigada.mx/api'
-
-    paths = [
-        ('metrics', '/landing_metrics/'),
-        ('localities', '/localities_with_actions/'),
-        ('opportunities', '/volunteer_opportunities_cached/?transparency_level__gte=2'),
-        ('actions', '/actions_cached/?level__gte=2&fields=id,locality,organization,donations,action_type,target,unit_of_measurement'),
-    ]
-    data = {}
-
-    for key, path in paths:
-        r = requests.get(f'{base_url}{path}')
-        raise_for_status(r)
-        data[key] = r.json()
+    r = requests.get('https://api.brigada.mx/api/landing/')
+    raise_for_status(r)
 
     with gzip.open(data_file_path, 'wb') as f:
-        f.write(bytes(json.dumps(data), 'utf-8'))
+        f.write(bytes(json.dumps(r.json()), 'utf-8'))
 
     s3 = get_s3_client()
     with open(data_file_path, 'rb') as _data:

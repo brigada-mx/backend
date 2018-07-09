@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^localities_with_actions/$',
         cache_page(60 * 60 * 6)(views.LocalityWithActionList.as_view()), name='locality-with-action-list'),
     url(r'^landing_metrics/$', cache_page(60 * 60 * 6)(views.LandingMetrics.as_view()), name='landing-metrics'),
+    url(r'^landing/$', cache_page(60 * 60 * 6)(views.Landing.as_view()), name='landing'),
 
     url(r'^webhooks/kobo_submission/$', views.KoboSubmissionWebhook.as_view(), name='kobo-submission-webhook'),
     url(r'^webhooks/discourse_event/$', views.DiscourseEventWebhook.as_view(), name='discourse-event-webhook'),

@@ -1,3 +1,5 @@
+import os
+
 from django.db import transaction
 from django.db.models import Q, Sum
 from django.shortcuts import get_object_or_404
@@ -7,6 +9,7 @@ from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from raven.contrib.django.raven_compat.models import client
+import requests
 
 from db.map.models import State, Municipality, Locality, Action, Organization, Establishment, Submission, Testimonial
 from db.map.models import Donor, Donation, VolunteerOpportunity, VolunteerApplication, Share
@@ -27,6 +30,7 @@ from api.filters import parse_boolean, ActionFilter, EstablishmentFilter, Submis
 from api.filters import VolunteerOpportunityFilter
 from jobs.notifications import send_volunteer_application_email
 from jobs.messages import send_email
+from helpers.http import raise_for_status
 
 
 class StateList(generics.ListAPIView):
@@ -396,3 +400,21 @@ class LandingMetrics(APIView):
                 Donation.objects.filter(approved_by_donor=True, approved_by_org=True).aggregate(t=Sum('amount'))['t']
             )
         }, status=200)
+
+
+class Landing(APIView):
+    def get(self, request, *args, **kwargs):
+        action_fields = 'id,locality,organization,donations,action_type,target,unit_of_measurement'
+        paths = [
+            ('metrics', '/landing_metrics/'),
+            ('localities', '/localities_with_actions/'),
+            ('opportunities', '/volunteer_opportunities_cached/?transparency_level__gte=2'),
+            ('actions', f'/actions_cached/?level__gte=2&fields={action_fields}'),
+        ]
+        data = {}
+
+        for key, path in paths:
+            r = requests.get(f'{os.getenv("CUSTOM_API_URL")}{path}')
+            raise_for_status(r)
+            data[key] = r.json()
+        return Response(data, status=200)
