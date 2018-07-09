@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Dict, Any
 import json
 import gzip
 
@@ -13,8 +13,8 @@ from helpers.http import get_s3_client, raise_for_status
 from db.map.models import Action, Donation, Testimonial
 
 
-def get_status_by_category(action, prefetched=False):
-    d = {}
+def get_status_by_category(action, prefetched=False) -> Dict[str, Any]:
+    d: Dict[str, Any] = {}
 
     d['desc'] = bool(action.desc)
 
@@ -41,7 +41,7 @@ def get_status_by_category(action, prefetched=False):
     return d
 
 
-def get_score(status_by_category):
+def get_score(status_by_category: Dict[str, Any]) -> float:
     dates = status_by_category.get('dates', False)
     progress = status_by_category.get('progress', False)
     budget = status_by_category.get('budget', False)
@@ -59,7 +59,7 @@ def get_score(status_by_category):
     )
 
 
-def get_level(status_by_category, score):
+def get_level(status_by_category: Dict[str, Any], score: float) -> int:
     desc = status_by_category.get('desc', False)
     progress = status_by_category.get('progress', False)
     budget = status_by_category.get('budget', False)
@@ -76,7 +76,7 @@ UPDATE map_action SET modified = %s::timestamptz, status_by_category = %s, score
 
 
 @shared_task(name='sync_action_transparency')
-def sync_action_transparency():
+def sync_action_transparency() -> None:
     with transaction.atomic():
         with connection.cursor() as cursor:
             for action in Action.objects.prefetch_related(
@@ -99,7 +99,7 @@ def sync_action_transparency():
 
 
 @shared_task(name='sync_landing_page_data')
-def sync_landing_page_data() -> Any:
+def sync_landing_page_data() -> None:
     data_file_path = '/tmp/landing_data.json.gz'
     base_url = 'https://api.brigada.mx/api'
 
