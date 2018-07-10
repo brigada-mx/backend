@@ -1,3 +1,5 @@
+from typing import Callable
+
 import django_filters
 from django_filters import rest_framework as filters
 
@@ -14,13 +16,15 @@ def scian_category_filter(queryset, name, value):
     return queryset.exclude(scian_group_id=1)
 
 
-def has_action_filter(queryset, name, value):
-    boolean = parse_boolean(value)
-    if boolean is None:
-        return queryset
-    if boolean is False:
-        return queryset.filter(action__isnull=True)
-    return queryset.filter(action__isnull=False)
+def has_field_filter_factory(field: str) -> Callable:
+    def has_field_filter(queryset, name, value):
+        boolean = parse_boolean(value)
+        if boolean is None:
+            return queryset
+        if boolean is False:
+            return queryset.filter(**{f'{field}__isnull': True})
+        return queryset.filter(**{f'{field}__isnull': False})
+    return has_field_filter
 
 
 class ActionFilter(filters.FilterSet):
@@ -29,6 +33,7 @@ class ActionFilter(filters.FilterSet):
     archived = BooleanFilter(name='archived')
     level__gte = django_filters.NumberFilter(name='level', lookup_expr='gte')
     level__lte = django_filters.NumberFilter(name='level', lookup_expr='lte')
+    has_start_date = django_filters.Filter(method=has_field_filter_factory('start_date'))
 
     class Meta:
         model = Action
@@ -61,7 +66,7 @@ class SubmissionFilter(filters.FilterSet):
     organization_id = BooleanFilter(name='organization')
     published = BooleanFilter(name='published')
     archived = BooleanFilter(name='archived')
-    has_action = django_filters.Filter(method=has_action_filter)
+    has_action = django_filters.Filter(method=has_field_filter_factory('action'))
 
     class Meta:
         model = Submission

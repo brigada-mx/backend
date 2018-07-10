@@ -101,6 +101,7 @@ class EstablishmentList(generics.ListAPIView):
 class ActionList(generics.ListAPIView):
     serializer_class = ActionSubmissionsSerializer
     filter_class = ActionFilter
+    ordering_fields = ('created', 'start_date', 'end_date')
 
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
@@ -247,10 +248,11 @@ class VolunteerOpportunityDetail(generics.RetrieveAPIView):
 class VolunteerOpportunityList(generics.ListAPIView):
     serializer_class = VolunteerOpportunityDetailSerializer
     filter_class = VolunteerOpportunityFilter
+    ordering_fields = ('action__score', 'created', 'start_date', 'end_date')
 
     def get_queryset(self):
         return self.get_serializer_class().setup_eager_loading(
-            VolunteerOpportunity.objects.filter(published=True).order_by('-action__score')
+            VolunteerOpportunity.objects.filter(published=True)
         )
 
 
@@ -404,12 +406,15 @@ class LandingMetrics(APIView):
 
 class Landing(APIView):
     def get(self, request, *args, **kwargs):
-        action_fields = 'id,locality,organization,donations,action_type,target,unit_of_measurement'
+        action_fields = 'id,locality,organization,donations,action_type,budget,target,unit_of_measurement,preview'
+        action_query = f'?level__gte=2&has_start_date=true&ordering=-start_date&page_size=100&fields={action_fields}'
+        opportunities_query = '?transparency_level__gte=2&ordering=-created&page_size=100'
+
         paths = [
             ('metrics', '/landing_metrics/'),
             ('localities', '/localities_with_actions/'),
-            ('opportunities', '/volunteer_opportunities_cached/?transparency_level__gte=2'),
-            ('actions', f'/actions_cached/?level__gte=2&fields={action_fields}'),
+            ('opportunities', f'/volunteer_opportunities_cached/{opportunities_query}'),
+            ('actions', f'/actions_cached/{action_query}'),
         ]
         data = {}
 
