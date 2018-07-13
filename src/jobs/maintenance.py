@@ -111,7 +111,7 @@ def sync_landing_page_data() -> None:
     with open(data_file_path, 'rb') as _data:
         s3.upload_fileobj(_data, 'brigada.mx', 'landing_data.json', ExtraArgs={
             'ACL': 'public-read',
-            'CacheControl': 'max-age=86400',
+            'CacheControl': 'max-age=43200',
             'ContentType': 'application/json',
             'ContentEncoding': 'gzip',
         })

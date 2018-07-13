@@ -60,7 +60,17 @@ SELECT
         WHERE map_action.locality_id = map_locality.id AND map_action.published = true
     ) AS action_count
 FROM map_locality
-WHERE map_locality.has_data = true"""
+WHERE map_locality.has_data = true
+UNION
+SELECT
+    map_locality.*,
+    (SELECT
+        COUNT(*)
+        FROM map_action
+        WHERE map_action.locality_id = map_locality.id AND map_action.published = true
+    ) AS action_count
+FROM map_locality
+WHERE map_locality.id in (select distinct locality_id from map_action where published = true)"""
 
 
 class LocalityList(generics.ListAPIView):
