@@ -19,13 +19,13 @@ urlpatterns = [
     # public endpoints
     url(r'^$', views.api_root),
 
-    url(r'^actions_cached/$', cache_page(60 * 60 * 6)(views.ActionList.as_view()), name='action-list-cached'),
+    url(r'^actions_cached/$', cache_page(60 * 60)(views.ActionList.as_view()), name='action-list-cached'),
     url(r'^volunteer_opportunities_cached/$',
-        cache_page(60 * 60 * 6)(views.VolunteerOpportunityList.as_view()), name='volunteer-opportunity-list-cached'),
+        cache_page(60 * 60)(views.VolunteerOpportunityList.as_view()), name='volunteer-opportunity-list-cached'),
     url(r'^localities_with_actions/$',
-        cache_page(60 * 60 * 6)(views.LocalityWithActionList.as_view()), name='locality-with-action-list'),
-    url(r'^landing_metrics/$', cache_page(60 * 60 * 6)(views.LandingMetrics.as_view()), name='landing-metrics'),
-    url(r'^landing/$', cache_page(60 * 60 * 6)(views.Landing.as_view()), name='landing'),
+        cache_page(60 * 60)(views.LocalityWithActionList.as_view()), name='locality-with-action-list'),
+    url(r'^landing_metrics/$', cache_page(60 * 60)(views.LandingMetrics.as_view()), name='landing-metrics'),
+    url(r'^landing/$', cache_page(60 * 60)(views.Landing.as_view()), name='landing'),
 
     url(r'^webhooks/kobo_submission/$', views.KoboSubmissionWebhook.as_view(), name='kobo-submission-webhook'),
     url(r'^webhooks/discourse_event/$', views.DiscourseEventWebhook.as_view(), name='discourse-event-webhook'),
