@@ -391,16 +391,13 @@ class SupportTicketCreate(APIView):
 class LandingMetrics(APIView):
     def get(self, request, *args, **kwargs):
         groups = (
-            Organization.objects.filter(action__isnull=False).distinct().count() +
+            Organization.objects.exclude(desc='').count() +
             Donor.objects.filter(donation__isnull=False).distinct().count()
         )
         return Response({
             'groups': groups,
             'actions': Action.objects.filter(published=True).count(),
-            'total_spent': (
-                Action.objects.filter(published=True).aggregate(t=Sum('budget'))['t'] +
-                Donation.objects.filter(approved_by_donor=True, approved_by_org=True).aggregate(t=Sum('amount'))['t']
-            )
+            'total_spent': Action.objects.filter(published=True).aggregate(t=Sum('budget'))['t']
         }, status=200)
 
 
