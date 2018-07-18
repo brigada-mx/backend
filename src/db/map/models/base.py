@@ -12,6 +12,7 @@ from django.core.exceptions import ValidationError
 from db.config import BaseModel
 from db.choices import SCIAN_GROUP_ID_BY_CODE, ORGANIZATION_SECTOR_CHOICES, DONOR_SECTOR_CHOICES, APP_TYPE_CHOICES
 from db.choices import SUBMISSION_SOURCE_CHOICES, VOLUNTEER_OPPORTUNITY_LOCATION_CHOICES, ACTION_LABEL_BY_TYPE
+from db.choices import ACTION_BENEFICIARIES_CRITERIA_CHOICES
 from helpers.location import geos_location_from_coordinates
 from helpers.diceware import diceware
 from helpers.datetime import timediff
@@ -279,6 +280,10 @@ class AbstractAction(models.Model):
     unit_of_measurement = models.TextField(blank=True)
     progress = models.FloatField(null=True, blank=True, help_text='How many units have been delivered?')
     budget = models.FloatField(null=True, blank=True, help_text='$MXN')
+    beneficiaries_desc = models.TextField(blank=True, help_text='What kind of people get to be beneficiaries?')
+    beneficiaries_criteria = models.TextField(
+        choices=ACTION_BENEFICIARIES_CRITERIA_CHOICES, blank=True, help_text='How are beneficiaries selected?')
+    beneficiaries_criteria_desc = models.TextField(blank=True, max_length=100)
     start_date = models.DateField(null=True, blank=True, db_index=True)
     end_date = models.DateField(null=True, blank=True, db_index=True)
     published = models.BooleanField(blank=True, default=True, db_index=True)

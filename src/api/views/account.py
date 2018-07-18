@@ -11,7 +11,7 @@ from rest_framework.serializers import ValidationError
 from rest_framework.response import Response
 from raven.contrib.django.raven_compat.models import client
 
-from jobs.maintenance import get_status_by_category
+from jobs.maintenance import get_status_by_category, get_score, get_level
 from db.map.models import Action, Submission, Donor, Donation, Testimonial, Organization, VolunteerOpportunity
 from db.map.models import DiscourseUser, DiscoursePostEvent
 from db.users.models import OrganizationUser, OrganizationUserToken
@@ -518,6 +518,8 @@ class AccountActionStrength(APIView):
 
         status_by_category = get_status_by_category(action)
         action.status_by_category = {**action.status_by_category, **status_by_category}
+        action.score = get_score(action.status_by_category)
+        action.level = get_level(action.status_by_category, action.score)
         action.save()  # supplement `maintenance` job to keep this metric more recent
 
         count = sum(1 if status_by_category[k] else 0 for k in status_by_category.keys())

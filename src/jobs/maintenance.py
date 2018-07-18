@@ -20,10 +20,14 @@ def get_status_by_category(action, prefetched=False) -> Dict[str, Any]:
 
     d['dates'] = bool(action.start_date and action.end_date)
 
-    d['progress'] = bool(action.unit_of_measurement) \
-        and action.target is not None and action.progress is not None
+    d['progress'] = bool(action.unit_of_measurement) and action.target is not None and action.progress is not None
 
     d['budget'] = bool(action.budget)
+
+    if action.beneficiaries_criteria == 'other':
+        d['beneficiaries'] = bool(action.beneficiaries_desc and action.beneficiaries_criteria_desc)
+    else:
+        d['beneficiaries'] = bool(action.beneficiaries_desc and action.beneficiaries_criteria)
 
     d['image_count'] = action.image_count
 
@@ -45,17 +49,19 @@ def get_score(status_by_category: Dict[str, Any]) -> float:
     dates = status_by_category.get('dates', False)
     progress = status_by_category.get('progress', False)
     budget = status_by_category.get('budget', False)
+    beneficiaries = status_by_category.get('beneficiaries', False)
     image_count = status_by_category.get('image_count', 0)
-    testimonials = status_by_category.get('image_count', 0)
+    testimonials = status_by_category.get('testimonials', 0)
     donations = status_by_category.get('donations', 0)
     verified_donations = status_by_category.get('verified_donations', 0)
 
     return (image_count + testimonials * 5) * (
-        1 if dates else 0 +
-        1 if progress else 0 +
-        1 if budget else 0 +
-        1 if donations > 0 else 0 +
-        1 if verified_donations > 0 else 0
+        (1 if dates else 0) +
+        (1 if progress else 0) +
+        (1 if budget else 0) +
+        (1 if beneficiaries else 0) +
+        (1 if donations > 0 else 0) +
+        (1 if verified_donations > 0 else 0)
     )
 
 
@@ -63,10 +69,11 @@ def get_level(status_by_category: Dict[str, Any], score: float) -> int:
     desc = status_by_category.get('desc', False)
     progress = status_by_category.get('progress', False)
     budget = status_by_category.get('budget', False)
+    beneficiaries = status_by_category.get('beneficiaries', False)
 
     if not desc or not progress or not budget:
         return 0
-    if score < 40:
+    if score < 50 or not beneficiaries:
         return 1
     return 2
 

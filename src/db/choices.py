@@ -1,3 +1,11 @@
+ACTION_BENEFICIARIES_CRITERIA_CHOICES = (
+    ('', ''),
+    ('convocatoria_abierta', 'convocatoria abierta'),
+    ('convocatoria_cerrada', 'convocatoria cerrada (invitación directa a presentar proyectos)'),
+    ('mapeo_directo_de_necesidades', 'mapeo directo de necesidades'),
+    ('other', 'other'),
+)
+
 VOLUNTEER_OPPORTUNITY_LOCATION_CHOICES = (
     ('anywhere', 'anywhere'),
     ('in_locality', 'in_locality'),
