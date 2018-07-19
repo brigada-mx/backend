@@ -75,15 +75,11 @@ def get_level(status_by_category: Dict[str, Any], score: float) -> int:
     if not desc or not progress or not budget or not dates:
         return 0
 
-    today = timezone.now().date().isoformat()
-    if today < '2018-08-01':  # DELETE THIS BLOCK OF CODE
-        if score < 40:
-            return 1
-        return 2
-
-    if score < 50 or not beneficiaries:
+    if score < 40:  # FIX: remove score 3 by 2018-08-01, score 2 (transparent) replaces score 3, and change web code, search "level >= 3" and change it to "level >= 2"
         return 1
-    return 2
+    if score < 50 or not beneficiaries:
+        return 2
+    return 3
 
 
 query = """
