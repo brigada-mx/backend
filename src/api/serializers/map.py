@@ -229,7 +229,7 @@ class ActionLocalitySerializer(ModelSerializer):
 
     class Meta:
         model = Action
-        fields = ('id', 'locality', 'action_type', 'budget', 'organization_id')
+        fields = ('id', 'locality', 'action_type', 'budget', 'organization_id', 'score', 'level')
 
 
 class OrganizationMiniSerializer(DynamicFieldsMixin, ModelSerializer):
@@ -246,7 +246,7 @@ class ActionMiniSerializer(ModelSerializer):
 
     class Meta:
         model = Action
-        fields = ('id', 'key', 'organization', 'locality', 'action_type')
+        fields = ('id', 'key', 'organization', 'locality', 'action_type', 'score', 'level')
 
 
 class ActionLocalityOrganizationSerializer(ActionLocalitySerializer):

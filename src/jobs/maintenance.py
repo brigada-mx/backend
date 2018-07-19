@@ -67,12 +67,20 @@ def get_score(status_by_category: Dict[str, Any]) -> float:
 
 def get_level(status_by_category: Dict[str, Any], score: float) -> int:
     desc = status_by_category.get('desc', False)
+    dates = status_by_category.get('dates', False)
     progress = status_by_category.get('progress', False)
     budget = status_by_category.get('budget', False)
     beneficiaries = status_by_category.get('beneficiaries', False)
 
-    if not desc or not progress or not budget:
+    if not desc or not progress or not budget or not dates:
         return 0
+
+    today = timezone.now().date().isoformat()
+    if today < '2018-08-01':  # DELETE THIS BLOCK OF CODE
+        if score < 40:
+            return 1
+        return 2
+
     if score < 50 or not beneficiaries:
         return 1
     return 2
