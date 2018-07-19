@@ -225,6 +225,8 @@ sudo docker exec -it <container_id> /bin/ash
 
 source .env
 python manage.py staffuser --email <email> --password <password> --full_name <full_name>
+# create superuser, or change superuser password
+python manage.py staffuser --superuser --email <email> --password <password>
 ~~~
 
 

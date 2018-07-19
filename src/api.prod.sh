@@ -11,6 +11,4 @@ done
 python manage.py migrate --noinput
 python manage.py collectstatic --noinput
 
-python manage.py staffuser --superuser --email $CUSTOM_SUPERUSER_EMAIL --password $CUSTOM_SUPERUSER_PASSWORD
-
 uwsgi --http-auto-chunked --http-keepalive --ini uwsgi.ini
