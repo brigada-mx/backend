@@ -12,7 +12,7 @@ class OrganizationUserCreateSerializer(ModelSerializer):
 
 class DonorUserCreateSerializer(ModelSerializer):
     class Meta:
-        model = OrganizationUser
+        model = DonorUser
         fields = ('email', 'first_name', 'surnames')
 
 

@@ -134,9 +134,9 @@ urlpatterns = [
 
     # donor account endpoints
     url(r'^donor_account/users/$',
-        views.OrganizationUserListCreate.as_view(), name='donoraccount-user-list-created'),
+        views.DonorUserListCreate.as_view(), name='donoraccount-user-list-created'),
     url(r'^donor_account/users/(?P<pk>[0-9]+)/$',
-        views.OrganizationUserRetrieveUpdate.as_view(), name='donoraccount-user-retrieve-update'),
+        views.DonorUserRetrieveUpdate.as_view(), name='donoraccount-user-retrieve-update'),
 
     url(r'^donor_account/token/$', views.DonorToken.as_view(), name='donoraccount-token'),
     url(r'^donor_account/delete_token/$', views.DonorDeleteToken.as_view(), name='donoraccount-delete-token'),
