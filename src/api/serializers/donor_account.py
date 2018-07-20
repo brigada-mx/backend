@@ -29,8 +29,8 @@ class DonorUserSerializer(ModelSerializer):
 
     class Meta:
         model = DonorUser
-        fields = ('email', 'full_name', 'first_name', 'surnames', 'is_active', 'donor')
-        read_only_fields = ('email', 'is_active', 'full_name')
+        fields = ('email', 'full_name', 'first_name', 'surnames', 'is_active', 'is_mainuser', 'donor', 'id')
+        read_only_fields = ('email', 'is_active', 'is_mainuser', 'full_name', 'id')
 
 
 class DonorUpdateSerializer(ModelSerializer):

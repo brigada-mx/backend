@@ -63,8 +63,8 @@ class OrganizationUserSerializer(ModelSerializer):
 
     class Meta:
         model = OrganizationUser
-        fields = ('email', 'full_name', 'first_name', 'surnames', 'is_active', 'organization')
-        read_only_fields = ('email', 'is_active', 'full_name')
+        fields = ('email', 'full_name', 'first_name', 'surnames', 'is_active', 'is_mainuser', 'organization', 'id')
+        read_only_fields = ('email', 'is_active', 'is_mainuser', 'full_name', 'id')
 
 
 class VolunteerUserSerializer(ModelSerializer):

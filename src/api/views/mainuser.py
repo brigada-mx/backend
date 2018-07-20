@@ -3,13 +3,13 @@ from rest_framework.serializers import ValidationError
 
 from db.users.models import DonorUser, OrganizationUser
 from api.backends import OrganizationUserAuthentication, DonorUserAuthentication
-from api.serializers import UserCreateSerializer, UserUpdateSerializer, UserReadSerializer
+from api.serializers import UserReadSerializer, OrganizationUserCreateSerializer, OrganizationUserUpdateSerializer
+from api.serializers import DonorUserCreateSerializer, DonorUserUpdateSerializer
 
 
 class IsMainUser(permissions.BasePermission):
-    def has_permission(self, request, view, obj):
-        # read permissions are allowed to any request, so we'll always allow GET, HEAD or OPTIONS requests
-        if request.method in permissions.SAFE_METHODS:
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:  # all GET, HEAD, OPTIONS requests allowed
             return True
         return request.user.is_mainuser
 
@@ -21,7 +21,7 @@ class OrganizationUserListCreate(generics.ListCreateAPIView):
 
     def get_serializer_class(self, *args, **kwargs):
         if self.request.method == 'POST':
-            return UserCreateSerializer
+            return OrganizationUserCreateSerializer
         return UserReadSerializer
 
     def get_queryset(self):
@@ -37,7 +37,7 @@ class OrganizationUserRetrieveUpdate(generics.RetrieveUpdateDestroyAPIView):
 
     def get_serializer_class(self, *args, **kwargs):
         if self.request.method in ('PUT', 'PATCH'):
-            return UserUpdateSerializer
+            return OrganizationUserUpdateSerializer
         return UserReadSerializer
 
     def get_queryset(self):
@@ -57,7 +57,7 @@ class DonorUserListCreate(generics.ListCreateAPIView):
 
     def get_serializer_class(self, *args, **kwargs):
         if self.request.method == 'POST':
-            return UserCreateSerializer
+            return DonorUserCreateSerializer
         return UserReadSerializer
 
     def get_queryset(self):
@@ -73,7 +73,7 @@ class DonorUserRetrieveUpdate(generics.RetrieveUpdateDestroyAPIView):
 
     def get_serializer_class(self, *args, **kwargs):
         if self.request.method in ('PUT', 'PATCH'):
-            return UserUpdateSerializer
+            return DonorUserUpdateSerializer
         return UserReadSerializer
 
     def get_queryset(self):

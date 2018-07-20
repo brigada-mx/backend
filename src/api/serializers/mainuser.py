@@ -1,21 +1,37 @@
 from rest_framework import serializers
 
-from .base import Serializer
+from db.users.models import OrganizationUser, DonorUser
+from .base import Serializer, ModelSerializer
 
 
-class UserCreateSerializer(Serializer):
-    email = serializers.EmailField(allow_blank=False)
-    first_name = serializers.CharField(max_length=100, allow_blank=False, trim_whitespace=True)
-    surnames = serializers.CharField(max_length=100, allow_blank=False, trim_whitespace=True)
+class OrganizationUserCreateSerializer(ModelSerializer):
+    class Meta:
+        model = OrganizationUser
+        fields = ('email', 'first_name', 'surnames')
 
 
-class UserUpdateSerializer(Serializer):
-    is_mainuser = serializers.BooleanField(required=False)
-    is_active = serializers.BooleanField(required=False)
+class DonorUserCreateSerializer(ModelSerializer):
+    class Meta:
+        model = OrganizationUser
+        fields = ('email', 'first_name', 'surnames')
+
+
+class OrganizationUserUpdateSerializer(ModelSerializer):
+    class Meta:
+        model = OrganizationUser
+        fields = ('is_mainuser', 'is_active')
+
+
+class DonorUserUpdateSerializer(ModelSerializer):
+    class Meta:
+        model = DonorUser
+        fields = ('is_mainuser', 'is_active')
 
 
 class UserReadSerializer(Serializer):
+    id = serializers.IntegerField()
     email = serializers.EmailField()
     first_name = serializers.CharField()
     surnames = serializers.CharField()
     is_active = serializers.BooleanField()
+    is_mainuser = serializers.BooleanField()
