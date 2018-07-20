@@ -78,6 +78,11 @@ urlpatterns = [
     url(r'^discourse/authenticated_login/$', views.DiscourseAuthLogin.as_view(), name='discourse-auth-login'),
 
     # organization account endpoints
+    url(r'^account/users/$',
+        views.OrganizationUserListCreate.as_view(), name='account-user-list-created'),
+    url(r'^account/users/(?P<pk>[0-9]+)/$',
+        views.OrganizationUserRetrieveUpdate.as_view(), name='account-user-retrieve-update'),
+
     url(r'^account/token/$', views.AccountToken.as_view(), name='account-token'),
     url(r'^account/delete_token/$', views.AccountDeleteToken.as_view(), name='account-delete-token'),
     url(r'^account/set_password/$', views.AccountSetPassword.as_view(), name='account-set-password'),
@@ -128,6 +133,11 @@ urlpatterns = [
         views.VolunteerOpportunityRetrieveUpdate.as_view(), name='account-volunteer-opportunity-retrieve-update'),
 
     # donor account endpoints
+    url(r'^donor_account/users/$',
+        views.OrganizationUserListCreate.as_view(), name='donoraccount-user-list-created'),
+    url(r'^donor_account/users/(?P<pk>[0-9]+)/$',
+        views.OrganizationUserRetrieveUpdate.as_view(), name='donoraccount-user-retrieve-update'),
+
     url(r'^donor_account/token/$', views.DonorToken.as_view(), name='donoraccount-token'),
     url(r'^donor_account/delete_token/$', views.DonorDeleteToken.as_view(), name='donoraccount-delete-token'),
     url(r'^donor_account/set_password/$', views.DonorSetPassword.as_view(), name='donoraccount-set-password'),
