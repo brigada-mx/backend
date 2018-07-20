@@ -72,12 +72,12 @@ def get_level(status_by_category: Dict[str, Any], score: float) -> int:
     budget = status_by_category.get('budget', False)
     beneficiaries = status_by_category.get('beneficiaries', False)
 
-    if not desc or not progress or not budget or not dates:
+    if not desc or not progress or not budget:
         return 0
 
     if score < 40:  # FIX: remove score 3 by 2018-08-01, score 2 (transparent) replaces score 3, and change web code, search "level >= 3" and change it to "level >= 2"
         return 1
-    if score < 50 or not beneficiaries:
+    if score < 50 or not beneficiaries or not dates:
         return 2
     return 3
 
