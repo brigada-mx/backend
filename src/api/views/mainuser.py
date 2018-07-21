@@ -25,6 +25,8 @@ class OrganizationUserListCreate(generics.ListCreateAPIView):
         return UserReadSerializer
 
     def get_queryset(self):
+        if not self.request.user.is_mainuser:
+            return OrganizationUser.objects.filter(organization=self.request.user.organization, is_active=True)
         return OrganizationUser.objects.filter(organization=self.request.user.organization)
 
     def perform_create(self, serializer):
@@ -61,6 +63,8 @@ class DonorUserListCreate(generics.ListCreateAPIView):
         return UserReadSerializer
 
     def get_queryset(self):
+        if not self.request.user.is_mainuser:
+            return DonorUser.objects.filter(donor=self.request.user.donor, is_active=True)
         return DonorUser.objects.filter(donor=self.request.user.donor)
 
     def perform_create(self, serializer):
