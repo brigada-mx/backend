@@ -20,7 +20,7 @@ def get_status_by_category(action, prefetched=False) -> Dict[str, Any]:
 
     d['dates'] = bool(action.start_date and action.end_date)
 
-    d['progress'] = bool(action.unit_of_measurement) and action.target is not None and action.progress is not None
+    d['progress'] = bool(action.unit_of_measurement) and action.target is not None
 
     d['budget'] = bool(action.budget)
 
