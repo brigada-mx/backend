@@ -278,7 +278,7 @@ class AbstractAction(models.Model):
     desc = models.TextField()
     target = models.FloatField(null=True, blank=True, help_text='How many units does action intend to deliver?')
     unit_of_measurement = models.TextField(blank=True)
-    progress = models.FloatField(null=True, blank=True, help_text='How many units have been delivered?')
+    progress = models.FloatField(default=0, blank=True, help_text='How many units have been delivered?')
     budget = models.FloatField(null=True, blank=True, help_text='$MXN')
     beneficiaries_desc = models.TextField(blank=True, help_text='What kind of people get to be beneficiaries?')
     beneficiaries_criteria = models.TextField(
