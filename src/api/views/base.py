@@ -8,10 +8,7 @@ def api_root(request, format=None):
     """API root, ensures the API is discoverable in HATEOAS style.
     """
     return Response({
-        'states': reverse('api:state-list', request=request, format=format),
-        'municipalities': reverse('api:municipality-list', request=request, format=format),
         'localities': reverse('api:locality-list', request=request, format=format),
-        'establishments': reverse('api:establishment-list', request=request, format=format),
         'organizations': reverse('api:organization-list', request=request, format=format),
         'actions': reverse('api:action-list', request=request, format=format),
         'submissions': reverse('api:submission-list', request=request, format=format),

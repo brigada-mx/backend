@@ -265,7 +265,6 @@ class OrganizationSerializer(ModelSerializer):
         lambda: Prefetch('action_set', queryset=Action.objects.select_related('locality').filter(published=True))
     ]
 
-    url = serializers.HyperlinkedIdentityField(view_name='api:organization-detail')
     actions = ActionLocalitySerializer(source='action_set', many=True, read_only=True)
     action_count = serializers.SerializerMethodField()
     image_count = serializers.SerializerMethodField()
