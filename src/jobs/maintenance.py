@@ -65,19 +65,20 @@ def get_score(status_by_category: Dict[str, Any]) -> float:
     )
 
 
-def get_level(status_by_category: Dict[str, Any], score: float) -> int:
+def get_level(status_by_category: Dict[str, Any]) -> int:
     desc = status_by_category.get('desc', False)
     dates = status_by_category.get('dates', False)
     progress = status_by_category.get('progress', False)
     budget = status_by_category.get('budget', False)
     beneficiaries = status_by_category.get('beneficiaries', False)
+    image_count = status_by_category.get('image_count', 0)
+    testimonials = status_by_category.get('testimonials', 0)
 
     if not desc or not progress or not budget:
         return 0
-
-    if score < 40:  # FIX: remove score 3 by 2018-08-01, score 2 (transparent) replaces score 3, and change web code, search "level >= 3" and change it to "level >= 2"
+    if image_count < 10 and testimonials < 2:
         return 1
-    if score < 50 or not beneficiaries or not dates:
+    if not beneficiaries or not dates:
         return 2
     return 3
 
@@ -103,7 +104,7 @@ def sync_action_transparency() -> None:
             ):
                 status_by_category = {**action.status_by_category, **get_status_by_category(action, prefetched=True)}
                 score = get_score(status_by_category)
-                level = get_level(status_by_category, score)
+                level = get_level(status_by_category)
                 cursor.execute(query, [
                     timezone.now().isoformat(), json.dumps(status_by_category), score, level, action.id]
                 )

@@ -1,3 +1,4 @@
+from typing import Any
 from datetime import timedelta
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -513,13 +514,13 @@ class AccountActionStrength(APIView):
     authentication_classes = (OrganizationUserAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs) -> Any:
         action = get_object_or_404(Action, pk=kwargs['pk'])
 
         status_by_category = get_status_by_category(action)
         action.status_by_category = {**action.status_by_category, **status_by_category}
         action.score = get_score(action.status_by_category)
-        action.level = get_level(action.status_by_category, action.score)
+        action.level = get_level(action.status_by_category)
         action.save()  # supplement `maintenance` job to keep this metric more recent
 
         count = sum(1 if status_by_category[k] else 0 for k in status_by_category.keys())
