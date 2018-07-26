@@ -1,5 +1,5 @@
 boto3==1.4.7
-celery==4.1.0
+celery==4.2.0
 Django==1.11.6
 django-cors-headers==2.1.0
 django-filter==1.1.0
