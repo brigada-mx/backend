@@ -26,7 +26,17 @@ less +F dbdata/pg_log/`ls -1 dbdata/pg_log/ | tail -1`
 
 
 ## Deploy
-For devs only. Run `./build.sh`. This will decrypt production env vars and build the `backend_base` and `nginx` images. Tag and push these images to [ECR](https://us-west-2.console.aws.amazon.com/ecs/home?region=us-west-2#/repositories/), then deploy from the AWS Elastic Beanstalk console.
+For devs only. Run `./build.sh`. This will decrypt production env vars and build the `backend_base` and `nginx` images.
+
+Then run `./deploy.sh <image_name>`, and finish from the AWS Elastic Beanstalk console.
+
+
+### Rollback
+Run `./retag_latest.sh <image_name> <tag>` to tag an (old) image with the __latest__ tag, then deploy from the AWS Elastic Beanstalk console. All images are tagged with git hash of source repo used to build image. These git hashes also live in the `appversion` table.
+
+
+### Manual deploy
+Tag and push these images to [ECR](https://us-west-2.console.aws.amazon.com/ecs/home?region=us-west-2#/repositories/), then deploy from the AWS Elastic Beanstalk console.
 
 ~~~sh
 # log in
