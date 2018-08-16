@@ -120,8 +120,8 @@ def sync_landing_page_data() -> None:
         f.write(bytes(json.dumps(r.json()), 'utf-8'))
 
     s3 = get_s3_client()
-    with open(data_file_path, 'rb') as _data:
-        s3.upload_fileobj(_data, 'brigada.mx', 'landing_data.json', ExtraArgs={
+    with open(data_file_path, 'rb') as data:
+        s3.upload_fileobj(data, 'brigada.mx', 'landing_data.json', ExtraArgs={
             'ACL': 'public-read',
             'CacheControl': 'max-age=43200',
             'ContentType': 'application/json',

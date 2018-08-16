@@ -50,6 +50,23 @@ docker push 306439459454.dkr.ecr.us-west-2.amazonaws.com/nginx:latest
 __Make sure Elastic Beanstalk IAM user has permissions to read from ECR__. If not deploy will fail.
 
 
+## Documentation
+Additional documentation is generated programmatically.
+
+
+### Database schema UML
+Using the [graph_models](https://django-extensions.readthedocs.io/en/latest/graph_models.html) extension.
+
+- on your local machine, run `brew install graphviz`
+- in Docker container, run `python manage.py graph_models -a -X BaseModel > /tmp/uml.dot`
+- copy dot file to your machine: `docker cp 919_api:/tmp/uml.dot ~/Desktop`
+- run `dot uml.dot -Tpng -o uml.png` to generate image
+
+
+### Browsable API docs
+Using this [DRF -> OpenAPI](https://github.com/axnsan12/drf-yasg/) tool. See <http://brigada.mx/api/swagger/> or <http://brigada.mx/api/redoc/>.
+
+
 ## Endpoints
 NGINX forces HTTPS for requests to these endpoints. It also compresses responses.
 

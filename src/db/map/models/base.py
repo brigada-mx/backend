@@ -472,7 +472,7 @@ class Testimonial(BaseModel):
             'url': self.video.get('url_thumbnail', ''),  # don't remove this
         }
 
-    def pretty_recipients(self, n=None, _and=''):
+    def pretty_recipients(self, n=None, and_=''):
         rs = [r.strip().title() for r in self.recipients.split(',') if r.strip()]
         if n:
             rs = rs[:n]
@@ -480,8 +480,8 @@ class Testimonial(BaseModel):
             return ''
         if len(rs) == 1:
             return rs[0]
-        if _and and len(rs) > 1:
-            rs[-2] = f'{rs[-2]} {_and} {rs[-1]}'
+        if and_ and len(rs) > 1:
+            rs[-2] = f'{rs[-2]} {and_} {rs[-1]}'
         return ', '.join(rs[:-1])
 
     @transaction.atomic
