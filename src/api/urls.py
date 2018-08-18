@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.conf.urls import url
 from django.views.decorators.cache import cache_page
 
@@ -7,6 +8,10 @@ from drf_yasg import openapi
 
 from api import views
 
+
+docs_cache = 60 * 60
+if not settings.ENVIRONMENT == 'production':
+    docs_cache = 0
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -24,9 +29,9 @@ schema_view = get_schema_view(
 # `cache_page` also sets `Cache-Control: max-age=<seconds>` in response headers
 urlpatterns = [
     # autodoc
-    url(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=60*10), name='schema-json'),
-    url(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=60*10), name='schema-swagger-ui'),
-    url(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=60*10), name='schema-redoc'),
+    url(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=docs_cache), name='schema-json'),
+    url(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=docs_cache), name='schema-swagger-ui'),
+    url(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=docs_cache), name='schema-redoc'),
 
     # internal endpoints
     url(r'^internal/app_versions/$', views.InternalAppVersionListCreate.as_view()),

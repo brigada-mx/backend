@@ -86,3 +86,4 @@ CORS_ALLOW_METHODS = ('GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS')
 # settings for dependencies (keep at the end of file)
 from config.settings.dependencies.celery import *
 from config.settings.dependencies.rest_framework import *
+from config.settings.dependencies.drf_yasg import *

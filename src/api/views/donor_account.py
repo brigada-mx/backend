@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.db import transaction
 
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import permissions, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -73,6 +74,7 @@ class DonorSetPasswordWithToken(APIView):
     """
     throttle_scope = 'authentication'
 
+    @swagger_auto_schema(request_body=PasswordTokenSerializer, responses={200: 'id'})
     def post(self, request, *args, **kwargs):
         serializer = PasswordTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
