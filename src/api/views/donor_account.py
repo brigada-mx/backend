@@ -74,7 +74,8 @@ class DonorSetPasswordWithToken(APIView):
     """
     throttle_scope = 'authentication'
 
-    @swagger_auto_schema(request_body=PasswordTokenSerializer, responses={200: 'id'})
+    @swagger_auto_schema(operation_id='donor_account_set_password_with_token',
+                         request_body=PasswordTokenSerializer, responses={200: 'OK'})
     def post(self, request, *args, **kwargs):
         serializer = PasswordTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

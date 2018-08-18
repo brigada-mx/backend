@@ -1,9 +1,14 @@
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
-        'Bearer': {
+        'reconstructor': {
             'type': 'apiKey',
             'name': 'Authorization',
-            'in': 'header'
+            'in': 'header',
+        },
+        'donor': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
         }
     },
     'DEFAULT_AUTO_SCHEMA_CLASS': 'api.openapi.CustomAutoSchema',
