@@ -1,3 +1,5 @@
+set -e
+
 python3 tools/vault.py --infile=env.prod --outfile=src/.env
 python3 tools/vault.py --infile=env.pgweb --outfile=pgweb/.env
 

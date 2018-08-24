@@ -8,7 +8,7 @@
         "./celery_beat.sh"
       ],
       "essential": true,
-      "memory": 500
+      "memory": 400
     }
   ]
 }

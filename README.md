@@ -64,7 +64,7 @@ Using the [graph_models](https://django-extensions.readthedocs.io/en/latest/grap
 
 
 ### Browsable API docs
-Using this [DRF -> OpenAPI](https://github.com/axnsan12/drf-yasg/) tool. See <http://brigada.mx/api/swagger/> or <http://brigada.mx/api/redoc/>.
+Using this [DRF -> OpenAPI](https://github.com/axnsan12/drf-yasg/) tool. See <https://brigada.mx/api/swagger/> or <https://brigada.mx/api/redoc/>.
 
 
 ## Endpoints
@@ -88,7 +88,7 @@ __The certificate must be created in `us-east-1` region to be used with CloudFro
 
 Traffic between our backend AWS instances is not encrypted, because [it's not necessary](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/configuring-https-endtoend.html).
 
->>Terminating secure connections at the load balancer and using HTTP on the backend may be sufficient for your application. __Network traffic between AWS resources cannot be listened to by instances that are not part of the connection__, even if they are running under the same account.
+>Terminating secure connections at the load balancer and using HTTP on the backend may be sufficient for your application. __Network traffic between AWS resources cannot be listened to by instances that are not part of the connection__, even if they are running under the same account.
 
 
 ### RDS and ElastiCache

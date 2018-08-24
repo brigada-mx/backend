@@ -44,7 +44,6 @@ class InternalDebugThrowException(APIView):
     """
     authentication_classes = (InternalAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = DonorUserSerializer
 
     def get(self, request, *args, **kwargs):
         raise Exception('debug')
