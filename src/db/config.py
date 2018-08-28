@@ -32,13 +32,6 @@ class BaseModel(models.Model):
             return super().__str__()
         return self._fields_to_string(self.STR_FIELDS, verbose=False)
 
-    def update_fields(self, **fields):
-        """Avoids using `QuerySet.update` method.
-        """
-        for k, v in fields.items():
-            setattr(self, k, v)
-        self.save()
-
     class Meta:
         abstract = True
 

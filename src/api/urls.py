@@ -15,12 +15,12 @@ if not settings.ENVIRONMENT == 'production':
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Brigada API",
+        title='Brigada API',
         default_version='v1',
-        description="Brigada's REST API",
-        terms_of_service="http://brigada.mx/terminos",
-        contact=openapi.Contact(email="kyle@fortana.co"),
-        license=openapi.License(name="BSD License"),
+        description='Brigada\'s REST API',
+        terms_of_service='http://brigada.mx/terminos',
+        contact=openapi.Contact(email='kyle@fortana.co'),
+        license=openapi.License(name='BSD License'),
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
