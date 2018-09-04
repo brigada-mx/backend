@@ -140,7 +140,7 @@ docker exec -it 919_db psql -h 127.0.0.1 -p 5432 -U postgres -f /dump.sql
 docker exec -it 919_db rm /dump.sql
 
 # or, in production
-scp -i ~/.ssh/fortana ../data/dump/dump.sql ssh ec2-user@<ec2_instance_ip>:/home/ec2-user/
+scp -i ~/.ssh/fortana ../data/dump/dump.sql ec2-user@<ec2_instance_ip>:/home/ec2-user/
 # then, from ec2 instance
 sudo yum install postgresql-devel
 PGPASSWORD=password psql -h pg-919.cexrnsicl0n4.us-west-2.rds.amazonaws.com -U postgres -d postgres -f dump.sql

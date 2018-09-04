@@ -419,7 +419,7 @@ class Landing(APIView):
 
         paths = [
             ('metrics', '/landing_metrics/'),
-            ('localities', '/localities_with_actions/'),
+            ('localities', '/localities_with_actions/?page_size=10000'),
             ('opportunities', f'/volunteer_opportunities_cached/{opportunities_query}'),
             ('actions', f'/actions_cached/{action_query}'),
         ]
