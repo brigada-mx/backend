@@ -133,8 +133,8 @@ class CustomAbstractPublicUser(CustomAbstractBaseUser):
     def send_training_email(self):
         subject = 'Capacitación virtual de Brigada'
         body = """¡Gracias por activar tu cuenta!<br><br>
-        Falta solo una cosa para convertirte en un usuario experto:<br><br>
-        <a href="https://calendly.com/brigada/capacitacion" target="_blank">Agendar tu capacitación virtual</a>
+        Falta solo una cosa para convertirte en un usuario experto: agendar tu capacitación virtual.<br><br>
+        Manda un email a <a href="mailto:eduardo@brigada.mx?Subject=Brigada Agendar Capacitación" target="_blank">eduardo@brigada.mx</a> con tu disponibilidad.
         """.format(os.getenv('CUSTOM_SITE_URL'), self.set_password_token, self.email)
         send_pretty_email.delay([self.email], subject, body, name=self.first_name)
 

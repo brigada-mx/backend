@@ -23,7 +23,7 @@
         "./celery_flower.prod.sh"
       ],
       "essential": true,
-      "memory": 50,
+      "memory": 100,
       "portMappings": [
         {
           "hostPort": 5555,
@@ -44,7 +44,7 @@
       "name": "nginx",
       "image": "306439459454.dkr.ecr.us-west-2.amazonaws.com/nginx",
       "essential": true,
-      "memory": 400,
+      "memory": 350,
       "portMappings": [
         {
           "hostPort": 80,
