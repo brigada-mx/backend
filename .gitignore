@@ -3,6 +3,7 @@ __pycache__/
 # env
 .env
 .vault-password
+.prerenderio-token
 .internal-auth-key
 requirements.txt
 

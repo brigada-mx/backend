@@ -304,3 +304,9 @@ Mypy cheat sheet: <http://mypy.readthedocs.io/en/latest/cheat_sheet_py3.html>.
 - `mypy src --no-incremental --check-untyped-defs`
 
 The `--no-incremental` flag disables cache. This is a bit slower, but necessary until [this bug](https://github.com/python/mypy/issues/4287) is fixed.
+
+
+## SSR
+We don't use traditional SSR because it's a pain to set up. But without some kind of SSR unfurling and indexing don't work, which is unacceptable for any public-facing SPA.
+
+Our solution is [outlined in this post](https://medium.com/bounties-network/how-to-get-server-side-rendering-benefits-unfurling-indexing-search-ability-without-building-cf09c53a408). Basically, we use <https://prerender.io/> to pre-render all of the public-facing pages on our site. We have a pair of lambda functions, [addPrerenderRerouteHeaders](https://console.aws.amazon.com/lambda/home?region=us-east-1#/functions/addPrerenderRerouteHeaders/versions/1?tab=graph) and [prerenderReroute](https://console.aws.amazon.com/lambda/home?region=us-east-1#/functions/prerenderReroute/versions/1?tab=graph) deployed to __Lambda@Edge__, which reroute bot requests from Google, Facebook, Twitter etc to pre-rendered pages.
