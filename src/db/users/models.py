@@ -134,7 +134,7 @@ class CustomAbstractPublicUser(CustomAbstractBaseUser):
         subject = 'Capacitación virtual de Brigada'
         body = """¡Gracias por activar tu cuenta!<br><br>
         Falta solo una cosa para convertirte en un usuario experto: agendar tu capacitación virtual.<br><br>
-        Manda un email a <a href="mailto:eduardo@brigada.mx?Subject=Brigada Agendar Capacitación" target="_blank">eduardo@brigada.mx</a> con tu disponibilidad.
+        Manda un email a <a href="mailto:contacto@brigada.mx?Subject=Brigada Agendar Capacitación" target="_blank">contacto@brigada.mx</a> con tu disponibilidad.
         """.format(os.getenv('CUSTOM_SITE_URL'), self.set_password_token, self.email)
         send_pretty_email.delay([self.email], subject, body, name=self.first_name)
 
@@ -197,7 +197,7 @@ class DonorUser(CustomAbstractPublicUser):
         body = 'Nuevo usuario {} {} con email {}, para donador {} con id {}, esperando aprobación.'.format(
             self.first_name, self.surnames, self.email, self.donor.name, self.donor.id
         )
-        send_email.delay(['eduardo@fortana.co', 'kyle@fortana.co'], subject, body)
+        send_email.delay(['contacto@brigada.mx'], subject, body)
 
 
 class TokenBaseModel(models.Model):

@@ -55,7 +55,7 @@ def organization_no_projects(n):
     subject = 'Aún no has registrado un proyecto en Brigada'
     body = """Creaste tu cuenta de Brigada para {} hace {} días, pero todavía no has publicado ningún proyecto.<br><br>
     Crear y publicar un proyecto es fácil, <a href="{}/cuenta" target="_blank">entra a tu cuenta aquí</a> para hacerlo.<br><br>
-    Si tienes cualquier problema, dale clic al botón de <b>Soporte</b> dentro de la plataforma. O, si no has hecho tu capacitación virtual, <a href="mailto:eduardo@brigada.mx?Subject=Brigada Agendar Capacitación" target="_blank">progámala aquí</a>.
+    Si tienes cualquier problema, dale clic al botón de <b>Soporte</b> dentro de la plataforma. O, si no has hecho tu capacitación virtual, <a href="mailto:contacto@brigada.mx?Subject=Brigada Agendar Capacitación" target="_blank">progámala aquí</a>.
     """.format(
         organization.name, round(timediff(timezone.now(), n.created, fmt='d')), os.getenv('CUSTOM_SITE_URL'))
 
@@ -91,7 +91,7 @@ def organization_no_donations(n):
     body = """Ya creaste {} proyecto{} en tu cuenta de Brigada, pero no has registrado ningún donativo.<br><br>
     Al registrar tus donativos, le darás mayor legitimidad de tus proyectos ante la comunidad de Brigada.<br><br>
     Hacerlo es fácil. <a href="{}/cuenta/proyectos/{}" target="_blank">Entra a tu cuenta</a>, abre uno de tus proyectos y dale clic al botón <b>Agregar</b> en la sección de <b>Donativos</b>.<br><br>
-    Si tienes cualquier problema, te podemos ayudar desde el link de <b>Soporte</b>. O, si no has hecho tu capacitación virtual, <a href="mailto:eduardo@brigada.mx?Subject=Brigada Agendar Capacitación" target="_blank">progámala aquí</a>.
+    Si tienes cualquier problema, te podemos ayudar desde el link de <b>Soporte</b>. O, si no has hecho tu capacitación virtual, <a href="mailto:contacto@brigada.mx?Subject=Brigada Agendar Capacitación" target="_blank">progámala aquí</a>.
     """.format(
         len(actions), 's' if len(actions) > 1 else '', os.getenv('CUSTOM_SITE_URL'), action.key)
 
@@ -126,7 +126,7 @@ def organization_no_photos(n):
     subject = 'Sube fotos de tus proyectos en Brigada'
     body = """Ya creaste {} proyecto{} en tu cuenta de Brigada, pero no has compartido fotos con nuestra comunidad. Las organizacaiones que agregan fotos a sus proyectos reciben 3 veces más visitas a su perfil.<br><br>
     Agregar fotos a un proyecto es fácil, <a href="http://fotos.brigada.mx/subir" target="_blank">llena este formulario</a> para hacerlo.<br><br>
-    Si tienes cualquier problema, dale clic al link de <b>Soporte</b> dentro de la plataforma. O, si no has hecho tu capacitación virtual, <a href="mailto:eduardo@brigada.mx?Subject=Brigada Agendar Capacitación" target="_blank">progámala aquí</a>.
+    Si tienes cualquier problema, dale clic al link de <b>Soporte</b> dentro de la plataforma. O, si no has hecho tu capacitación virtual, <a href="mailto:contacto@brigada.mx?Subject=Brigada Agendar Capacitación" target="_blank">progámala aquí</a>.
     """.format(
         len(actions), 's' if len(actions) > 1 else '')
 

@@ -390,7 +390,7 @@ class SupportTicketCreate(APIView):
         """.format(f' {meta}' if meta else '', name, email, phone, reason)
 
         send_email.delay(
-            ['kyle@fortana.co', 'eduardo@brigada.mx'],
+            ['contacto@brigada.mx'],
             f'Support Request - {name}, {email}',
             body,
             'Brigada Support <soporte@brigada.mx>',
