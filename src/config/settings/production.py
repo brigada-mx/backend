@@ -49,7 +49,7 @@ CACHES = {
     },
 }
 
-CORS_ORIGIN_WHITELIST = ['app.brigada.mx']
+CORS_ORIGIN_WHITELIST = ['app.brigada.mx', 'localhost:3000']
 CSRF_TRUSTED_ORIGINS = ['api.brigada.mx']
 
 ALLOWED_HOSTS = ['*']
